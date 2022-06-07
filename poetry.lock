@@ -98,6 +98,21 @@ pycodestyle = ">=2.8.0,<2.9.0"
 pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
+name = "geojson-pydantic"
+version = "0.4.0"
+description = "Pydantic data models for the GeoJSON spec."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+pydantic = "*"
+
+[package.extras]
+dev = ["pre-commit"]
+test = ["pytest", "pytest-cov", "shapely"]
+
+[[package]]
 name = "h11"
 version = "0.13.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -301,7 +316,7 @@ standard = ["websockets (>=10.0)", "httptools (>=0.4.0)", "watchgod (>=0.6)", "p
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "da3e64162d531e7556d07f417362b14ff73c9539e044e0181cfad1dafae31109"
+content-hash = "29fdf4b78ac7dda6972672506ce62a4ec3a4046c8f66213c405476a547a2b4fb"
 
 [metadata.files]
 anyio = [
@@ -352,6 +367,10 @@ fastapi = [
 flake8 = [
     {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
+]
+geojson-pydantic = [
+    {file = "geojson-pydantic-0.4.0.tar.gz", hash = "sha256:5d7dc1f5d52b7465bf1dc13d0c360af060d7cba55b77c5bab66a63f5654ee06f"},
+    {file = "geojson_pydantic-0.4.0-py3-none-any.whl", hash = "sha256:a3933acc1aa470f8dd50480433479971109b1dd6bb38538fe3d2ee10f6507d5a"},
 ]
 h11 = [
     {file = "h11-0.13.0-py3-none-any.whl", hash = "sha256:8ddd78563b633ca55346c8cd41ec0af27d3c79931828beffb46ce70a379e7442"},

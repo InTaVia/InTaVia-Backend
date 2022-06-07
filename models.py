@@ -1,6 +1,9 @@
+import typing
 from pydantic import BaseModel, HttpUrl
 from enum import Enum
-
+from geojson_pydantic import Polygon, Point
+from typing import Union
+import datetime
 
 
 class EnumVocabsRelation(str, Enum):
@@ -90,4 +93,66 @@ class EntityBase(BaseModel):
     linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = None
     description: str | None = None
-    media: list[En]
+    media: list[MediaResource] | None = None
+    # relations: list["EntityEventRelation"] | None = None
+
+
+class Person(EntityBase):
+    kind = "person"
+    gender: str | None = None
+
+
+class Place(EntityBase):
+    kind = "place"
+    coordinates: Union[Polygon, Point] | None = None
+
+
+class Group(EntityBase):
+    kind = "group"
+    group_type: GroupType | None = None
+
+
+class CulturalHeritageObject(EntityBase):
+    kind = "cultural-heritage-object"
+
+
+class HistoricalEvent(EntityBase):
+    kind = "historical-event"
+    historical_event_type: HistoricalEventType | None = None
+
+
+class EntityEventRelation(BaseModel):
+    id: str
+    entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent]
+    role: EntityRelationRole
+    source: Source
+
+
+class EntityEvent(BaseModel):
+    id: str
+    label: InternationalizedLabel
+    source: Source
+    kind: EntityEventKind | None = None
+    date: typing.Tuple[datetime.date, datetime.date] | None = None
+    place: Place | None = None
+    relations: typing.List[EntityEventRelation]
+
+
+class PersonFull(Person):
+    relations: typing.List["EntityEventRelation"] | None = None
+
+
+class PlaceFull(Place):
+    relations: typing.List["EntityEventRelation"] | None = None
+
+
+class GroupFull(Group):
+    relations: typing.List["EntityEventRelation"] | None = None
+
+
+class CulturalHeritageObjectFull(CulturalHeritageObject):
+    relations: typing.List["EntityEventRelation"] | None = None
+
+
+class HistoricalEventFull(HistoricalEvent):
+    relations: typing.List["EntityEventRelation"] | None = None
