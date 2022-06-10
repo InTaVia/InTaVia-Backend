@@ -109,7 +109,7 @@ class Place(EntityBase):
 
 class Group(EntityBase):
     kind = "group"
-    group_type: GroupType | None = None
+    type: GroupType | None = None
 
 
 class CulturalHeritageObject(EntityBase):
@@ -118,7 +118,7 @@ class CulturalHeritageObject(EntityBase):
 
 class HistoricalEvent(EntityBase):
     kind = "historical-event"
-    historical_event_type: HistoricalEventType | None = None
+    type: HistoricalEventType | None = None
 
 
 class EntityEventRelation(BaseModel):
