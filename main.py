@@ -8,6 +8,7 @@ from pymemcache.client.base import Client
 from pymemcache import serde
 import os.path
 import datetime
+from conversion import convert_sparql_result
 
 app = FastAPI()
 
@@ -24,6 +25,16 @@ cache_client = Client(('localhost', 11211), serde=serde.pickle_serde)
 async def root():
     return {"message": "Hello World"}
 
+config = {
+    'person_v1': {
+        'id$anchor': 'id',
+        'relations': [
+            {
+                'id$anchor': 'event.id'
+            }
+        ]
+    }
+}
 
 @app.get("/api/entities/search", response_model=Union[PersonFull, GroupFull, PlaceFull])
 async def query_persons(q: str | None = Query(default=None, max_length=200)):
@@ -39,4 +50,5 @@ async def query_persons(q: str | None = Query(default=None, max_length=200)):
         sparql.setQuery(query_template)
         res = sparql.queryAndConvert()
         cache_client.set(q, {'time': datetime.datetime.now(), 'data': res})
+    r2 = convert_sparql_result(res, config['person_v1']) 
     return {}
