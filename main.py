@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Query
-from models import PersonFull, GroupFull, PlaceFull
+from models import PaginatedResponseEntities, PersonFull, GroupFull, PlaceFull
 from typing import Union
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
 from pymemcache.client.base import Client
 from pymemcache import serde
@@ -27,17 +28,20 @@ async def root():
 
 config = {
     'person_v1': {
-        'id$anchor': 'id',
-        'relations': [
-            {
-                'id$anchor': 'event.id'
-            }
-        ]
+        'id': '?person$anchor',
+        'label': {
+            'default': '?entityLabel'
+        },
+        'relations':
+            [{
+                'id': '?event$anchor'
+            }] 
     }
 }
 
-@app.get("/api/entities/search", response_model=Union[PersonFull, GroupFull, PlaceFull])
-async def query_persons(q: str | None = Query(default=None, max_length=200)):
+
+@app.get("/api/entities/search", response_model=PaginatedResponseEntities)
+async def query_persons(q: str | None = Query(default=None, max_length=200), limit : int = Query(default=50, le=1000, gt=0), page : int = Query(default=1, gt=0)):
     res = cache_client.get(q)
     if res is not None:
         tm_template = os.path.getmtime(r'sparql/person_v1.sparql')
@@ -49,6 +53,8 @@ async def query_persons(q: str | None = Query(default=None, max_length=200)):
         query_template = jinja_env.get_template('person_v1.sparql').render(q=q)
         sparql.setQuery(query_template)
         res = sparql.queryAndConvert()
+        rq, proto, opt = pre_process({'proto': config['person_v1']})
+        res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
         cache_client.set(q, {'time': datetime.datetime.now(), 'data': res})
-    r2 = convert_sparql_result(res, config['person_v1']) 
-    return {}
+    t1 = PaginatedResponseEntities(**{'page': 1, 'count': len(res), 'pages': len(res)/limit, 'results': res[:50]}) 
+    return t1

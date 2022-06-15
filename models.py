@@ -1,9 +1,16 @@
+from dataclasses import dataclass
+from distutils.command.config import config
 import typing
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
+from pydantic.dataclasses import dataclass
 from enum import Enum
 from geojson_pydantic import Polygon, Point
 from typing import Union
 import datetime
+
+
+class InTaViaConfig:
+    validate_assignment = True
 
 
 class EnumVocabsRelation(str, Enum):
@@ -28,7 +35,7 @@ class InternationalizedLabel(BaseModel):
     """Used to provide internationalized labels"""
 
     default: str
-    en: str | None = None
+    en: typing.Optional[str]
     de: str | None = None
     fi: str | None = None
     si: str | None = None
@@ -89,7 +96,7 @@ class Source(BaseModel):
 class EntityBase(BaseModel):
     id: str
     label: InternationalizedLabel
-    source: Source
+    source: Source | None = None
     linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = None
     description: str | None = None
@@ -123,9 +130,9 @@ class HistoricalEvent(EntityBase):
 
 class EntityEventRelation(BaseModel):
     id: str
-    entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent]
-    role: EntityRelationRole
-    source: Source
+    entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent] | None = None
+    role: EntityRelationRole | None = None
+    source: Source | None = None
 
 
 class EntityEvent(BaseModel):
@@ -156,3 +163,13 @@ class CulturalHeritageObjectFull(CulturalHeritageObject):
 
 class HistoricalEventFull(HistoricalEvent):
     relations: typing.List["EntityEventRelation"] | None = None
+
+
+class PaginatedResponseBase(BaseModel):
+    count: NonNegativeInt = 0
+    page: NonNegativeInt = 0
+    pages: NonNegativeInt = 0
+
+
+class PaginatedResponseEntities(PaginatedResponseBase):
+    results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
