@@ -130,6 +130,7 @@ class HistoricalEvent(EntityBase):
 
 class EntityEventRelation(BaseModel):
     id: str
+    label: str | None = None
     entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent] | None = None
     role: EntityRelationRole | None = None
     source: Source | None = None
@@ -137,10 +138,11 @@ class EntityEventRelation(BaseModel):
 
 class EntityEvent(BaseModel):
     id: str
-    label: InternationalizedLabel
+    label: InternationalizedLabel | None = None
     source: Source
     kind: EntityEventKind | None = None
-    date: typing.Tuple[datetime.date, datetime.date] | None = None
+    startDate: str | None = None
+    endDate: str | None = None
     place: Place | None = None
     relations: typing.List[EntityEventRelation]
 

@@ -60,7 +60,7 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "colorama"
-version = "0.4.4"
+version = "0.4.5"
 description = "Cross-platform colored terminal text."
 category = "main"
 optional = false
@@ -99,7 +99,7 @@ pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "geojson-pydantic"
-version = "0.4.0"
+version = "0.4.2"
 description = "Pydantic data models for the GeoJSON spec."
 category = "main"
 optional = false
@@ -407,8 +407,8 @@ click = [
     {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
 ]
 colorama = [
-    {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
-    {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
+    {file = "colorama-0.4.5-py2.py3-none-any.whl", hash = "sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da"},
+    {file = "colorama-0.4.5.tar.gz", hash = "sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4"},
 ]
 fastapi = [
     {file = "fastapi-0.78.0-py3-none-any.whl", hash = "sha256:15fcabd5c78c266fa7ae7d8de9b384bfc2375ee0503463a6febbe3bab69d6f65"},
@@ -419,8 +419,8 @@ flake8 = [
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
 ]
 geojson-pydantic = [
-    {file = "geojson-pydantic-0.4.0.tar.gz", hash = "sha256:5d7dc1f5d52b7465bf1dc13d0c360af060d7cba55b77c5bab66a63f5654ee06f"},
-    {file = "geojson_pydantic-0.4.0-py3-none-any.whl", hash = "sha256:a3933acc1aa470f8dd50480433479971109b1dd6bb38538fe3d2ee10f6507d5a"},
+    {file = "geojson-pydantic-0.4.2.tar.gz", hash = "sha256:fa475f59bd0e9fa713289c95ef6e7903fc9dab748abb173cb7aeb16ddbf5b9df"},
+    {file = "geojson_pydantic-0.4.2-py3-none-any.whl", hash = "sha256:7c577be3a06f694e80324371240176f54125abcb49726e2f104f2296dd5bac56"},
 ]
 h11 = [
     {file = "h11-0.13.0-py3-none-any.whl", hash = "sha256:8ddd78563b633ca55346c8cd41ec0af27d3c79931828beffb46ce70a379e7442"},

@@ -5,7 +5,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX idm: <https://www.intavia.eu/idm/>
 PREFIX idmcore: <http://www.intavia.eu/idm-core/>    
 
-SELECT ?person ?entityType ?entityLabel ?genderLabel ?nationalityLabel ?occupationLabel ?event WHERE {  
+SELECT ?person ?entityType ?entityLabel ?genderLabel ?nationalityLabel ?occupationLabel ?event ?eventLabel ?role ?roleLabel ?start ?end ?role2 ?roleLabel2 ?entity2 ?entity2Label ?entity2Type WHERE {  
 ?person idmcore:person_proxy_for|idmcore:group_proxy_for ?entity .
 ?person crm:P1_is_identified_by ?appellation .
 ?entity a ?entityType .

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import Depends, FastAPI, Query
 from models import PaginatedResponseEntities, PersonFull, GroupFull, PlaceFull
 from typing import Union
 import os
@@ -10,6 +10,7 @@ from pymemcache import serde
 import os.path
 import datetime
 from conversion import convert_sparql_result
+from query_parameters import Search
 
 app = FastAPI()
 
@@ -22,6 +23,24 @@ jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
 cache_client = Client(('localhost', 11211), serde=serde.pickle_serde)
 
+def get_query_from_cache(search: Search, sparql_template: str): 
+    res = cache_client.get(search.get_cache_str())
+    if res is not None:
+        tm_template = os.path.getmtime(f"sparql/{sparql_template}")
+        if tm_template > res['time'].timestamp():
+            res = None
+        else:
+            res = res['data']
+    if res is None:
+        query_template = jinja_env.get_template(sparql_template).render(**search.dict())
+        sparql.setQuery(query_template)
+        res = sparql.queryAndConvert()
+        rq, proto, opt = pre_process({'proto': config['person_v1']})
+        res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
+        cache_client.set(search.get_cache_str(), {'time': datetime.datetime.now(), 'data': res})
+    return res
+
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -29,32 +48,25 @@ async def root():
 config = {
     'person_v1': {
         'id': '?person$anchor',
+        'gender': '?genderLabel',
         'label': {
             'default': '?entityLabel'
         },
         'relations':
             {
-                'id': '?event$anchor'
+                'id': '?event$anchor',
+                'startDate': '?start',
+                'endDate': '?end'
             } 
     }
 }
 
 
 @app.get("/api/entities/search", response_model=PaginatedResponseEntities)
-async def query_persons(q: str | None = Query(default=None, max_length=200), limit : int = Query(default=50, le=1000, gt=0), page : int = Query(default=1, gt=0)):
-    res = cache_client.get(q)
-    if res is not None:
-        tm_template = os.path.getmtime(r'sparql/person_v1.sparql')
-        if tm_template > res['time'].timestamp():
-            res = None
-        else:
-            res = res['data']
-    if res is None:
-        query_template = jinja_env.get_template('person_v1.sparql').render(q=q)
-        sparql.setQuery(query_template)
-        res = sparql.queryAndConvert()
-        rq, proto, opt = pre_process({'proto': config['person_v1']})
-        res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
-        cache_client.set(q, {'time': datetime.datetime.now(), 'data': res})
-    t1 = PaginatedResponseEntities(**{'page': 1, 'count': len(res), 'pages': len(res)/limit, 'results': res[:50]}) 
+async def query_persons(search: Search = Depends()):
+    res = get_query_from_cache(search, "person_v1.sparql")
+    start = (search.page*search.limit)-search.limit
+    end = start + search.limit
+    t1 = PaginatedResponseEntities(**{'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 
     return t1
+

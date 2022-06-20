@@ -1,8 +1,31 @@
 from SPARQLTransformer import post_process
 
 
+def strip_empties_from_list(data):
+    new_data = []
+    for v in data:
+        if isinstance(v, dict):
+            v = strip_empties_from_dict(v)
+        elif isinstance(v, list):
+            v = strip_empties_from_list(v)
+        if v not in (None, str(), list(), dict(),):
+            new_data.append(v)
+    return new_data
+
+def strip_empties_from_dict(data):
+    new_data = {}
+    for k, v in data.items():
+        if isinstance(v, dict):
+            v = strip_empties_from_dict(v)
+        elif isinstance(v, list):
+            v = strip_empties_from_list(v)
+        if v not in (None, str(), list(), dict(),):
+            new_data[k] = v
+    return new_data
+
 def convert_sparql_result(inp, config, opt):
     res = post_process(inp, config, opt)
+    res = strip_empties_from_list(res)
 
     return res
 # def convert_layer(inp, res, config):
