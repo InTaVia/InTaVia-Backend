@@ -33,9 +33,9 @@ config = {
             'default': '?entityLabel'
         },
         'relations':
-            [{
+            {
                 'id': '?event$anchor'
-            }] 
+            } 
     }
 }
 

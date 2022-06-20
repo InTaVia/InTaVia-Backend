@@ -173,3 +173,7 @@ class PaginatedResponseBase(BaseModel):
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
+
+    def dict(self, *args, **kwargs) -> 'DictStrAny':
+        _ignored = kwargs.pop('exclude_none')
+        return super().dict(*args, exclude_none=True, **kwargs)
