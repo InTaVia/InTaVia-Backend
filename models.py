@@ -179,12 +179,16 @@ class PaginatedResponseGetterDict(GetterDict):
         if key == "results":
             res = []
             print("test")
-            return []
+            for ent in self._obj["results"]:
+                if ent["kind"] == "person":
+                    res.append(PersonFull(**ent))
+                elif ent["kind"] == "group":
+                    res.append(GroupFull(**ent)) 
+                elif ent["kind"] == "place":
+                    res.append(PlaceFull(**ent))
+            return res
         else:
-            try:
-                return self._obj.find(key).attrib['Value']
-            except (AttributeError, KeyError):
-                return default
+            return self._obj.get(key, default)
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):

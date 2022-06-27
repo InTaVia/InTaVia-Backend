@@ -48,6 +48,7 @@ async def root():
 config = {
     'person_v1': {
         'id': '?person$anchor',
+        'kind': '?entityTypeLabel',
         'gender': '?genderLabel',
         'label': {
             'default': '?entityLabel'
