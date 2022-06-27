@@ -3,9 +3,10 @@ from distutils.command.config import config
 import typing
 from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
 from pydantic.dataclasses import dataclass
+from pydantic.utils import GetterDict
 from enum import Enum
 from geojson_pydantic import Polygon, Point
-from typing import Union
+from typing import Any, Union
 import datetime
 
 
@@ -172,6 +173,19 @@ class PaginatedResponseBase(BaseModel):
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
 
+class PaginatedResponseGetterDict(GetterDict):
+
+    def get(self, key: str, default: Any) -> Any:
+        if key == "results":
+            res = []
+            print("test")
+            return []
+        else:
+            try:
+                return self._obj.find(key).attrib['Value']
+            except (AttributeError, KeyError):
+                return default
+
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
@@ -179,3 +193,8 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     def dict(self, *args, **kwargs) -> 'DictStrAny':
         _ignored = kwargs.pop('exclude_none')
         return super().dict(*args, exclude_none=True, **kwargs)
+    
+    class Config:
+        orm_mode = True
+        getter_dict = PaginatedResponseGetterDict
+

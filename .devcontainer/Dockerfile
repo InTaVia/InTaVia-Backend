@@ -14,7 +14,9 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/
 #    && rm -rf /tmp/pip-tmp
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
      && apt-get -y install --no-install-recommends memcached
-USER vscode
+#RUN chown -R app:app vscode
+#RUN chown -R vscode:vscode /workspaces
+#USER vscode
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 # [Optional] Uncomment this section to install additional OS packages.

@@ -52,11 +52,17 @@ config = {
         'label': {
             'default': '?entityLabel'
         },
-        'relations':
+        'events':
             {
                 'id': '?event$anchor',
                 'startDate': '?start',
-                'endDate': '?end'
+                'endDate': '?end',
+                'relations$list': {
+                    'id': '?entity2$anchor',
+                    'label': {
+                        'default': '?entity2Label'
+                    }
+                }
             } 
     }
 }
@@ -67,6 +73,6 @@ async def query_persons(search: Search = Depends()):
     res = get_query_from_cache(search, "person_v1.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
-    t1 = PaginatedResponseEntities(**{'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 
+    t1 = PaginatedResponseEntities.from_orm({'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 
     return t1
 
