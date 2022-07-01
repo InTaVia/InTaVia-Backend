@@ -129,49 +129,69 @@ class HistoricalEvent(EntityBase):
     type: HistoricalEventType | None = None
 
 
+class EntityEventRelationGetter(GetterDict):
+
+    def get(self, key: Any, default: Any = None) -> Any:
+        if key == "entity":
+            ent = self._obj["entity"]
+            if ent["kind"] == "person":
+                return Person(**ent)
+            elif ent["kind"] == "group":
+                return Group(**ent)
+            elif ent["kind"] == "place":
+                return Place(**ent)
+        else:
+            return self._obj.get(key, default)
+
+        
 class EntityEventRelation(BaseModel):
     id: str
-    label: str | None = None
-    entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent] | None = None
+    label: InternationalizedLabel | None = None
+    entity: Union[Person, Place, Group,
+                  CulturalHeritageObject, HistoricalEvent] | None = None
     role: EntityRelationRole | None = None
     source: Source | None = None
 
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        super().__init__(**data)
+        print('test')
 
 class EntityEvent(BaseModel):
     id: str
     label: InternationalizedLabel | None = None
-    source: Source
+    source: Source | None = None
     kind: EntityEventKind | None = None
     startDate: str | None = None
     endDate: str | None = None
     place: Place | None = None
-    relations: typing.List[EntityEventRelation]
+    relations: typing.List[EntityEventRelation] | None = None
 
 
 class PersonFull(Person):
-    relations: typing.List["EntityEventRelation"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
 
 class PlaceFull(Place):
-    relations: typing.List["EntityEventRelation"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
 
 class GroupFull(Group):
-    relations: typing.List["EntityEventRelation"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
 
 class CulturalHeritageObjectFull(CulturalHeritageObject):
-    relations: typing.List["EntityEventRelation"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
 
 class HistoricalEventFull(HistoricalEvent):
-    relations: typing.List["EntityEventRelation"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
 
 class PaginatedResponseBase(BaseModel):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
+
 
 class PaginatedResponseGetterDict(GetterDict):
 
@@ -183,7 +203,7 @@ class PaginatedResponseGetterDict(GetterDict):
                 if ent["kind"] == "person":
                     res.append(PersonFull(**ent))
                 elif ent["kind"] == "group":
-                    res.append(GroupFull(**ent)) 
+                    res.append(GroupFull(**ent))
                 elif ent["kind"] == "place":
                     res.append(PlaceFull(**ent))
             return res
@@ -197,8 +217,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     def dict(self, *args, **kwargs) -> 'DictStrAny':
         _ignored = kwargs.pop('exclude_none')
         return super().dict(*args, exclude_none=True, **kwargs)
-    
+
     class Config:
         orm_mode = True
         getter_dict = PaginatedResponseGetterDict
-
