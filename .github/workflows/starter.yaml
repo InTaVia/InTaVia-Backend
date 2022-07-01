@@ -34,18 +34,6 @@ jobs:
       image_tagged: ${{ needs.setup_workflow_env.outputs.image_tagged }}
       source_image: ${{ needs.setup_workflow_env.outputs.source_image }}
       default_port: ${{ needs.setup_workflow_env.outputs.default_port }}
-  _2:
-    needs: [setup_workflow_env]
-    uses: acdh-oeaw/gl-autodevops-minimal-port/.github/workflows/herokuish-tests-db-url.yaml@main
-    secrets: inherit
-# if you run this outside of acdh-oeaw yo uneed to specify every secret you want to pass by name
-    with:
-      registry_root: ${{ needs.setup_workflow_env.outputs.registry_root }}
-      image_tagged: ${{ needs.setup_workflow_env.outputs.image_tagged }}
-      source_image: ${{ needs.setup_workflow_env.outputs.source_image }}
-      default_port: ${{ needs.setup_workflow_env.outputs.default_port }}
-      herokuish_base_image: ${{ needs.setup_workflow_env.outputs.herokuish_base_image }}
-      POSTGRES_ENABLED: ${{ needs.setup_workflow_env.outputs.POSTGRES_ENABLED }}
   _3:
     needs: [setup_workflow_env, _1, _2]
     uses: acdh-oeaw/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
