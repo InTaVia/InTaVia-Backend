@@ -1,5 +1,4 @@
 #!/bin/bash
-#useradd -M celery
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
-uvicorn main:app
+
+memcached &
+uvicorn main:app --host 0.0.0.0 --port 8000
