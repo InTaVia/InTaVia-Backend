@@ -16,11 +16,11 @@ jobs:
       default_port: "8000"
       source_image: tmp-cnb-image
 #      herokuish_base_image: ghcr.io/acdh-oeaw/herokuish-for-cypress/main
-      APP_NAME: intavia_backend
+      APP_NAME: intaviabackend
 # This together with the branch name is also used as the namespace to deploy to
       APP_ROOT: "/"
       SERVICE_ID: "20563"
-      PUBLIC_URL: https://intavia_backend.acdh-cluster.arz.oeaw.ac.at
+      PUBLIC_URL: https://intavia-backend.acdh-cluster.arz.oeaw.ac.at
       POSTGRES_ENABLED: "false"
     steps:
       - run: "/bin/true"      
