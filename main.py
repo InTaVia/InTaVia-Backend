@@ -12,7 +12,19 @@ import datetime
 from conversion import convert_sparql_result
 from query_parameters import Search
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/",
+    title="InTaVia IDM-Json Backend",
+    description="Development version of the InTaVia backend.",
+    version="0.1.0"
+)
+
+tags_metadata = [
+    {
+        "name": "Query endpoints",
+        "description": "Endpoints used to query and filter the InTaVia Knowledgegraph"
+    }
+]
 
 sparql = SPARQLWrapper(os.environ.get("SPARQL_ENDPOINT"))
 sparql.setReturnFormat(JSON)
@@ -41,10 +53,6 @@ def get_query_from_cache(search: Search, sparql_template: str):
     return res
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
 config = {
     'person_v1': {
         'id': '?person$anchor',
@@ -70,8 +78,13 @@ config = {
 }
 
 
-@app.get("/api/entities/search", response_model=PaginatedResponseEntities)
-async def query_persons(search: Search = Depends()):
+@app.get("/api/entities/search", 
+response_model=PaginatedResponseEntities, 
+tags=["Query endpoints"],
+description="Endpoint that allows to query and retrieve entities including \
+    the node history. Depending on the objects found the return object is \
+        different.")
+async def query_entities(search: Search = Depends()):
     res = get_query_from_cache(search, "search_v1.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
