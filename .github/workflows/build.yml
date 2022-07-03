@@ -80,7 +80,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/acdh-oeaw/intavia-backend/${{ github.ref_name }}
+            ghcr.io/acdh-oeaw/intavia-backend:latest
           tags: |
             type=raw,value={{sha}}
       - name: Create auto-deploy-app-values.yaml
