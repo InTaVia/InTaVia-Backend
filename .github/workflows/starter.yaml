@@ -27,6 +27,7 @@ jobs:
   _1:
     needs: [setup_workflow_env]
     secrets: inherit
+    runs-on: ubuntu-latest
 # if you run this outside of acdh-oeaw yo uneed to specify every secret you want to pass by name
     with:
       registry_root: ${{ needs.setup_workflow_env.outputs.registry_root }}
@@ -34,7 +35,6 @@ jobs:
       source_image: ${{ needs.setup_workflow_env.outputs.source_image }}
       default_port: ${{ needs.setup_workflow_env.outputs.default_port }}
 
-    runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
@@ -76,8 +76,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   _3:
     needs: [setup_workflow_env, _1]
-    uses: acdh-oeaw/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
     secrets: inherit
+    name: Deploy to rancher
+    runs-on: ubuntu-latest
 # if you run this outside of acdh-oeaw yo uneed to specify every secret you want to pass by name
 #      ACDH_KUBE_CONFIG: ${{ secrets.ACDH_KUBE_CONFIG }}
 #      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -85,10 +86,14 @@ jobs:
 #      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 #      K8S_SECRET_A_VAR_NAME: ${{  }}
     with:
-      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs.setup_workflow_env.outputs.image_tagged }}/${{ github.ref_name }}
+      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs._1.outputs.imageid }}
       APP_NAME: ${{ needs.setup_workflow_env.outputs.APP_NAME }}
       APP_ROOT: ${{ needs.setup_workflow_env.outputs.APP_ROOT }}
       SERVICE_ID: ${{ needs.setup_workflow_env.outputs.SERVICE_ID }}
       PUBLIC_URL: ${{ needs.setup_workflow_env.outputs.PUBLIC_URL }}
       POSTGRES_ENABLED: ${{ needs.setup_workflow_env.outputs.POSTGRES_ENABLED == 'true'}}
-      environment: "${{ needs.setup_workflow_env.outputs.environment}}"
+      environment: "${{ needs.setup_workflow_env.outputs.environment}}"deploy_to_rancher:
+    steps:
+    - name: Rancher Deploy Action
+      run: |
+        curl -i -X POST "https://rancher.acdh-dev.oeaw.ac.at/v3/project/${{ secrets.RANCHER_PROJECT_ID }}/workloads/deployment:${{ secrets.RANCHER_NAMESPACE }}:production?action=redeploy" -H "Authorization: Bearer ${{ secrets.RANCHER_BEARER_TOKEN }}"
