@@ -1,0 +1,161 @@
+name: Build Image
+
+
+on:
+  push:
+    branches: [main]
+
+# on:
+#   workflow_run:
+#     workflows: ["Django Tests CI"]
+#     types:
+#       - completed
+
+jobs:
+  build_and_push_to_registry:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/acdh-oeaw/InTaVia-Backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value={{sha}},enable={{is_default_branch}}
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  deploy_to_rancher:
+    needs: [build_and_push_to_registry]
+    name: Deploy Docker image from the branch ${{ github.ref_name }}
+    runs-on: 'ubuntu-latest'
+    environment: ${{ github.ref_name }}
+    env:
+      SECRETS_CONTEXT: ${{ toJson(secrets) }}
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+      - name: Kubernetes credentials
+        run: |
+          mkdir ${HOME}/.kube
+          echo ${{ secrets.ACDH_KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
+          chmod 0600 ${HOME}/.kube/config
+          KUBE_NAMESPACE="${{ secrets.KUBE_NAMESPACE }}"
+          if [ "$KUBE_NAMESPACE"x == 'x' ]
+          then KUBE_NAMESPACE="${{ inputs.APP_NAME }}-${{ github.ref_name }}"
+          fi
+          echo "KUBE_NAMESPACE=$KUBE_NAMESPACE" >> $GITHUB_ENV
+          kubectl config set-context --current --namespace=${{ secrets.KUBE_NAMESPACE }}
+          kubectl get pod
+      - name: Create tags based on git data
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.DOCKER_TAG }}/${{ github.ref_name }}
+          tags: |
+            type=raw,value={{sha}}
+      - name: Create auto-deploy-app-values.yaml
+        run: |
+          docker_tag="${{ steps.meta.outputs.tags }}"
+          repository=${docker_tag/:*/}
+          tag=${docker_tag/*:/}
+          cat > auto-deploy-app-values.yaml <<EOF
+          replicaCount: 1
+          image:
+            repository: $repository
+            tag: $tag
+            pullPolicy: Always
+          extraLabels:
+            "ID": "${{ secrets.SERVICE_ID }}"
+          github:
+            app: ${{ secrets.APP_NAME }}
+            envURL: ${{ github.repositoryUrl }}
+          service:
+            enabled: true
+            name: ${{ secrets.APP_NAME }}-${{ github.ref_name }}
+            url: ${{ secrets.PUBLIC_URL }}
+            additionalHosts:
+              - ${{ secrets.APP_NAME }}-${{ github.ref_name }}.acdh-cluster.arz.oeaw.ac.at
+            type: ClusterIP
+            externalPort: 5000
+            internalPort: 5000
+          ingress:
+            enabled: true
+            path: "/"
+            annotations:
+              kubernetes.io/ingress.class: "nginx"
+              kubernetes.io/proxy-read-timeout: "3600"
+          EOF
+          if [ '${{ secrets.APP_ROOT }}x' != '/x' ]
+          then echo '    nginx.ingress.kubernetes.io/app-root: ${{ secrets.APP_ROOT }}' >> auto-deploy-app-values.yaml
+          fi
+          cat >> auto-deploy-app-values.yaml <<EOF
+          livenessProbe:
+            path: "${{ secrets.APP_ROOT }}"
+            initialDelaySeconds: 25
+            timeoutSeconds: 30
+            scheme: "HTTP"
+            probeType: "httpGet"
+          readinessProbe:
+            path: "${{ secrets.APP_ROOT }}"
+            initialDelaySeconds: 15
+            timeoutSeconds: 30
+            scheme: "HTTP"
+            probeType: "httpGet"
+          EOF
+      - name: Set environment variables
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}     
+        run: |
+          cat > secrets.yaml <<EOF
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: ${{ secrets.APP_NAME }}-${{ github.ref_name }}
+          type: Opaque
+          data:
+          EOF
+          k8s_secrets=$(echo -n "$SECRETS_CONTEXT" | jq -r '[to_entries[]|select(.key|startswith("K8S_SECRET_"))]|map("  \(.key|sub("K8S_SECRET_"; "")): \(.value|tostring|@base64)")|.[]')
+          if [ "$k8s_secrets"x == 'x' ]
+          then echo ' {}' >> secrets.yaml
+          else echo "$k8s_secrets" >> secrets.yaml
+          fi
+          kubectl replace -f secrets.yaml -n "${{ secrets.KUBE_NAMESPACE }}" --force
+          rm secrets.yaml
+      - name: Deploy using helm and the local helm chart
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }} 
+        run: |
+          helm upgrade "${{ secrets.APP_NAME }}-${{ github.ref_name }}" \
+            --values auto-deploy-app-values.yaml --install --atomic --wait \
+            --set application.secretName="${{ secrets.APP_NAME }}-${{ github.ref_name }}" ${{ secrets.HELM_UPGRADE_EXTRA_ARGS }} \
+          .github/auto-deploy-app
