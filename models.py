@@ -79,7 +79,7 @@ class HistoricalEventType(BaseModel):
 
 class EntityRelationRole(BaseModel):
     id: str
-    label: InternationalizedLabel
+    label: InternationalizedLabel | None = None
 
 
 class MediaResource(BaseModel):

@@ -71,6 +71,10 @@ config = {
                     'kind': '?entity2TypeLabel',
                     'label': {
                         'default': '?entity2Label'
+                    },
+                    'role': {
+                        'id': '?role2',
+                        'label': '?roleLabel2'
                     }
                 }
             } 
