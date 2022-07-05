@@ -1,13 +1,22 @@
+from copy import deepcopy
 from dataclasses import dataclass
 from distutils.command.config import config
 import typing
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
+from xmlrpc.client import Boolean
+from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, ValidationError
 from pydantic.dataclasses import dataclass
 from pydantic.utils import GetterDict
 from enum import Enum
 from geojson_pydantic import Polygon, Point
 from typing import Any, Union
 import datetime
+
+source_mapping = {
+    "intavia.eu/apis/personproxy": "Austrian Biographical Dictionary",
+    "data.biographynet.nl": "BiographyNET",
+    "intavia.eu/personproxy/bs": "Biography Sampo"
+
+}
 
 
 class InTaViaConfig:
@@ -41,6 +50,7 @@ class InternationalizedLabel(BaseModel):
     fi: str | None = None
     si: str | None = None
     du: str | None = None
+
 
 
 class GroupType(BaseModel):
@@ -79,7 +89,8 @@ class HistoricalEventType(BaseModel):
 
 class EntityRelationRole(BaseModel):
     id: str
-    label: InternationalizedLabel | None = None
+    #label: InternationalizedLabel | None = None
+    label: str | None = None
 
 
 class MediaResource(BaseModel):
@@ -97,17 +108,30 @@ class Source(BaseModel):
 class EntityBase(BaseModel):
     id: str
     label: InternationalizedLabel
-    source: Source | None = None
+    source: Source | None = None  # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = None
     description: str | None = None
     media: list[MediaResource] | None = None
     # relations: list["EntityEventRelation"] | None = None
 
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        if isinstance(data["label"], list):
+            label = data["label"].pop()
+            data["alternativeLabels"] = data["label"]
+            data["label"] = label
+        for key, value in source_mapping.items():
+            if key in data["id"]:
+                data["source"] = Source(citation=value)
+        super().__init__(**data)
+
 
 class Person(EntityBase):
     kind = "person"
     gender: str | None = None
+
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        super().__init__(**data)
 
 
 class Place(EntityBase):
@@ -153,6 +177,13 @@ class EntityEventRelation(BaseModel):
     source: Source | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
+        if not "entity" in data:
+            if data["kind"] == "person":
+                data["entity"] = Person(**data)
+            elif data["kind"] == "group":
+                data["entity"] = Group(**data) 
+            elif data["kind"] == "place":
+                data["entity"] = Place(**data)
         super().__init__(**data)
         print('test')
 
@@ -160,6 +191,8 @@ class EntityEvent(BaseModel):
     id: str
     label: InternationalizedLabel | None = None
     source: Source | None = None
+    _source_entity_role: EntityRelationRole | None = None
+    _self_added: Boolean = False
     kind: EntityEventKind | None = None
     startDate: str | None = None
     endDate: str | None = None
@@ -170,6 +203,19 @@ class EntityEvent(BaseModel):
 class PersonFull(Person):
     events: typing.List["EntityEvent"] | None = None
 
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        if "events" in data:
+            for c, ev in enumerate(data["events"]):
+                ev_self = deepcopy(data)
+                del ev_self["events"]
+                if "_source_entity_role" in ev:
+                    ev_self["role"] = ev["_source_entity_role"]
+                if not "relations" in data["events"][c]:
+                    data["events"][c]["relations"] = []
+                if ev_self["id"] not in [x["id"] for x in data["events"][c]["relations"]]:
+                    data["events"][c]["relations"].insert(0, EntityEventRelation(**ev_self))
+                    data["events"][c]["_self_added"] = True
+        super().__init__(**data)
 
 class PlaceFull(Place):
     events: typing.List["EntityEvent"] | None = None
@@ -192,6 +238,14 @@ class PaginatedResponseBase(BaseModel):
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
 
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        super().__init__(**data)
+
+
+class ValidationErrorModel(BaseModel):
+    id: str
+    error: str
+
 
 class PaginatedResponseGetterDict(GetterDict):
 
@@ -213,11 +267,40 @@ class PaginatedResponseGetterDict(GetterDict):
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
+    errors: typing.List[ValidationErrorModel] | None = None
 
     def dict(self, *args, **kwargs) -> 'DictStrAny':
         _ignored = kwargs.pop('exclude_none')
         return super().dict(*args, exclude_none=True, **kwargs)
 
-    class Config:
-        orm_mode = True
-        getter_dict = PaginatedResponseGetterDict
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        res = []
+        errors = []
+        print("test")
+        for ent in data["results"]:
+            if ent["kind"] == "person":
+                try:
+                    res.append(PersonFull(**ent))
+                except ValidationError as e:
+                    errors.append({"id": ent["id"], "error": str(e)})
+            elif ent["kind"] == "group":
+                try:
+                    res.append(GroupFull(**ent))
+                except ValidationError as e:
+                    errors.append({"id": ent["id"], "error": str(e)})
+            elif ent["kind"] == "place":
+                try:
+                    res.append(PlaceFull(**ent))
+                except ValidationError as e:
+                    errors.append({"id": ent["id"], "error": str(e)})
+        data["results"] = res
+        if len(errors) > 0:
+            data["errors"] = errors
+        super().__init__(**data)
+        print("test")
+
+
+
+    # class Config:
+    #     orm_mode = True
+    #     getter_dict = PaginatedResponseGetterDict

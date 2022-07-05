@@ -11,6 +11,9 @@ import os.path
 import datetime
 from conversion import convert_sparql_result
 from query_parameters import Search
+import sentry_sdk
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+
 
 app = FastAPI(
     docs_url="/",
@@ -18,6 +21,17 @@ app = FastAPI(
     description="Development version of the InTaVia backend.",
     version="0.1.0"
 )
+
+sentry_sdk.init(
+    dsn="https://a1253a59c2564963a8f126208f03a655@sentry.acdh-dev.oeaw.ac.at/9",
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+)
+
+app.add_middleware(SentryAsgiMiddleware)
 
 tags_metadata = [
     {
@@ -66,6 +80,10 @@ config = {
                 'id': '?event$anchor$list',
                 'startDate': '?start',
                 'endDate': '?end',
+                '_source_entity_role': {
+                    'id': '?role',
+                    'label': '?roleLabel'
+                },
                 'relations': {
                     'id': '?entity2$anchor$list',
                     'kind': '?entity2TypeLabel',
@@ -92,6 +110,6 @@ async def query_entities(search: Search = Depends()):
     res = get_query_from_cache(search, "search_v1.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
-    t1 = PaginatedResponseEntities.from_orm({'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 
+    t1 = PaginatedResponseEntities(**{'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 
     return t1
 
