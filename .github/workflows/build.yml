@@ -70,23 +70,7 @@ jobs:
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
         run: |
-          echo -n "$SECRETS_CONTEXT" | jq -r '[to_entries[]|select(.key|startswith("K8S_SECRET_"))]|map("\(.key|sub("K8S_SECRET_"; ""))=\(.value|tostring|@sh)")|.[]' > secrets.env     
-          cat > Dockerfile <<EOF
-          FROM gliderlabs/herokuish as builder
-          COPY . /tmp/app
-          ARG BUILDPACK_URL
-          ENV USER=herokuishuser
-          RUN --mount=type=secret,id=secrets_env,dst=/secrets_env \
-              if [ -f /secrets_env ]; then . /secrets_env; fi; \
-              /bin/herokuish buildpack build
-          
-          FROM gliderlabs/herokuish
-          COPY --chown=herokuishuser:herokuishuser --from=builder /app /app
-          ENV PORT=${{ inputs.default_port }}
-          ENV USER=herokuishuser
-          EXPOSE ${{ inputs.default_port }}
-          CMD ["/bin/herokuish", "procfile", "start", "web"]
-          EOF
+          echo -n "$SECRETS_CONTEXT" | jq -r '[to_entries[]|select(.key|startswith("K8S_SECRET_"))]|map("\(.key|sub("K8S_SECRET_"; ""))=\(.value|tostring|@sh)")|.[]' > secrets.env
       -        
         name: Build and push
         uses: docker/build-push-action@v3
@@ -101,15 +85,15 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
     _3:
-    needs: [setup_workflow_env, build_and_push_to_registry]
-    uses: acdh-oeaw/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
-    secrets: inherit
-    with:
-      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs.setup_workflow_env.outputs.image_tagged }}/${{ github.ref_name }}
-      APP_NAME: ${{ needs.setup_workflow_env.outputs.APP_NAME }}
-      APP_ROOT: ${{ needs.setup_workflow_env.outputs.APP_ROOT }}
-      SERVICE_ID: ${{ needs.setup_workflow_env.outputs.SERVICE_ID }}
-      PUBLIC_URL: ${{ needs.setup_workflow_env.outputs.PUBLIC_URL }}
-      POSTGRES_ENABLED: ${{ needs.setup_workflow_env.outputs.POSTGRES_ENABLED == 'true'}}
-      environment: "${{ needs.setup_workflow_env.outputs.environment}}"
-      default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
+      needs: [setup_workflow_env, build_and_push_to_registry]
+      uses: acdh-oeaw/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
+      secrets: inherit
+      with:
+        DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs.setup_workflow_env.outputs.image_tagged }}/${{ github.ref_name }}
+        APP_NAME: ${{ needs.setup_workflow_env.outputs.APP_NAME }}
+        APP_ROOT: ${{ needs.setup_workflow_env.outputs.APP_ROOT }}
+        SERVICE_ID: ${{ needs.setup_workflow_env.outputs.SERVICE_ID }}
+        PUBLIC_URL: ${{ needs.setup_workflow_env.outputs.PUBLIC_URL }}
+        POSTGRES_ENABLED: ${{ needs.setup_workflow_env.outputs.POSTGRES_ENABLED == 'true'}}
+        environment: "${{ needs.setup_workflow_env.outputs.environment}}"
+        default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
