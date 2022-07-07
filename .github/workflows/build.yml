@@ -76,8 +76,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          build-args: |
-            BUILDPACK_URL=${{ inputs.BUILDPACK_URL }}
           platforms: linux/amd64
           push: true
           secret-files: |
