@@ -67,14 +67,14 @@ class EntityEventKind(BaseModel):
 
 
 class OccupationRelation(VocabsRelation):
-    relation: "Occupation"
+    relation = "occupation"
 
 
 class Occupation(BaseModel):
 
     id: str
     label: InternationalizedLabel
-    relation: list[OccupationRelation]
+    relation: list[OccupationRelation] | None = None
 
 
 class MediaKind(BaseModel):
@@ -129,6 +129,7 @@ class EntityBase(BaseModel):
 class Person(EntityBase):
     kind = "person"
     gender: str | None = None
+    occupation: typing.List[Occupation] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
         super().__init__(**data)
@@ -136,8 +137,12 @@ class Person(EntityBase):
 
 class Place(EntityBase):
     kind = "place"
+    _lat_long: str | None = None
     coordinates: Union[Polygon, Point] | None = None
 
+    def __init__(pydantic_self__, **data: Any) -> None:
+        if "_lat_long" in data:
+            print("test")
 
 class Group(EntityBase):
     kind = "group"
@@ -178,12 +183,13 @@ class EntityEventRelation(BaseModel):
 
     def __init__(__pydantic_self__, **data: Any) -> None:
         if not "entity" in data:
-            if data["kind"] == "person":
-                data["entity"] = Person(**data)
-            elif data["kind"] == "group":
-                data["entity"] = Group(**data) 
-            elif data["kind"] == "place":
-                data["entity"] = Place(**data)
+            if "kind" in data:
+                if data["kind"] == "person":
+                    data["entity"] = Person(**data)
+                elif data["kind"] == "group":
+                    data["entity"] = Group(**data) 
+                elif data["kind"] == "place":
+                    data["entity"] = Place(**data)
         super().__init__(**data)
         print('test')
 
@@ -208,6 +214,8 @@ class PersonFull(Person):
             for c, ev in enumerate(data["events"]):
                 ev_self = deepcopy(data)
                 del ev_self["events"]
+                if "occupation" in ev_self:
+                    del ev_self["occupation"]
                 if "_source_entity_role" in ev:
                     ev_self["role"] = ev["_source_entity_role"]
                 if not "relations" in data["events"][c]:
@@ -269,9 +277,9 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
     errors: typing.List[ValidationErrorModel] | None = None
 
-    def dict(self, *args, **kwargs) -> 'DictStrAny':
-        _ignored = kwargs.pop('exclude_none')
-        return super().dict(*args, exclude_none=True, **kwargs)
+    # def dict(self, *args, **kwargs) -> 'DictStrAny':
+    #     _ignored = kwargs.pop('exclude_none')
+    #     return super().dict(*args, exclude_none=True, **kwargs)
 
     def __init__(__pydantic_self__, **data: Any) -> None:
         res = []

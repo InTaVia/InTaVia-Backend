@@ -31,7 +31,7 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
 )
 
-app.add_middleware(SentryAsgiMiddleware)
+#app.add_middleware(SentryAsgiMiddleware)
 
 tags_metadata = [
     {
@@ -40,10 +40,11 @@ tags_metadata = [
     }
 ]
 
-sparql = SPARQLWrapper(os.environ.get("SPARQL_ENDPOINT"))
+sparql = SPARQLWrapper('http://127.0.0.1:8080/bigdata/sparql')
+#sparql = SPARQLWrapper(os.environ.get("SPARQL_ENDPOINT"))
 sparql.setReturnFormat(JSON)
-sparql.setHTTPAuth("BASIC")
-sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
+#sparql.setHTTPAuth("BASIC")
+#sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
 
 jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
@@ -72,17 +73,30 @@ config = {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
         'gender': '?genderLabel',
+        'occupation': {
+            'id': '?occupation$anchor$list',
+            'label': {'default': '?occupationLabel'}},
         'label': {
             'default': '?entityLabel'
         },
         'events':
             {
                 'id': '?event$anchor$list',
+                'label': {
+                    'default': '?eventLabel'
+                }, 
                 'startDate': '?start',
                 'endDate': '?end',
                 '_source_entity_role': {
                     'id': '?role',
                     'label': '?roleLabel'
+                },
+                'place': {
+                    'id': '?evPlace',
+                    '_lat_long': '?evPlaceLatLong',
+                    'label': {
+                        'default': '?evPlaceLabel'
+                    },
                 },
                 'relations': {
                     'id': '?entity2$anchor$list',
@@ -101,13 +115,14 @@ config = {
 
 
 @app.get("/api/entities/search", 
-response_model=PaginatedResponseEntities, 
+response_model=PaginatedResponseEntities,
+response_model_exclude_none=True, 
 tags=["Query endpoints"],
 description="Endpoint that allows to query and retrieve entities including \
     the node history. Depending on the objects found the return object is \
         different.")
 async def query_entities(search: Search = Depends()):
-    res = get_query_from_cache(search, "search_v1.sparql")
+    res = get_query_from_cache(search, "search_v2.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
     t1 = PaginatedResponseEntities(**{'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 

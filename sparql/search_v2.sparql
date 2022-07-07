@@ -1,0 +1,58 @@
+PREFIX bds:  <http://www.bigdata.com/rdf/search#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX bioc: <http://www.ldf.fi/schema/bioc/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX idm: <https://www.intavia.eu/idm/>
+PREFIX idmcore: <http://www.intavia.eu/idm-core/>    
+
+SELECT ?person ?entityType ?entityTypeLabel ?entityLabel ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
+?event ?eventLabel ?role ?roleLabel ?start ?end ?role2 ?roleLabel2 ?entity2 ?entity2Label ?entity2TypeLabel ?entity2Type 
+?evPlace ?evPlaceLatLong ?evPlaceLabel
+
+WHERE {  
+
+{?person a idmcore:Person_Proxy 
+BIND("person" AS ?entityTypeLabel)
+} UNION {
+?person a crm:E74_Group 
+BIND("group" AS ?entityTypeLabel)
+} 
+?person crm:P1_is_identified_by ?appellation .
+
+?appellation a crm:E33_E41_Linguistic_Appellation .
+?appellation rdfs:label ?entityLabel .
+{% if q %}
+?entityLabel bds:search "{{q}}" .
+{% endif %}
+{% if occupation %}
+    ?person bioc:has_occupation ?occupation1 . 
+    ?occupation1 rdfs:label ?occupationLabel1 .
+    ?occupationLabel1 bds:search "{{occupation}}" .
+{% endif %}
+OPTIONAL {?person bioc:has_occupation ?occupation . ?occupation rdfs:label ?occupationLabel .}
+OPTIONAL {?person bioc:has_gender ?gender . ?gender rdfs:label ?genderLabel .}
+OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}
+OPTIONAL {?person bioc:inheres_in ?role . ?role ^bioc:had_participant_in_role ?event
+    OPTIONAL {?event crm:P7_took_place_at ?evPlace 
+        OPTIONAL {?evPlace crm:P168_place_is_identified_by ?evPlaceLatLong}
+        OPTIONAL {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
+                ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
+                ?evPlaceAppelation rdfs:label ?evPlaceLabel
+                }
+    }
+    OPTIONAL{?role rdfs:label ?roleLabel} 
+    OPTIONAL {?event rdfs:label ?eventLabel} 
+    OPTIONAL {?event crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?start} 
+    OPTIONAL {?event crm:P4_has_time-span/crm:P82b_end_of_the_end ?end} 
+    OPTIONAL {?event bioc:had_participant_in_role ?role2 . ?role2 ^bioc:inheres_in ?entity2 .
+              OPTIONAL{?entity2 a idmcore:Person_Proxy 
+                  BIND("person" AS ?entity2TypeLabel)
+                  }  
+              OPTIONAL{
+                  ?entity2 a crm:E74_Group 
+                  BIND("group" AS ?entity2TypeLabel)
+                  }
+      OPTIONAL{?role2 rdfs:label ?roleLabel2}  
+      OPTIONAL{?entity2 crm:P1_is_identified_by ?entity2LabelID . ?entity2LabelID rdfs:label ?entity2Label; a crm:E33_E41_Linguistic_Appellation}
+      FILTER(?person != ?entity2)}}
+}

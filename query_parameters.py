@@ -15,3 +15,6 @@ class Search(QueryBase):
     q: str = Query(default=None,
                    max_length=200,
                    description="Searches across labels of all entity proxies")
+    occupation: str = Query(default=None,
+    max_length=200,
+    description="Searches the labels of the Occupations")
