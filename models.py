@@ -277,11 +277,8 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
     errors: typing.List[ValidationErrorModel] | None = None
 
-    # def dict(self, *args, **kwargs) -> 'DictStrAny':
-    #     _ignored = kwargs.pop('exclude_none')
-    #     return super().dict(*args, exclude_none=True, **kwargs)
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
+    def __init__(self, **data: Any) -> None:
         res = []
         errors = []
         print("test")
@@ -305,7 +302,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
         if len(errors) > 0:
             data["errors"] = errors
         super().__init__(**data)
-        print("test")
+        self.results = res
 
 
 

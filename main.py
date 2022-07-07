@@ -125,6 +125,5 @@ async def query_entities(search: Search = Depends()):
     res = get_query_from_cache(search, "search_v2.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
-    t1 = PaginatedResponseEntities(**{'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}) 
-    return t1
+    return {'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}
 
