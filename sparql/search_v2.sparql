@@ -32,9 +32,9 @@ BIND("group" AS ?entityTypeLabel)
 OPTIONAL {?person bioc:has_occupation ?occupation . ?occupation rdfs:label ?occupationLabel .}
 OPTIONAL {?person bioc:has_gender ?gender . ?gender rdfs:label ?genderLabel .}
 OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}
-OPTIONAL {?person bioc:inheres_in ?role . ?role ^bioc:had_participant_in_role ?event
+OPTIONAL {?person ^bioc:inheres_in ?role . ?role ^bioc:had_participant_in_role ?event
     OPTIONAL {?event crm:P7_took_place_at ?evPlace 
-        OPTIONAL {?evPlace crm:P168_place_is_identified_by ?evPlaceLatLong}
+        OPTIONAL {?evPlace crm:P168_place_is_defined_by ?evPlaceLatLong}
         OPTIONAL {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
                 ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
                 ?evPlaceAppelation rdfs:label ?evPlaceLabel

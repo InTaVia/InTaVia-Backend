@@ -107,7 +107,7 @@ class Source(BaseModel):
 
 class EntityBase(BaseModel):
     id: str
-    label: InternationalizedLabel
+    label: InternationalizedLabel | None = None
     source: Source | None = None  # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = None
@@ -116,10 +116,11 @@ class EntityBase(BaseModel):
     # relations: list["EntityEventRelation"] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
-        if isinstance(data["label"], list):
-            label = data["label"].pop()
-            data["alternativeLabels"] = data["label"]
-            data["label"] = label
+        if "label" in data:
+            if isinstance(data["label"], list):
+                label = data["label"].pop()
+                data["alternativeLabels"] = data["label"]
+                data["label"] = label
         for key, value in source_mapping.items():
             if key in data["id"]:
                 data["source"] = Source(citation=value)
@@ -138,11 +139,13 @@ class Person(EntityBase):
 class Place(EntityBase):
     kind = "place"
     _lat_long: str | None = None
-    coordinates: Union[Polygon, Point] | None = None
+    feature: Union[Polygon, Point] | None = None
 
     def __init__(pydantic_self__, **data: Any) -> None:
         if "_lat_long" in data:
-            print("test")
+            coordinates = [float(x.strip()) for x in data["_lat_long"].split(" ")]
+            data["coordinates"] = Point(coordinates=coordinates)
+        super().__init__(**data)
 
 class Group(EntityBase):
     kind = "group"
