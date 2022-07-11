@@ -53,6 +53,9 @@ BIND("group" AS ?entityTypeLabel)
     ?diedAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedAfterFilter .
     FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
 {% endif %}
+{% if entityType %}
+    ?person a {{entityType.get_rdf_uri()}}
+{% endif %}
 OPTIONAL {?person bioc:has_occupation ?occupation . ?occupation rdfs:label ?occupationLabel .}
 OPTIONAL {?person bioc:has_gender ?gender . ?gender rdfs:label ?genderLabel .}
 OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}

@@ -1,9 +1,22 @@
+from enum import Enum
 import json
 from typing import Any
 from fastapi import Query
 from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
 from dateutil.parser import *
 import datetime
+
+
+class EntityTypesEnum(str, Enum):
+    person = "person"
+    group = "group"
+
+    def get_rdf_uri(self) -> str:
+        map = {
+            "person": "idmcore:Person_Proxy",
+            "group": "crm:E74_Group"
+        }
+        return map[self.name]
 
 
 class QueryBase(BaseModel):
@@ -21,6 +34,7 @@ class Search(QueryBase):
     q: str = Query(default=None,
                    max_length=200,
                    description="Searches across labels of all entity proxies")
+    entityType: EntityTypesEnum = Query(default=None, description="Limit Query to entity type.")
     occupation: str = Query(default=None,
     max_length=200,
     description="Searches the labels of the Occupations")
@@ -39,4 +53,3 @@ class Search(QueryBase):
             __pydantic_self__.__setattr__('diedBefore', parse(data['diedBefore']).strftime('%Y-%m-%dT00:00:00'))
         if data["diedAfter"] is not None:
             __pydantic_self__.__setattr__('diedAfter', parse(data['diedAfter']).strftime('%Y-%m-%dT00:00:00'))
-        print('test')
