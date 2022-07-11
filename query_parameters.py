@@ -41,6 +41,7 @@ class Search(QueryBase):
                    max_length=200,
                    description="Searches across labels of all entity proxies")
     entityType: EntityTypesEnum = Query(default=None, description="Limit Query to entity type.")
+    includeEvents: bool = Query(default=False, description="Whether to include data on events")
     occupation: str = Query(default=None,
     max_length=200,
     description="Searches the labels of the Occupations")
