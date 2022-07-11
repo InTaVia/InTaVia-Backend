@@ -68,6 +68,8 @@ class EntityEventKind(BaseModel):
 
 class OccupationRelation(VocabsRelation):
     relation = "occupation"
+    id: str
+    label: InternationalizedLabel
 
 
 class Occupation(BaseModel):
@@ -307,6 +309,23 @@ class PaginatedResponseEntities(PaginatedResponseBase):
         super().__init__(**data)
         self.results = res
 
+
+class PaginatedResponseOccupations(PaginatedResponseBase):
+    results: typing.List[Occupation]
+    errors: typing.List[ValidationErrorModel] | None = None
+
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        res = []
+        errors = []
+        for occupation in data["results"]:
+            try:
+                res.append(Occupation(**occupation))
+            except ValidationError as e:
+                errors.append({"id": occupation["id"], "error": str(e)})
+        if len(errors) > 0:
+            data["errors"] = errors
+        super().__init__(**data)
+        __pydantic_self__.results = res
 
 
     # class Config:

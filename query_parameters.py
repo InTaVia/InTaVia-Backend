@@ -61,3 +61,7 @@ class Search(QueryBase):
             __pydantic_self__.__setattr__('diedBefore', parse(data['diedBefore']).strftime('%Y-%m-%dT00:00:00'))
         if data["diedAfter"] is not None:
             __pydantic_self__.__setattr__('diedAfter', parse(data['diedAfter']).strftime('%Y-%m-%dT00:00:00'))
+
+
+class SearchVocabs(QueryBase):
+    q: str = Query(default = None, description="Query for a label in the Vocabulary")

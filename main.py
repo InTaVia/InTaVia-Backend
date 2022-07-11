@@ -1,5 +1,6 @@
+from tkinter import W
 from fastapi import Depends, FastAPI, Query
-from models import PaginatedResponseEntities, PersonFull, GroupFull, PlaceFull
+from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull
 from typing import Union
 import math
 import os
@@ -11,7 +12,7 @@ from pymemcache import serde
 import os.path
 import datetime
 from conversion import convert_sparql_result
-from query_parameters import Search
+from query_parameters import Search, SearchVocabs
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
@@ -63,14 +64,14 @@ def get_query_from_cache(search: Search, sparql_template: str):
         query_template = jinja_env.get_template(sparql_template).render(**search.dict())
         sparql.setQuery(query_template)
         res = sparql.queryAndConvert()
-        rq, proto, opt = pre_process({'proto': config['person_v1']})
+        rq, proto, opt = pre_process({'proto': config[sparql_template]})
         res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
         cache_client.set(search.get_cache_str(), {'time': datetime.datetime.now(), 'data': res})
     return res
 
 
 config = {
-    'person_v1': {
+    'search_v2.sparql': {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
         'gender': '?genderLabel',
@@ -111,6 +112,18 @@ config = {
                     }
                 }
             } 
+    },
+    'occupation_v1.sparql': {
+        'id': '?occupation$anchor',
+        'label': {
+            'default': '?occupationLabel'
+        },
+        'relations': {
+            'id': '?broader$anchor',
+            'label': {
+                'default': '?broaderLabel'
+            }
+        }
     }
 }
 
@@ -128,3 +141,16 @@ async def query_entities(search: Search = Depends()):
     end = start + search.limit
     return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
 
+
+@app.get("/api/voabularies/occupations/search", 
+response_model=PaginatedResponseOccupations,
+response_model_exclude_none=True, 
+tags=["Vocabularies"],
+description="Endpoint that allows to query and retrieve entities including \
+    the node history. Depending on the objects found the return object is \
+        different.")
+async def query_occupations(search: SearchVocabs = Depends()):
+    res = get_query_from_cache(search, "occupation_v1.sparql")
+    start = (search.page*search.limit)-search.limit
+    end = start + search.limit
+    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
