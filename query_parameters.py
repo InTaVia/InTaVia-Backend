@@ -7,6 +7,12 @@ from dateutil.parser import *
 import datetime
 
 
+class GenderqueryEnum(str, Enum):
+    male = "male"
+    female = "female"
+    unknown = "unknown"
+
+
 class EntityTypesEnum(str, Enum):
     person = "person"
     group = "group"
@@ -38,6 +44,7 @@ class Search(QueryBase):
     occupation: str = Query(default=None,
     max_length=200,
     description="Searches the labels of the Occupations")
+    gender: GenderqueryEnum = Query(default=None, description="Filters Persons according to gender")
     bornBefore: str|datetime.datetime = Query(default=None, description="Filters for Persons born before a certain date")
     bornAfter: str|datetime.datetime = Query(default=None, description="Filters for Persons born after a certain date")
     diedAfter: str|datetime.datetime = Query(default=None, description="Filters for Persons died after a certain date")
