@@ -139,12 +139,12 @@ class Person(EntityBase):
 class Place(EntityBase):
     kind = "place"
     _lat_long: str | None = None
-    feature: Union[Polygon, Point] | None = None
+    geometry: Union[Polygon, Point] | None = None
 
     def __init__(pydantic_self__, **data: Any) -> None:
         if "_lat_long" in data:
             coordinates = [float(x.strip()) for x in data["_lat_long"].split(" ")]
-            data["feature"] = Point(coordinates=coordinates[::-1]) # FIXME: We are using the wrong format in RDF, fix as soon as the RDF is correct
+            data["geometry"] = Point(coordinates=coordinates[::-1]) # FIXME: We are using the wrong format in RDF, fix as soon as the RDF is correct
         super().__init__(**data)
 
 class Group(EntityBase):

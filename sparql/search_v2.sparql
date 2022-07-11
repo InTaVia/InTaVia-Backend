@@ -29,6 +29,30 @@ BIND("group" AS ?entityTypeLabel)
     ?occupation1 rdfs:label ?occupationLabel1 .
     ?occupationLabel1 bds:search "{{occupation}}" .
 {% endif %}
+{% if bornBefore %}
+    ?bornBeforeEvent a crm:E67_Birth .
+    ?bornBeforeEvent crm:P98_brought_into_life ?person .
+    ?bornBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornBeforeFilter .
+    FILTER(?bornBeforeFilter < xsd:dateTime("{{bornBefore}}"))
+{% endif %}
+{% if bornAfter %}
+    ?bornAfterEvent a crm:E67_Birth .
+    ?bornAfterEvent crm:P98_brought_into_life ?person .
+    ?bornAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornAfterFilter .
+    FILTER(?bornAfterFilter > xsd:dateTime("{{bornAfter}}"))
+{% endif %}
+{% if diedBefore %}
+    ?diedBeforeEvent a crm:E69_Death .
+    ?diedBeforeEvent crm:P100_was_death_of ?person .
+    ?diedBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedBeforeFilter .
+    FILTER(?diedBeforeFilter < xsd:dateTime("{{diedBefore}}"))
+{% endif %}
+{% if diedAfter %}
+    ?diedAfterEvent a crm:E69_Death .
+    ?diedAfterEvent crm:P100_was_death_of ?person .
+    ?diedAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedAfterFilter .
+    FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
+{% endif %}
 OPTIONAL {?person bioc:has_occupation ?occupation . ?occupation rdfs:label ?occupationLabel .}
 OPTIONAL {?person bioc:has_gender ?gender . ?gender rdfs:label ?genderLabel .}
 OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}

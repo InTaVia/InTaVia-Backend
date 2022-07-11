@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI, Query
 from models import PaginatedResponseEntities, PersonFull, GroupFull, PlaceFull
 from typing import Union
+import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLTransformer import pre_process
@@ -125,5 +126,5 @@ async def query_entities(search: Search = Depends()):
     res = get_query_from_cache(search, "search_v2.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
-    return {'page': search.page, 'count': len(res), 'pages': len(res)/search.limit, 'results': res[start:end]}
+    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
 
