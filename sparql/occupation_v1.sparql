@@ -2,8 +2,13 @@ PREFIX bds:  <http://www.bigdata.com/rdf/search#>
 PREFIX bioc: <http://www.ldf.fi/schema/bioc/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?occupation ?occupationLabel WHERE {
+SELECT ?occupation ?occupationLabel ?broader ?broaderLabel WHERE {
   ?occupation rdfs:subClassOf+ bioc:Occupation .
   ?occupation rdfs:label ?occupationLabel .
-  ?occupationLabel bds:search "{{}}"
+  ?occupationLabel bds:search "{{q}}"
+  OPTIONAL{
+  	?occupation rdfs:subClassOf+ ?broader .
+    ?broader rdfs:label ?broaderLabel
+    FILTER(?broader != bioc:Occupation)
+  }
   }
