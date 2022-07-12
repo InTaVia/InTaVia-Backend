@@ -15,6 +15,7 @@ from conversion import convert_sparql_result
 from query_parameters import Search, SearchVocabs
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+from dataclasses import asdict
 
 
 app = FastAPI(
@@ -42,11 +43,12 @@ tags_metadata = [
     }
 ]
 
-#sparql = SPARQLWrapper('http://127.0.0.1:8080/bigdata/sparql')
-sparql = SPARQLWrapper(os.environ.get("SPARQL_ENDPOINT"))
+sparql_endpoint = os.environ.get("SPARQL_ENDPOINT")
+sparql = SPARQLWrapper(sparql_endpoint)
 sparql.setReturnFormat(JSON)
-sparql.setHTTPAuth("BASIC")
-sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
+if not sparql_endpoint.startswith("http://127.0.0.1:8080"):
+    sparql.setHTTPAuth("BASIC")
+    sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
 
 jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
@@ -61,7 +63,7 @@ def get_query_from_cache(search: Search, sparql_template: str):
         else:
             res = res['data']
     if res is None:
-        query_template = jinja_env.get_template(sparql_template).render(**search.dict())
+        query_template = jinja_env.get_template(sparql_template).render(**asdict(search))
         sparql.setQuery(query_template)
         res = sparql.queryAndConvert()
         rq, proto, opt = pre_process({'proto': config[sparql_template]})

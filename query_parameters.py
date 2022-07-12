@@ -1,10 +1,12 @@
 from enum import Enum
 import json
 from typing import Any
+import typing
 from fastapi import Query
 from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
 from dateutil.parser import *
 import datetime
+from dataclasses import dataclass, asdict
 
 
 class GenderqueryEnum(str, Enum):
@@ -25,17 +27,18 @@ class EntityTypesEnum(str, Enum):
         return map[self.name]
 
 
-class QueryBase(BaseModel):
+@dataclass(kw_only=True)
+class QueryBase:
     page: PositiveInt = Query(default=1, gte=1)
     limit: int = Query(default=50, le=1000, gte=1)
 
     def get_cache_str(self):
-        return str(hash(json.dumps(self.dict(exclude={"page", "limit"}), sort_keys=True)))
+        d1 = asdict(self)
+        d1.pop("page", None)
+        d1.pop("limit", None)
+        return str(hash(json.dumps(d1, sort_keys=True)))
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        super().__init__(**data)
-
-
+@dataclass(kw_only=True)
 class Search(QueryBase):
     q: str = Query(default=None,
                    max_length=200,
@@ -50,17 +53,17 @@ class Search(QueryBase):
     bornAfter: str|datetime.datetime = Query(default=None, description="Filters for Persons born after a certain date")
     diedAfter: str|datetime.datetime = Query(default=None, description="Filters for Persons died after a certain date")
     diedBefore: str|datetime.datetime = Query(default=None, description="Filters for Persons died before a certain date")
+    occupations_id: typing.List[HttpUrl]|None = Query(default=None, description="filters for persons with occupations using URIs")
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        super().__init__(**data)
-        if data["bornBefore"] is not None:
-            __pydantic_self__.__setattr__('bornBefore', parse(data['bornBefore']).strftime('%Y-%m-%dT00:00:00'))
-        if data["bornAfter"] is not None:
-            __pydantic_self__.__setattr__('bornAfter', parse(data['bornAfter']).strftime('%Y-%m-%dT00:00:00'))
-        if data["diedBefore"] is not None:
-            __pydantic_self__.__setattr__('diedBefore', parse(data['diedBefore']).strftime('%Y-%m-%dT00:00:00'))
-        if data["diedAfter"] is not None:
-            __pydantic_self__.__setattr__('diedAfter', parse(data['diedAfter']).strftime('%Y-%m-%dT00:00:00'))
+    def __post_init__(self):
+        if self.bornBefore is not None:
+            self.__setattr__('bornBefore', parse(self.bornBefore).strftime('%Y-%m-%dT00:00:00'))
+        if self.bornAfter is not None:
+            self.__setattr__('bornAfter', parse(self.bornAfter).strftime('%Y-%m-%dT00:00:00'))
+        if self.diedBefore is not None:
+            self.__setattr__('diedBefore', parse(self.diedBefore).strftime('%Y-%m-%dT00:00:00'))
+        if self.diedAfter is not None:
+            self.__setattr__('diedAfter', parse(self.diedAfter).strftime('%Y-%m-%dT00:00:00'))
 
 
 class SearchVocabs(QueryBase):
