@@ -40,6 +40,9 @@ class EnumMediaKind(str, Enum):
 class VocabsRelation(BaseModel):
     kind: EnumVocabsRelation = EnumVocabsRelation.sameas
 
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        super().__init__(**data)
+
 
 class InternationalizedLabel(BaseModel):
     """Used to provide internationalized labels"""
@@ -50,7 +53,6 @@ class InternationalizedLabel(BaseModel):
     fi: str | None = None
     si: str | None = None
     du: str | None = None
-
 
 
 class GroupType(BaseModel):
@@ -66,17 +68,17 @@ class EntityEventKind(BaseModel):
     label: InternationalizedLabel
 
 
-class OccupationRelation(VocabsRelation):
-    relation = "occupation"
-    id: str
-    label: InternationalizedLabel
-
-
 class Occupation(BaseModel):
-
     id: str
     label: InternationalizedLabel
-    relation: list[OccupationRelation] | None = None
+
+
+class OccupationRelation(VocabsRelation):
+    vocabulary: Occupation | None = None
+
+
+class OccupationFull(Occupation):
+    relations: list[OccupationRelation] | None = None
 
 
 class MediaKind(BaseModel):
@@ -110,7 +112,8 @@ class Source(BaseModel):
 class EntityBase(BaseModel):
     id: str
     label: InternationalizedLabel | None = None
-    source: Source | None = None  # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
+    # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
+    source: Source | None = None
     linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = None
     description: str | None = None
@@ -145,9 +148,12 @@ class Place(EntityBase):
 
     def __init__(pydantic_self__, **data: Any) -> None:
         if "_lat_long" in data:
-            coordinates = [float(x.strip()) for x in data["_lat_long"].split(" ")]
-            data["geometry"] = Point(coordinates=coordinates[::-1]) # FIXME: We are using the wrong format in RDF, fix as soon as the RDF is correct
+            coordinates = [float(x.strip())
+                           for x in data["_lat_long"].split(" ")]
+            # FIXME: We are using the wrong format in RDF, fix as soon as the RDF is correct
+            data["geometry"] = Point(coordinates=coordinates[::-1])
         super().__init__(**data)
+
 
 class Group(EntityBase):
     kind = "group"
@@ -177,7 +183,7 @@ class EntityEventRelationGetter(GetterDict):
         else:
             return self._obj.get(key, default)
 
-        
+
 class EntityEventRelation(BaseModel):
     id: str
     label: InternationalizedLabel | None = None
@@ -192,11 +198,12 @@ class EntityEventRelation(BaseModel):
                 if data["kind"] == "person":
                     data["entity"] = Person(**data)
                 elif data["kind"] == "group":
-                    data["entity"] = Group(**data) 
+                    data["entity"] = Group(**data)
                 elif data["kind"] == "place":
                     data["entity"] = Place(**data)
         super().__init__(**data)
         print('test')
+
 
 class EntityEvent(BaseModel):
     id: str
@@ -226,9 +233,11 @@ class PersonFull(Person):
                 if not "relations" in data["events"][c]:
                     data["events"][c]["relations"] = []
                 if ev_self["id"] not in [x["id"] for x in data["events"][c]["relations"]]:
-                    data["events"][c]["relations"].insert(0, EntityEventRelation(**ev_self))
+                    data["events"][c]["relations"].insert(
+                        0, EntityEventRelation(**ev_self))
                     data["events"][c]["_self_added"] = True
         super().__init__(**data)
+
 
 class PlaceFull(Place):
     events: typing.List["EntityEvent"] | None = None
@@ -282,7 +291,6 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
     errors: typing.List[ValidationErrorModel] | None = None
 
-
     def __init__(self, **data: Any) -> None:
         res = []
         errors = []
@@ -311,7 +319,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
 
 
 class PaginatedResponseOccupations(PaginatedResponseBase):
-    results: typing.List[Occupation]
+    results: typing.List[OccupationFull]
     errors: typing.List[ValidationErrorModel] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
@@ -319,14 +327,13 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
         errors = []
         for occupation in data["results"]:
             try:
-                res.append(Occupation(**occupation))
+                res.append(OccupationFull(**occupation))
             except ValidationError as e:
                 errors.append({"id": occupation["id"], "error": str(e)})
         if len(errors) > 0:
             data["errors"] = errors
         super().__init__(**data)
         __pydantic_self__.results = res
-
 
     # class Config:
     #     orm_mode = True

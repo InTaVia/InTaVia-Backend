@@ -119,9 +119,14 @@ config = {
             'default': '?occupationLabel'
         },
         'relations': {
-            'id': '?broader$anchor',
-            'label': {
-                'default': '?broaderLabel'
+            '_id': '?broader$anchor$list',
+            'kind': '?kindBroader',
+            'vocabulary': {
+                'id': '?broader',
+                'label': {
+                    'default': '?broaderLabel'
+            }
+
             }
         }
     }
