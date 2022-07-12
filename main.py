@@ -42,11 +42,11 @@ tags_metadata = [
     }
 ]
 
-sparql = SPARQLWrapper('http://127.0.0.1:8080/bigdata/sparql')
-#sparql = SPARQLWrapper(os.environ.get("SPARQL_ENDPOINT"))
+#sparql = SPARQLWrapper('http://127.0.0.1:8080/bigdata/sparql')
+sparql = SPARQLWrapper(os.environ.get("SPARQL_ENDPOINT"))
 sparql.setReturnFormat(JSON)
-#sparql.setHTTPAuth("BASIC")
-#sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
+sparql.setHTTPAuth("BASIC")
+sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
 
 jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
