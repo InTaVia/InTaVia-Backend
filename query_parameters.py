@@ -65,6 +65,6 @@ class Search(QueryBase):
         if self.diedAfter is not None:
             self.__setattr__('diedAfter', parse(self.diedAfter).strftime('%Y-%m-%dT00:00:00'))
 
-
+@dataclass(kw_only=True)
 class SearchVocabs(QueryBase):
     q: str = Query(default = None, description="Query for a label in the Vocabulary")
