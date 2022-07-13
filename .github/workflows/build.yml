@@ -26,7 +26,7 @@ jobs:
 # This together with the branch name is also used as the namespace to deploy to
       APP_ROOT: "/"
       SERVICE_ID: "20563"
-      PUBLIC_URL: https://intavia-backend.acdh-cluster.arz.oeaw.ac.at
+      PUBLIC_URL: https://intavia-backend.acdh-dev.oeaw.ac.at
       POSTGRES_ENABLED: "false"
     steps:
       - run: "/bin/true"      
