@@ -29,6 +29,12 @@ BIND("group" AS ?entityTypeLabel)
     ?occupation1 rdfs:label ?occupationLabel1 .
     ?occupationLabel1 bds:search "{{occupation}}" .
 {% endif %}
+{% if occupations_id %}
+    {% for occ in occupations_id %}
+        {?person bioc:has_occupation <{{occ}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {% endfor %}
+{% endif %}
 {% if bornBefore %}
     ?bornBeforeEvent a crm:E67_Birth .
     ?bornBeforeEvent crm:P98_brought_into_life ?person .
