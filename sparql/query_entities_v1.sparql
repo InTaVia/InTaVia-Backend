@@ -1,0 +1,44 @@
+{% if q %}
+?entityLabel bds:search "{{q}}" .
+{% endif %}
+{% if occupation %}
+    ?person bioc:has_occupation ?occupation1 . 
+    ?occupation1 rdfs:label ?occupationLabel1 .
+    ?occupationLabel1 bds:search "{{occupation}}" .
+{% endif %}
+{% if occupations_id %}
+    {% for occ in occupations_id %}
+        {?person bioc:has_occupation <{{occ}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {% endfor %}
+{% endif %}
+{% if bornBefore %}
+    ?bornBeforeEvent a crm:E67_Birth .
+    ?bornBeforeEvent crm:P98_brought_into_life ?person .
+    ?bornBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornBeforeFilter .
+    FILTER(?bornBeforeFilter < xsd:dateTime("{{bornBefore}}"))
+{% endif %}
+{% if bornAfter %}
+    ?bornAfterEvent a crm:E67_Birth .
+    ?bornAfterEvent crm:P98_brought_into_life ?person .
+    ?bornAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornAfterFilter .
+    FILTER(?bornAfterFilter > xsd:dateTime("{{bornAfter}}"))
+{% endif %}
+{% if diedBefore %}
+    ?diedBeforeEvent a crm:E69_Death .
+    ?diedBeforeEvent crm:P100_was_death_of ?person .
+    ?diedBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedBeforeFilter .
+    FILTER(?diedBeforeFilter < xsd:dateTime("{{diedBefore}}"))
+{% endif %}
+{% if diedAfter %}
+    ?diedAfterEvent a crm:E69_Death .
+    ?diedAfterEvent crm:P100_was_death_of ?person .
+    ?diedAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedAfterFilter .
+    FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
+{% endif %}
+{% if entityType %}
+    ?person a {{entityType.get_rdf_uri()}}
+{% endif %}
+{% if gender %}
+    ?person bioc:has_gender bioc:{{gender.name}}
+{% endif %}
