@@ -1,6 +1,6 @@
 from tkinter import W
 from fastapi import Depends, FastAPI, Query
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull
+from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins
 from typing import Union
 import math
 import os
@@ -12,7 +12,7 @@ from pymemcache import serde
 import os.path
 import datetime
 from conversion import convert_sparql_result
-from query_parameters import Search, SearchVocabs
+from query_parameters import Search, SearchVocabs, StatisticsBirth
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from dataclasses import asdict
@@ -161,3 +161,13 @@ async def query_occupations(search: SearchVocabs = Depends()):
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
     return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
+
+
+@app.get(
+    "/api/statistics/birth/search",
+    response_model=StatisticsBins,
+    tags=["Statistics"],
+    description="Endpoint that returns counts in bins for date of births"
+)
+async def statistics_birth(search: StatisticsBirth = Depends()):
+    return {}

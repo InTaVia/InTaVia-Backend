@@ -338,3 +338,11 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
     # class Config:
     #     orm_mode = True
     #     getter_dict = PaginatedResponseGetterDict
+
+class Bin(BaseModel):
+    label: str
+    count: PositiveInt
+    order: PositiveInt|None = None
+
+class StatisticsBins(BaseModel):
+    bins: list[Bin]
