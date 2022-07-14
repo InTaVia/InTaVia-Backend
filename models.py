@@ -341,7 +341,7 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
 
 class Bin(BaseModel):
     label: str
-    count: PositiveInt
+    count: int
     order: PositiveInt|None = None
 
 class StatisticsBins(BaseModel):

@@ -29,15 +29,20 @@ class EntityTypesEnum(str, Enum):
 
 
 @dataclasses.dataclass(kw_only=True)
-class QueryBase:
-    page: PositiveInt = Query(default=1, gte=1)
-    limit: int = Query(default=50, le=1000, gte=1)
+class Base:
 
     def get_cache_str(self):
         d1 = dataclasses.asdict(self)
         d1.pop("page", None)
         d1.pop("limit", None)
         return str(hash(json.dumps(d1, sort_keys=True)))
+
+
+@dataclasses.dataclass(kw_only=True)
+class QueryBase:
+    page: PositiveInt = Query(default=1, gte=1)
+    limit: int = Query(default=50, le=1000, gte=1)
+
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -81,17 +86,17 @@ class Search_Base:
 
 
 @dataclasses.dataclass(kw_only=True)
-class Search(Search_Base, QueryBase):
+class Search(Search_Base, QueryBase, Base):
     pass
 
 
 @dataclasses.dataclass(kw_only=True)
-class SearchVocabs(QueryBase):
+class SearchVocabs(QueryBase, Base):
     q: str = Query(
         default=None, description="Query for a label in the Vocabulary")
 
 
 @dataclasses.dataclass(kw_only=True)
-class StatisticsBirth(Search_Base):
+class StatisticsBirth(Search_Base, Base):
     bins: PositiveInt = 10
 

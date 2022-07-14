@@ -1,0 +1,23 @@
+PREFIX bds:  <http://www.bigdata.com/rdf/search#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX bioc: <http://www.ldf.fi/schema/bioc/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX idm: <https://www.intavia.eu/idm/>
+PREFIX idmcore: <http://www.intavia.eu/idm-core/>
+PREFIX bioc2: <http://ldf.fi/schema/bioc/> 
+
+SELECT ?date (COUNT(DISTINCT ?person) as ?count)
+WHERE {
+
+?person a idmcore:Person_Proxy 
+BIND("person" AS ?entityTypeLabel)
+?person crm:P1_is_identified_by ?appellation .
+
+?appellation a crm:E33_E41_Linguistic_Appellation .
+?appellation rdfs:label ?entityLabel .
+    ?person a idmcore:Person_Proxy .
+    ?person ^crm:P98_brought_into_life/crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?date .
+    {% include 'query_entities_v1.sparql' %}
+}
+GROUP BY ?date
+ORDER BY ASC(?date)
