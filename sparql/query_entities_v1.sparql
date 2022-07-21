@@ -36,8 +36,11 @@
     ?diedAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedAfterFilter .
     FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
 {% endif %}
-{% if entityType %}
-    ?person a {{entityType.get_rdf_uri()}}
+{% if kind %}
+    {% for k1 in kind %}
+    {?person a {{k1.get_rdf_uri()}}}
+        {% if not loop.last %}UNION{% endif %}
+    {% endfor %}
 {% endif %}
 {% if gender %}
     ?person bioc:has_gender bioc:{{gender.name}}

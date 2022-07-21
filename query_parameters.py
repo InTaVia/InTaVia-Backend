@@ -23,7 +23,7 @@ class EntityTypesEnum(str, Enum):
     def get_rdf_uri(self) -> str:
         map = {
             "person": "idmcore:Person_Proxy",
-            "group": "crm:E74_Group"
+            "group": "idmcore:Group"
         }
         return map[self.name]
 
@@ -50,7 +50,7 @@ class Search_Base:
     q: str = Query(default=None,
                    max_length=200,
                    description="Searches across labels of all entity proxies")
-    entityType: EntityTypesEnum = Query(
+    kind: list[EntityTypesEnum] = Query(
         default=None, description="Limit Query to entity type.")
     includeEvents: bool = Query(
         default=False, description="Whether to include data on events")
