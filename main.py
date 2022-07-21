@@ -103,7 +103,9 @@ config = {
                 'endDate': '?end',
                 '_source_entity_role': {
                     'id': '?role',
-                    'label': '?roleLabel'
+                    'label': {
+                        'default': '?roleLabel'
+                        }
                 },
                 'place': {
                     'id': '?evPlace',
@@ -119,8 +121,10 @@ config = {
                         'default': '?entity2Label'
                     },
                     'role': {
-                        'id': '?role2',
-                        'label': '?roleLabel2'
+                        'id': '?role2$anchor',
+                        'label': {
+                            "default": '?roleLabel2'
+                            }
                     }
                 }
             } 
