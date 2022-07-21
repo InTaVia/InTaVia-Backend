@@ -1,6 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from distutils.command.config import config
+import re
 import typing
 from xmlrpc.client import Boolean
 from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, ValidationError
@@ -23,9 +24,20 @@ linked_id_providers = {
         "label": "Gemeinsame Normdatei (GND)",
         "baseUrl": "https://d-nb.info/gnd"
         },
+    "APIS": {
+        "label": "Österreichische Biographische Lexikon, APIS",
+        "baseUrl": "https://apis.acdh.oeaw.ac.at",
+        "regex_id": "([0-9]+)/?$"
+    },
     "wikidata": {
         "label": "Wikidata",
-        "baseUrl": "http://www.wikidata.org/entity"
+        "baseUrl": "http://www.wikidata.org/entity",
+        "regex_id": ".+?(Q[^\.]+)"
+    },
+    "biographysampo": {
+        "label": "BiographySampo",
+        "baseUrl": "http://ldf.fi/nbf/",
+        "regex_id": "nbf/([^\.]+)"
     }
 }
 
@@ -125,9 +137,20 @@ class LinkedIdProvider(BaseModel):
 
 class LinkedId(BaseModel):
     id: str
-    provider: LinkedIdProvider
+    provider: LinkedIdProvider | None = None
     _str_idprovider: str
 
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        test = False
+        if "_str_idprovider" in data:
+            for k, v in linked_id_providers.items():
+                if v["baseUrl"] in data["_str_idprovider"]:
+                    test = True
+                    data["id"] = re.search(v["regex_id"], data["_str_idprovider"]).group(1)
+                    data["provider"] = LinkedIdProvider(**v)
+            if not test:
+                data["id"] = data["_str_idprovider"]
+        super().__init__(**data)
 
 
 class EntityBase(BaseModel):
@@ -135,7 +158,8 @@ class EntityBase(BaseModel):
     label: InternationalizedLabel | None = None
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     source: Source | None = None
-    linkedIds: list[HttpUrl] | None = None
+    linkedIds: list[LinkedId] | None = None
+    _linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = None
     description: str | None = None
     media: list[MediaResource] | None = None
@@ -147,6 +171,8 @@ class EntityBase(BaseModel):
                 label = data["label"].pop()
                 data["alternativeLabels"] = data["label"]
                 data["label"] = label
+        if "_linkedIds" in data:
+            data["linkedIds"] = [LinkedId(_str_idprovider=x) for x in data["_linkedIds"]]
         for key, value in source_mapping.items():
             if key in data["id"]:
                 data["source"] = Source(citation=value)
