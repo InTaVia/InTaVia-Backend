@@ -23,7 +23,7 @@ linked_id_providers = {
     "gnd": {
         "label": "Gemeinsame Normdatei (GND)",
         "baseUrl": "https://d-nb.info/gnd"
-        },
+    },
     "APIS": {
         "label": "Österreichische Biographische Lexikon, APIS",
         "baseUrl": "https://apis.acdh.oeaw.ac.at",
@@ -40,6 +40,7 @@ linked_id_providers = {
         "regex_id": "nbf/([^\.]+)"
     }
 }
+
 
 class InTaViaConfig:
     validate_assignment = True
@@ -146,7 +147,8 @@ class LinkedId(BaseModel):
             for k, v in linked_id_providers.items():
                 if v["baseUrl"] in data["_str_idprovider"]:
                     test = True
-                    data["id"] = re.search(v["regex_id"], data["_str_idprovider"]).group(1)
+                    data["id"] = re.search(
+                        v["regex_id"], data["_str_idprovider"]).group(1)
                     data["provider"] = LinkedIdProvider(**v)
             if not test:
                 data["id"] = data["_str_idprovider"]
@@ -172,16 +174,22 @@ class EntityBase(BaseModel):
                 data["alternativeLabels"] = data["label"]
                 data["label"] = label
         if "_linkedIds" in data:
-            data["linkedIds"] = [LinkedId(_str_idprovider=x) for x in data["_linkedIds"]]
+            data["linkedIds"] = [LinkedId(_str_idprovider=x)
+                                 for x in data["_linkedIds"]]
         for key, value in source_mapping.items():
             if key in data["id"]:
                 data["source"] = Source(citation=value)
         super().__init__(**data)
 
 
+class GenderType(BaseModel):
+    id: str
+    label: InternationalizedLabel
+
+
 class Person(EntityBase):
     kind = "person"
-    gender: InternationalizedLabel | None = None
+    gender: GenderType | None = None
     occupations: typing.List[Occupation] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
@@ -386,10 +394,12 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
     #     orm_mode = True
     #     getter_dict = PaginatedResponseGetterDict
 
+
 class Bin(BaseModel):
     label: str
     count: int
-    order: PositiveInt|None = None
+    order: PositiveInt | None = None
+
 
 class StatisticsBins(BaseModel):
     bins: list[Bin]
