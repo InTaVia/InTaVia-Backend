@@ -18,6 +18,16 @@ source_mapping = {
 
 }
 
+linked_id_providers = {
+    "gnd": {
+        "label": "Gemeinsame Normdatei (GND)",
+        "baseUrl": "https://d-nb.info/gnd"
+        },
+    "wikidata": {
+        "label": "Wikidata",
+        "baseUrl": "http://www.wikidata.org/entity"
+    }
+}
 
 class InTaViaConfig:
     validate_assignment = True
@@ -106,6 +116,18 @@ class MediaResource(BaseModel):
 
 class Source(BaseModel):
     citation: str
+
+
+class LinkedIdProvider(BaseModel):
+    label: str
+    baseUrl: HttpUrl
+
+
+class LinkedId(BaseModel):
+    id: str
+    provider: LinkedIdProvider
+    _str_idprovider: str
+
 
 
 class EntityBase(BaseModel):
