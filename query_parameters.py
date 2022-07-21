@@ -50,10 +50,6 @@ class Search_Base:
     q: str = Query(default=None,
                    max_length=200,
                    description="Searches across labels of all entity proxies")
-    kind: list[EntityTypesEnum] = Query(
-        default=None, description="Limit Query to entity type.")
-    includeEvents: bool = Query(
-        default=False, description="Whether to include data on events")
     occupation: str = Query(default=None,
                             max_length=200,
                             description="Searches the labels of the Occupations")
@@ -89,7 +85,10 @@ class Search_Base:
 
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase, Base):
-    pass
+    kind: list[EntityTypesEnum] = Query(
+        default=None, description="Limit Query to entity type.")
+    includeEvents: bool = Query(
+        default=False, description="Whether to include data on events")
 
 
 @dataclasses.dataclass(kw_only=True)
