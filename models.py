@@ -133,7 +133,7 @@ class EntityBase(BaseModel):
 
 class Person(EntityBase):
     kind = "person"
-    gender: str | None = None
+    gender: InternationalizedLabel | None = None
     occupations: typing.List[Occupation] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:

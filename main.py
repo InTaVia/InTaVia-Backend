@@ -86,7 +86,8 @@ config = {
     'search_v2.sparql': {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
-        'gender': '?genderLabel',
+        'gender': {
+            'default': '?genderLabel'},
         'occupations': {
             'id': '?occupation$anchor$list',
             'label': {'default': '?occupationLabel'}},
