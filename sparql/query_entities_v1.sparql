@@ -43,5 +43,8 @@
     {% endfor %}
 {% endif %}
 {% if gender %}
-    ?person bioc:has_gender bioc:{{gender.name}}
+    ?person bioc:has_gender bioc:{{gender.name}} .
+{% endif %}
+{% if gender_id %}
+    ?person bioc:has_gender|bioc2:gender <{{gender_id}}> .
 {% endif %}

@@ -59,6 +59,8 @@ class Search_Base:
                             description="Searches the labels of the Occupations")
     gender: GenderqueryEnum = Query(
         default=None, description="Filters Persons according to gender")
+    gender_id: HttpUrl = Query(
+        default=None, description="Filters Persons according to gender. Uses URIs rather than the enum.")
     bornBefore: str | datetime.datetime = Query(
         default=None, description="Filters for Persons born before a certain date")
     bornAfter: str | datetime.datetime = Query(
