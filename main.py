@@ -87,7 +87,7 @@ config = {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
         'gender': '?genderLabel',
-        'occupation': {
+        'occupations': {
             'id': '?occupation$anchor$list',
             'label': {'default': '?occupationLabel'}},
         'label': {
