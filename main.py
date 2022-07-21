@@ -88,7 +88,8 @@ config = {
         'kind': '?entityTypeLabel',
         '_linkedIds': "?linkedIds$list",
         'gender': {
-            'default': '?genderLabel'},
+            'id': '?gender',
+            'label': {'default': '?genderLabel'}},
         'occupations': {
             'id': '?occupation$anchor$list',
             'label': {'default': '?occupationLabel'}},

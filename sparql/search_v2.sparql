@@ -7,7 +7,7 @@ PREFIX idmcore: <http://www.intavia.eu/idm-core/>
 PREFIX bioc2: <http://ldf.fi/schema/bioc/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
-SELECT ?person ?entityType ?entityTypeLabel ?entityLabel ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
+SELECT ?person ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
 ?event ?eventLabel ?role ?roleLabel ?start ?end ?role2 ?roleLabel2 ?entity2 ?entity2Label ?entity2TypeLabel ?entity2Type 
 ?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds
 
@@ -26,7 +26,8 @@ BIND("group" AS ?entityTypeLabel)
 {% include 'query_entities_v1.sparql' %}
 OPTIONAL {?person bioc:has_occupation ?occupation . ?occupation rdfs:label ?occupationLabel .}
 OPTIONAL {?person owl:sameAs ?linkedIds}
-OPTIONAL {?person bioc:has_gender ?gender . ?gender rdfs:label ?genderLabel .}
+OPTIONAL {?person bioc:has_gender|bioc2:gender ?gender 
+    OPTIONAL {?gender rdfs:label ?genderLabel }}
 OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}
 {% if includeEvents %}
 OPTIONAL {?person ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event

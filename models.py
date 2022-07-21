@@ -193,6 +193,9 @@ class Person(EntityBase):
     occupations: typing.List[Occupation] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
+        if "gender" in data:    # FIXME: This should be fixed in the data, by adding a label to the gender type
+            if "label" not in data["gender"]:
+                data["gender"]["label"] = {"default": data["gender"]["id"].split("/")[-1]}
         super().__init__(**data)
 
 
