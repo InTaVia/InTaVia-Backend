@@ -140,7 +140,7 @@ config = {
         'relations': {
             '_id': '?broader$anchor$list',
             'kind': '?kindBroader',
-            'vocabulary': {
+            'occupation': {
                 'id': '?broader',
                 'label': {
                     'default': '?broaderLabel'

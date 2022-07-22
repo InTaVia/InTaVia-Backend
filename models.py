@@ -97,7 +97,7 @@ class Occupation(BaseModel):
 
 
 class OccupationRelation(VocabsRelation):
-    vocabulary: Occupation | None = None
+    occupation: Occupation | None = None
 
 
 class OccupationFull(Occupation):
