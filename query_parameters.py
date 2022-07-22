@@ -39,6 +39,13 @@ class Base:
 
 
 @dataclasses.dataclass(kw_only=True)
+class Entity_Retrieve(Base):
+    id: HttpUrl = Query(description="ID to retrieve (needs to be an URI)")
+    includeEvents: bool = Query(
+        default=False, description="Whether to include data on events")
+
+
+@dataclasses.dataclass(kw_only=True)
 class QueryBase:
     page: PositiveInt = Query(default=1, gte=1)
     limit: int = Query(default=50, le=1000, gte=1)

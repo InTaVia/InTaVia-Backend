@@ -13,7 +13,7 @@ from pymemcache import serde
 import os.path
 import datetime
 from conversion import convert_sparql_result
-from query_parameters import Search, SearchVocabs, StatisticsBirth
+from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBirth
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from dataclasses import asdict
@@ -56,7 +56,7 @@ jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
 cache_client = Client(('localhost', 11211), serde=serde.pickle_serde)
 
-def get_query_from_cache(search: Search, sparql_template: str): 
+def get_query_from_cache(search: Search, sparql_template: str, proto_config: str|None=None): 
     res = cache_client.get(search.get_cache_str())
     if res is not None:
         tm_template = os.path.getmtime(f"sparql/{sparql_template}")
@@ -68,7 +68,7 @@ def get_query_from_cache(search: Search, sparql_template: str):
         query_template = jinja_env.get_template(sparql_template).render(**asdict(search))
         sparql.setQuery(query_template)
         res = sparql.queryAndConvert()
-        rq, proto, opt = pre_process({'proto': config[sparql_template]})
+        rq, proto, opt = pre_process({'proto': config[sparql_template] if proto_config is None else config[proto_config]})
         res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
         cache_client.set(search.get_cache_str(), {'time': datetime.datetime.now(), 'data': res})
     return res
@@ -235,6 +235,6 @@ response_model=PaginatedResponseEntities,
 response_model_exclude_none=True, 
 tags=["Enities endpoints"],
 description="Endpoint that allows to retrive an entity by id.")
-async def retrieve_entity(id: HttpUrl):
-    res = get_query_from_cache(id, "get_entity_v1.sparql")
-    return res 
+async def retrieve_entity(id: Entity_Retrieve = Depends()):
+    res = get_query_from_cache(id, "get_entity_v1.sparql", "search_v2.sparql")
+    return {"page": 1, "count":len(res), "pages": 1, "results": res} 
