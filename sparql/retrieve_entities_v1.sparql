@@ -1,0 +1,40 @@
+{?person a idmcore:Person_Proxy 
+BIND("person" AS ?entityTypeLabel)
+} UNION {
+?person a idmcore:Group 
+BIND("group" AS ?entityTypeLabel)
+} 
+?person crm:P1_is_identified_by ?appellation .
+
+?appellation a crm:E33_E41_Linguistic_Appellation .
+?appellation rdfs:label ?entityLabel .
+OPTIONAL {?person bioc:has_occupation ?occupation . ?occupation rdfs:label ?occupationLabel .}
+OPTIONAL {?person owl:sameAs ?linkedIds}
+OPTIONAL {?person bioc:has_gender|bioc2:gender ?gender 
+    OPTIONAL {?gender rdfs:label ?genderLabel }}
+OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}
+{% if includeEvents %}
+OPTIONAL {?person ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event
+    OPTIONAL {?event crm:P7_took_place_at ?evPlace 
+        OPTIONAL {?evPlace crm:P168_place_is_defined_by ?evPlaceLatLong}
+        OPTIONAL {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
+                ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
+                ?evPlaceAppelation rdfs:label ?evPlaceLabel
+                }
+    }
+    OPTIONAL{?role rdfs:label ?roleLabel} 
+    OPTIONAL {?event rdfs:label ?eventLabel} 
+    OPTIONAL {?event crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?start} 
+    OPTIONAL {?event crm:P4_has_time-span/crm:P82b_end_of_the_end ?end} 
+    OPTIONAL {?event bioc:had_participant_in_role ?role2 . ?role2 ^bioc:inheres_in ?entity2 .
+              OPTIONAL{?entity2 a idmcore:Person_Proxy 
+                  BIND("person" AS ?entity2TypeLabel)
+                  }  
+              OPTIONAL{
+                  ?entity2 a crm:E74_Group 
+                  BIND("group" AS ?entity2TypeLabel)
+                  }
+      OPTIONAL{?role2 rdfs:label ?roleLabel2}  
+      OPTIONAL{?entity2 crm:P1_is_identified_by ?entity2LabelID . ?entity2LabelID rdfs:label ?entity2Label; a crm:E33_E41_Linguistic_Appellation}
+      FILTER(?person != ?entity2)}}
+{% endif %}
