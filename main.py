@@ -227,3 +227,13 @@ async def statistics_birth(search: StatisticsBirth = Depends()):
         bins = [{'label': x["date"].strftime("%Y-%m-%d"), "count": x["count"]} for x in res]         
 
     return {'bins': bins}
+
+
+@app.get("/api/entities/id", 
+response_model=PaginatedResponseEntities,
+response_model_exclude_none=True, 
+tags=["Enities endpoints"],
+description="Endpoint that allows to retrive an entity by id.")
+async def query_entities(search: Search = Depends()):
+    res = get_query_from_cache(search, "get_entity_v1.sparql")
+    return res 
