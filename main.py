@@ -1,5 +1,6 @@
 from tkinter import W
 from fastapi import Depends, FastAPI, Query
+from pydantic import HttpUrl
 from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins
 from typing import Union
 import math
@@ -234,6 +235,6 @@ response_model=PaginatedResponseEntities,
 response_model_exclude_none=True, 
 tags=["Enities endpoints"],
 description="Endpoint that allows to retrive an entity by id.")
-async def query_entities(search: Search = Depends()):
-    res = get_query_from_cache(search, "get_entity_v1.sparql")
+async def retrieve_entity(id: HttpUrl):
+    res = get_query_from_cache(id, "get_entity_v1.sparql")
     return res 
