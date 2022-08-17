@@ -22,7 +22,8 @@ source_mapping = {
 linked_id_providers = {
     "gnd": {
         "label": "Gemeinsame Normdatei (GND)",
-        "baseUrl": "https://d-nb.info/gnd"
+        "baseUrl": "https://d-nb.info/gnd",
+        "regex_id": r"^\d+$"
     },
     "APIS": {
         "label": "Österreichische Biographische Lexikon, APIS",
@@ -147,9 +148,12 @@ class LinkedId(BaseModel):
             for k, v in linked_id_providers.items():
                 if v["baseUrl"] in data["_str_idprovider"]:
                     test = True
-                    data["id"] = re.search(
-                        v["regex_id"], data["_str_idprovider"]).group(1)
-                    data["provider"] = LinkedIdProvider(**v)
+                    match = re.search(
+                        v["regex_id"], data["_str_idprovider"])
+                    if match:
+                        data["id"] = match.group(1)
+                        data["provider"] = LinkedIdProvider(**v)
+                        break
             if not test:
                 data["id"] = data["_str_idprovider"]
         super().__init__(**data)
