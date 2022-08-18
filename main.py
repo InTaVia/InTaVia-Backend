@@ -171,7 +171,7 @@ async def query_entities(search: Search = Depends()):
     return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
 
 
-@app.get("/api/voabularies/occupations/search", 
+@app.get("/api/vocabularies/occupations/search", 
 response_model=PaginatedResponseOccupations,
 response_model_exclude_none=True, 
 tags=["Vocabularies"],
