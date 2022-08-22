@@ -73,6 +73,16 @@ def get_query_from_cache(search: Search, sparql_template: str, proto_config: str
         cache_client.set(search.get_cache_str(), {'time': datetime.datetime.now(), 'data': res})
     return res
 
+def create_bins_from_range(start, end, intv):
+    bins = list(calculate_date_range(start, end, intv))
+    bins_fin = []
+    for i in range(0, intv):
+        bins_fin.append({
+            "values": (bins[i], bins[i+1]),
+            "label": f"{bins[i].strftime('%Y')} - {bins[i+1].strftime('%Y')}",
+            "count": 0
+            })
+    return bins_fin
 
 def calculate_date_range(start, end, intv):
     diff = (end  - start ) / intv
@@ -195,38 +205,12 @@ async def statistics_birth(search: StatisticsBirth = Depends()):
     res = get_query_from_cache(search, "statistics_birthdate_v1.sparql")
     for idx, v in enumerate(res):
         res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
-    if len(res) > search.bins:
-        bins_config = calculate_date_range(res[0]["date"], res[-1]["date"], search.bins)
-        bins = []
-        for date in bins_config:
-            if len(res) == 0:
-                bins.append(
-                    {
-                        'label': date.strftime("%Y-%m-%d"),
-                        'count': 0
-                    }
-                )
-                continue
-            count = 0
-            if res[0]["date"] <= date:
-                d1 = res.pop(0)
-            else:
-                d1 = False
-            while d1:
-                count += d1["count"]
-                d1 = False
-                if len(res) > 0:
-                    if res[0]["date"] <= date:
-                        d1 = res.pop(0)
-            bins.append(
-                {
-                    'label': date.strftime("%Y-%m-%d"),
-                    'count': count
-                }
-            )
-    else:
-        bins = [{'label': x["date"].strftime("%Y-%m-%d"), "count": x["count"]} for x in res]         
-
+    bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
+    for idx,b in enumerate(bins):
+        for date in res:
+            if b["values"][0] <= date["date"] <= b["values"][1]:
+                b["count"] += date["count"]
+        bins[idx] = b
     return {'bins': bins}
 
 

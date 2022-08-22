@@ -405,6 +405,7 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
 class Bin(BaseModel):
     label: str
     count: int
+    values: typing.Tuple[Union[int, float, datetime.datetime], Union[int, float, datetime.datetime]] | None = None
     order: PositiveInt | None = None
 
 
