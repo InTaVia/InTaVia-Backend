@@ -105,6 +105,6 @@ class SearchVocabs(QueryBase, Base):
 
 
 @dataclasses.dataclass(kw_only=True)
-class StatisticsBirth(Search_Base, Base):
+class StatisticsBase(Search_Base, Base):
     bins: PositiveInt = 10
 

@@ -13,7 +13,7 @@ from pymemcache import serde
 import os.path
 import datetime
 from conversion import convert_sparql_result
-from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBirth
+from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from dataclasses import asdict
@@ -163,6 +163,10 @@ config = {
     'statistics_birthdate_v1.sparql': {
         'date': '?date$anchor',
         'count': '?count'
+    },
+    'statistics_deathdate_v1.sparql': {
+        'date': '?date$anchor',
+        'count': '?count'
     }
 }
 
@@ -201,7 +205,7 @@ async def query_occupations(search: SearchVocabs = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of births"
 )
-async def statistics_birth(search: StatisticsBirth = Depends()):
+async def statistics_birth(search: StatisticsBase = Depends()):
     res = get_query_from_cache(search, "statistics_birthdate_v1.sparql")
     for idx, v in enumerate(res):
         res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
@@ -213,6 +217,23 @@ async def statistics_birth(search: StatisticsBirth = Depends()):
         bins[idx] = b
     return {'bins': bins}
 
+@app.get(
+    "/api/statistics/death/search",
+    response_model=StatisticsBins,
+    tags=["Statistics"],
+    description="Endpoint that returns counts in bins for date of deaths"
+)
+async def statistics_death(search: StatisticsBase = Depends()):
+    res = get_query_from_cache(search, "statistics_deathdate_v1.sparql")
+    for idx, v in enumerate(res):
+        res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
+    bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
+    for idx,b in enumerate(bins):
+        for date in res:
+            if b["values"][0] <= date["date"] <= b["values"][1]:
+                b["count"] += date["count"]
+        bins[idx] = b
+    return {'bins': bins}
 
 @app.get("/api/entities/id", 
 response_model=PaginatedResponseEntities,
