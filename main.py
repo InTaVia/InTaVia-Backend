@@ -1,7 +1,7 @@
 from tkinter import W
 from fastapi import Depends, FastAPI, Query
 from pydantic import HttpUrl
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins
+from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins, StatisticsOccupation
 from typing import Union
 import math
 import os
@@ -36,7 +36,7 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
 )
 
-#app.add_middleware(SentryAsgiMiddleware)
+# app.add_middleware(SentryAsgiMiddleware)
 
 tags_metadata = [
     {
@@ -50,13 +50,15 @@ sparql = SPARQLWrapper(sparql_endpoint)
 sparql.setReturnFormat(JSON)
 if not sparql_endpoint.startswith("http://127.0.0.1:8080"):
     sparql.setHTTPAuth("BASIC")
-    sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
+    sparql.setCredentials(user=os.environ.get(
+        "SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
 
 jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
 cache_client = Client(('localhost', 11211), serde=serde.pickle_serde)
 
-def get_query_from_cache(search: Search, sparql_template: str, proto_config: str|None=None): 
+
+def get_query_from_cache(search: Search, sparql_template: str, proto_config: str | None = None):
     res = cache_client.get(search.get_cache_str())
     if res is not None:
         tm_template = os.path.getmtime(f"sparql/{sparql_template}")
@@ -65,13 +67,18 @@ def get_query_from_cache(search: Search, sparql_template: str, proto_config: str
         else:
             res = res['data']
     if res is None:
-        query_template = jinja_env.get_template(sparql_template).render(**asdict(search))
+        query_template = jinja_env.get_template(
+            sparql_template).render(**asdict(search))
         sparql.setQuery(query_template)
         res = sparql.queryAndConvert()
-        rq, proto, opt = pre_process({'proto': config[sparql_template] if proto_config is None else config[proto_config]})
-        res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
-        cache_client.set(search.get_cache_str(), {'time': datetime.datetime.now(), 'data': res})
+        rq, proto, opt = pre_process(
+            {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
+        res = convert_sparql_result(
+            res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
+        cache_client.set(search.get_cache_str(), {
+                         'time': datetime.datetime.now(), 'data': res})
     return res
+
 
 def create_bins_from_range(start, end, intv):
     bins = list(calculate_date_range(start, end, intv))
@@ -81,16 +88,15 @@ def create_bins_from_range(start, end, intv):
             "values": (bins[i], bins[i+1]),
             "label": f"{bins[i].strftime('%Y')} - {bins[i+1].strftime('%Y')}",
             "count": 0
-            })
+        })
     return bins_fin
 
+
 def calculate_date_range(start, end, intv):
-    diff = (end  - start ) / intv
+    diff = (end - start) / intv
     for i in range(intv):
         yield (start + diff * i)
     yield end
-
-
 
 
 config = {
@@ -112,14 +118,14 @@ config = {
                 'id': '?event$anchor$list',
                 'label': {
                     'default': '?eventLabel'
-                }, 
+                },
                 'startDate': '?start',
                 'endDate': '?end',
                 '_source_entity_role': {
                     'id': '?role',
                     'label': {
                         'default': '?roleLabel'
-                        }
+                    }
                 },
                 'place': {
                     'id': '?evPlace',
@@ -138,10 +144,10 @@ config = {
                         'id': '?role2$anchor',
                         'label': {
                             "default": '?roleLabel2'
-                            }
+                        }
                     }
                 }
-            } 
+        }
     },
     'occupation_v1.sparql': {
         'id': '?occupation$anchor',
@@ -155,7 +161,7 @@ config = {
                 'id': '?broader',
                 'label': {
                     'default': '?broaderLabel'
-            }
+                }
 
             }
         }
@@ -167,15 +173,24 @@ config = {
     'statistics_deathdate_v1.sparql': {
         'date': '?date$anchor',
         'count': '?count'
+    },
+    'statistics_occupation_v1.sparql': {
+        'id': '?occupation$anchor',
+        'label': '?occupationLabel',
+        'broader': {
+            'id': '?broader$anchor',
+            'label': '?broaderLabel'
+        },
+        'count': '?count'
     }
 }
 
 
-@app.get("/api/entities/search", 
-response_model=PaginatedResponseEntities,
-response_model_exclude_none=True, 
-tags=["Query endpoints"],
-description="Endpoint that allows to query and retrieve entities including \
+@app.get("/api/entities/search",
+         response_model=PaginatedResponseEntities,
+         response_model_exclude_none=True,
+         tags=["Query endpoints"],
+         description="Endpoint that allows to query and retrieve entities including \
     the node history. Depending on the objects found the return object is \
         different.")
 async def query_entities(search: Search = Depends()):
@@ -185,11 +200,11 @@ async def query_entities(search: Search = Depends()):
     return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
 
 
-@app.get("/api/vocabularies/occupations/search", 
-response_model=PaginatedResponseOccupations,
-response_model_exclude_none=True, 
-tags=["Vocabularies"],
-description="Endpoint that allows to query and retrieve entities including \
+@app.get("/api/vocabularies/occupations/search",
+         response_model=PaginatedResponseOccupations,
+         response_model_exclude_none=True,
+         tags=["Vocabularies"],
+         description="Endpoint that allows to query and retrieve entities including \
     the node history. Depending on the objects found the return object is \
         different.")
 async def query_occupations(search: SearchVocabs = Depends()):
@@ -210,12 +225,13 @@ async def statistics_birth(search: StatisticsBase = Depends()):
     for idx, v in enumerate(res):
         res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
     bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
-    for idx,b in enumerate(bins):
+    for idx, b in enumerate(bins):
         for date in res:
             if b["values"][0] <= date["date"] <= b["values"][1]:
                 b["count"] += date["count"]
         bins[idx] = b
     return {'bins': bins}
+
 
 @app.get(
     "/api/statistics/death/search",
@@ -228,18 +244,30 @@ async def statistics_death(search: StatisticsBase = Depends()):
     for idx, v in enumerate(res):
         res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
     bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
-    for idx,b in enumerate(bins):
+    for idx, b in enumerate(bins):
         for date in res:
             if b["values"][0] <= date["date"] <= b["values"][1]:
                 b["count"] += date["count"]
         bins[idx] = b
     return {'bins': bins}
 
-@app.get("/api/entities/id", 
-response_model=PaginatedResponseEntities,
-response_model_exclude_none=True, 
-tags=["Enities endpoints"],
-description="Endpoint that allows to retrive an entity by id.")
+
+@app.get(
+    "/api/statistics/occupations/search",
+    response_model=StatisticsOccupation,
+    tags=["Statistics"],
+    description="Endpoint that returns counts of the occupations"
+)
+async def statistics_occupations(search: StatisticsBase = Depends()):
+    res = get_query_from_cache(search, "statistics_occupation_v1.sparql")
+    return {'bins': bins}
+
+
+@app.get("/api/entities/id",
+         response_model=PaginatedResponseEntities,
+         response_model_exclude_none=True,
+         tags=["Enities endpoints"],
+         description="Endpoint that allows to retrive an entity by id.")
 async def retrieve_entity(id: Entity_Retrieve = Depends()):
     res = get_query_from_cache(id, "get_entity_v1.sparql", "search_v2.sparql")
-    return {"page": 1, "count":len(res), "pages": 1, "results": res} 
+    return {"page": 1, "count": len(res), "pages": 1, "results": res}
