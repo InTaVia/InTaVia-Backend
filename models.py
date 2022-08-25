@@ -418,9 +418,3 @@ class StatisticsOccupation(BaseModel):
     label: str
     count: int = 0
     children: typing.List["StatisticsOccupation"] | None = None
-
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        if "children" in data:
-            data["children"] = [StatisticsOccupation(**x) for x in data["children"]]
-        super().__init__(**data)
-

@@ -74,7 +74,7 @@ def get_query_from_cache(search: Search, sparql_template: str, proto_config: str
         rq, proto, opt = pre_process(
             {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
         res = convert_sparql_result(
-            res, proto, {"is_json_ld": False, "langTag": "show", "voc": "PROTO"})
+            res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
         cache_client.set(search.get_cache_str(), {
                          'time': datetime.datetime.now(), 'data': res})
     return res
@@ -260,7 +260,30 @@ async def statistics_death(search: StatisticsBase = Depends()):
 )
 async def statistics_occupations(search: StatisticsBase = Depends()):
     res = get_query_from_cache(search, "statistics_occupation_v1.sparql")
-    return {'bins': bins}
+    data = res
+    data_fin = {'id': "root", 'label': "root", 'count': 0, 'children': []}
+    data_second = []
+    for idx, occ in enumerate(data):
+        if "broader" not in occ:
+            if isinstance(occ["label"], list):
+                occ["label"] = " / ".join(occ["label"])
+            elif ">>" in occ["label"]:
+                occ["label"] = occ["label"].split(" >> ")[-1]
+            data_fin["children"].append({'id': occ["id"], 'label': occ["label"], 'count': occ["count"], "children": []})
+        else:
+            data_second.append(occ)
+    while len(data_second) > 0:
+        for idx, occ in enumerate(data_second):
+            for child in data_fin["children"]:
+                if child["id"] == occ["broader"]["id"]:
+                    if isinstance(occ["label"], list):
+                        occ["label"] = " / ".join(occ["label"])
+                    elif ">>" in occ["label"]:
+                        occ["label"] = occ["label"].split(" >> ")[-1]
+                    child["children"].append({'id': occ["id"], 'label': occ["label"], 'count': occ["count"]})
+                    data_second.pop(idx)
+                    break   
+    return data_fin
 
 
 @app.get("/api/entities/id",
