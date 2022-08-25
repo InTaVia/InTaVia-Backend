@@ -411,3 +411,10 @@ class Bin(BaseModel):
 
 class StatisticsBins(BaseModel):
     bins: list[Bin]
+
+
+class StatisticsOccupation(BaseModel):
+    id: str
+    label: str
+    count: int = 0
+    children: typing.List["StatisticsOccupation"] | None = None

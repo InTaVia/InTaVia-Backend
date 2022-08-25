@@ -51,7 +51,6 @@ class QueryBase:
     limit: int = Query(default=50, le=1000, gte=1)
 
 
-
 @dataclasses.dataclass(kw_only=True)
 class Search_Base:
     q: str = Query(default=None,
@@ -74,6 +73,10 @@ class Search_Base:
         default=None, description="Filters for Persons died before a certain date")
     occupations_id: typing.List[HttpUrl] | None = Query(
         default=None, description="filters for persons with occupations using URIs")
+    relatedPlace: str = Query(
+        default=None, description="Filter for places related to the searched entity")
+    relatedPlace_id: HttpUrl = Query(
+        default=None, description="Filter for places related to the searched entity using URIs")
 
     def __post_init__(self):
         if self.bornBefore is not None:
@@ -107,4 +110,3 @@ class SearchVocabs(QueryBase, Base):
 @dataclasses.dataclass(kw_only=True)
 class StatisticsBase(Search_Base, Base):
     bins: PositiveInt = 10
-
