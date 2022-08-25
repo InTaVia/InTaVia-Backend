@@ -23,7 +23,7 @@ linked_id_providers = {
     "gnd": {
         "label": "Gemeinsame Normdatei (GND)",
         "baseUrl": "https://d-nb.info/gnd",
-        "regex_id": r"^\d+$"
+        "regex_id": r"/([^/]+)$"
     },
     "APIS": {
         "label": "Österreichische Biographische Lexikon, APIS",
@@ -145,6 +145,9 @@ class LinkedId(BaseModel):
     def __init__(__pydantic_self__, **data: Any) -> None:
         test = False
         if "_str_idprovider" in data:
+            # Test for query params and remove them
+            if re.search(r"//?([^/]+)$", data["_str_idprovider"]):
+                data["_str_idprovider"] = "/".join(data["_str_idprovider"].split("/")[:-1])
             for k, v in linked_id_providers.items():
                 if v["baseUrl"] in data["_str_idprovider"]:
                     test = True
@@ -154,6 +157,8 @@ class LinkedId(BaseModel):
                         data["id"] = match.group(1)
                         data["provider"] = LinkedIdProvider(**v)
                         break
+                    else:
+                        data["id"] = data["_str_idprovider"] 
             if not test:
                 data["id"] = data["_str_idprovider"]
         super().__init__(**data)
