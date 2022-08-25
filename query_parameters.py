@@ -75,7 +75,7 @@ class Search_Base:
         default=None, description="filters for persons with occupations using URIs")
     relatedPlace: str = Query(
         default=None, description="Filter for places related to the searched entity")
-    relatedPlace_id: HttpUrl = Query(
+    relatedPlaces_id: typing.List[HttpUrl] = Query(
         default=None, description="Filter for places related to the searched entity using URIs")
 
     def __post_init__(self):
