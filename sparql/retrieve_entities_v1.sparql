@@ -21,6 +21,7 @@ OPTIONAL {?person ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_parti
                 ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
                 ?evPlaceAppelation rdfs:label ?evPlaceLabel
                 }
+        OPTIONAL {?evPlace rdfs:label ?evPlaceLabel}
     }
     OPTIONAL{?role rdfs:label ?roleLabel} 
     OPTIONAL {?event rdfs:label ?eventLabel} 

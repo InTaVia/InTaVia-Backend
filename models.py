@@ -146,7 +146,7 @@ class LinkedId(BaseModel):
         test = False
         if "_str_idprovider" in data:
             # Test for query params and remove them
-            if re.search(r"//?([^/]+)$", data["_str_idprovider"]):
+            if re.search(r"\?[^/]+$", data["_str_idprovider"]):
                 data["_str_idprovider"] = "/".join(data["_str_idprovider"].split("/")[:-1])
             for k, v in linked_id_providers.items():
                 if v["baseUrl"] in data["_str_idprovider"]:

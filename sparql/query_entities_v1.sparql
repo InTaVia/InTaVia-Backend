@@ -56,9 +56,11 @@
 ?person ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event .
     ?event crm:P7_took_place_at ?evPlace .
         
-        ?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
+        {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
                 ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
-                ?evPlaceAppelation rdfs:label ?evPlaceLabel .
+                ?evPlaceAppelation rdfs:label ?evPlaceLabel } UNION {
+                    ?evPlace rdfs:label ?evPlaceLabel }
+                
 
     ?evPlaceLabel bds:search "{{relatedPlace}}" .
 {% endif %}
