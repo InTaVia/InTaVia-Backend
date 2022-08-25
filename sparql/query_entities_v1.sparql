@@ -62,3 +62,10 @@
 
     ?evPlaceLabel bds:search "{{relatedPlace}}" .
 {% endif %}
+{% if relatedPlaces_id %}
+?person ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event .
+    {% for place in relatedPlaces_id %}
+        {?event crm:P7_took_place_at <{{place}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {% endfor %}
+{% endif %}
