@@ -18,6 +18,7 @@ import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from dataclasses import asdict
 import dateutil
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
@@ -27,6 +28,18 @@ app = FastAPI(
     version="0.1.0"
 )
 
+origins = [
+    "http://localhost:3000/",
+    "https://intavia.acdh-dev.oeaw.ac.at/",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 sentry_sdk.init(
     dsn="https://a1253a59c2564963a8f126208f03a655@sentry.acdh-dev.oeaw.ac.at/9",
 
