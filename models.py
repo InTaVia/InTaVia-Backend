@@ -423,3 +423,7 @@ class StatisticsOccupation(BaseModel):
     label: str
     count: int = 0
     children: typing.List["StatisticsOccupation"] | None = None
+
+
+class StatisticsOccupationReturn(BaseModel):
+    tree: StatisticsOccupation
