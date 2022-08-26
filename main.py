@@ -1,7 +1,7 @@
 from tkinter import W
 from fastapi import Depends, FastAPI, Query
 from pydantic import HttpUrl
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins, StatisticsOccupation
+from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins, StatisticsOccupation, StatisticsOccupationReturn
 from typing import Union
 import math
 import os
@@ -254,7 +254,7 @@ async def statistics_death(search: StatisticsBase = Depends()):
 
 @app.get(
     "/api/statistics/occupations/search",
-    response_model=StatisticsOccupation,
+    response_model=StatisticsOccupationReturn,
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations"
 )
@@ -283,7 +283,7 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
                     child["children"].append({'id': occ["id"], 'label': occ["label"], 'count': occ["count"]})
                     data_second.pop(idx)
                     break   
-    return data_fin
+    return {"tree": data_fin}
 
 
 @app.get("/api/entities/id",
