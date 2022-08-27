@@ -110,3 +110,11 @@ class SearchVocabs(QueryBase, Base):
 @dataclasses.dataclass(kw_only=True)
 class StatisticsBase(Search_Base, Base):
     bins: PositiveInt = 10
+
+
+@dataclasses.dataclass(kw_only=True)
+class RetrieveEntitiesByURI(Base):
+    uris: typing.List[HttpUrl] = Query(
+        default=None, description="List of URIs to retrieve")
+    includeEvents: bool = Query(
+        default=False, description="Whether to include data on events")

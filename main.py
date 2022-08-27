@@ -13,7 +13,7 @@ from pymemcache import serde
 import os.path
 import datetime
 from conversion import convert_sparql_result
-from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
+from query_parameters import Entity_Retrieve, RetrieveEntitiesByURI, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from dataclasses import asdict
@@ -93,6 +93,25 @@ def get_query_from_cache(search: Search, sparql_template: str, proto_config: str
     return res
 
 
+def get_list_of_uris_search(search: Search):
+    """retieve list of uris from search"""
+    res = cache_client.get(f"search-uris:{search.get_cache_str()}")
+    if res is not None:
+        tm_template = os.path.getmtime(f"sparql/search_uris_v1.sparql")
+        if tm_template > res['time'].timestamp():
+            res = None
+        else:
+            res = res['data']
+    if res is None:
+        query_template = jinja_env.get_template(
+            "search_uris_v1.sparql").render(**asdict(search))
+        sparql.setQuery(query_template)
+        res = sparql.queryAndConvert()
+        cache_client.set(f"search-uris:{search.get_cache_str()}", {
+                         'time': datetime.datetime.now(), 'data': res})
+    return res["results"]["bindings"]
+
+
 def create_bins_from_range(start, end, intv):
     bins = list(calculate_date_range(start, end, intv))
     bins_fin = []
@@ -113,7 +132,7 @@ def calculate_date_range(start, end, intv):
 
 
 config = {
-    'search_v2.sparql': {
+    'search_v3.sparql': {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
         '_linkedIds': "?linkedIds$list",
@@ -207,7 +226,9 @@ config = {
     the node history. Depending on the objects found the return object is \
         different.")
 async def query_entities(search: Search = Depends()):
-    res = get_query_from_cache(search, "search_v2.sparql")
+    #res = get_query_from_cache(search, "search_v2.sparql")
+    res1 = get_list_of_uris_search(search)
+    res = get_query_from_cache(RetrieveEntitiesByURI(uris=[r['person']['value'] for r in res1], includeEvents=search.includeEvents), "search_v3.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
     return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
