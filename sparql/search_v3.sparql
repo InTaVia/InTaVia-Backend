@@ -17,6 +17,7 @@ SELECT DISTINCT ?person ?entityTypeLabel WHERE {
 {% include 'entity_type_bindings_v1.sparql' %}
 } ORDER BY ?person
 LIMIT {{limit}}
+{% if _offset > 0 %}OFFSET {{_offset}}{% endif %}
 } AS %query_set
 
 WHERE {  
