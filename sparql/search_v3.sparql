@@ -9,7 +9,7 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 SELECT ?person ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
 ?event ?eventLabel ?role ?roleLabel ?start ?end ?role2 ?roleLabel2 ?entity2 ?entity2Label ?entity2TypeLabel ?entity2Type 
-?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds
+?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds ?count
 
 WITH {
 SELECT DISTINCT ?person ?entityTypeLabel WHERE {
@@ -20,10 +20,15 @@ LIMIT {{limit}}
 {% if _offset > 0 %}OFFSET {{_offset}}{% endif %}
 } AS %query_set
 
-WHERE {  
-{
-INCLUDE %query_set
-}
+WITH {
+    SELECT (COUNT(DISTINCT ?person) AS ?count)
+    WHERE {
+        {% include 'query_entities_v1.sparql' %}
+    }
+} AS %count_set
 
+WHERE {  
+INCLUDE %query_set
+INCLUDE %count_set
 {% include 'retrieve_entities_v2.sparql' %}
 }

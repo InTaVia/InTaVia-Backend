@@ -117,6 +117,7 @@ config = {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
         '_linkedIds': "?linkedIds$list",
+        '_count': '?count',
         'gender': {
             'id': '?gender',
             'label': {'default': '?genderLabel'}},
@@ -210,7 +211,7 @@ async def query_entities(search: Search = Depends()):
     res = get_query_from_cache(search, "search_v3.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
-    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res}
+    return {'page': search.page, 'count': int(res[0]["_count"] if len(res) > 0 else 0), 'pages': math.ceil(int(res[0]["_count"])/search.limit if len(res) > 0 else 0), 'results': res}
 
 
 @app.get("/api/vocabularies/occupations/search",
