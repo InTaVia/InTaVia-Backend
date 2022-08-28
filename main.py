@@ -113,7 +113,7 @@ def calculate_date_range(start, end, intv):
 
 
 config = {
-    'search_v2.sparql': {
+    'search_v3.sparql': {
         'id': '?person$anchor',
         'kind': '?entityTypeLabel',
         '_linkedIds': "?linkedIds$list",
@@ -207,7 +207,7 @@ config = {
     the node history. Depending on the objects found the return object is \
         different.")
 async def query_entities(search: Search = Depends()):
-    res = get_query_from_cache(search, "search_v2.sparql")
+    res = get_query_from_cache(search, "search_v3.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
     return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}

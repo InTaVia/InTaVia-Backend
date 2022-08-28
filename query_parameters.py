@@ -33,8 +33,8 @@ class Base:
 
     def get_cache_str(self):
         d1 = dataclasses.asdict(self)
-        d1.pop("page", None)
-        d1.pop("limit", None)
+        #d1.pop("page", None)
+        #d1.pop("limit", None)
         return str(hash(json.dumps(d1, sort_keys=True)))
 
 
