@@ -24,6 +24,7 @@ WITH {
     SELECT (COUNT(DISTINCT ?person) AS ?count)
     WHERE {
         {% include 'query_entities_v1.sparql' %}
+        {% include 'entity_type_bindings_v1.sparql' %}
     }
 } AS %count_set
 
