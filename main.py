@@ -29,8 +29,8 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:3000/",
-    "https://intavia.acdh-dev.oeaw.ac.at/",
+    "http://localhost:3000",
+    "https://intavia.acdh-dev.oeaw.ac.at",
 ]
 
 app.add_middleware(
