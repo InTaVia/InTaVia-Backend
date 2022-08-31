@@ -72,7 +72,7 @@ cache_client = Client(('localhost', 11211), serde=serde.pickle_serde)
 
 
 def get_query_from_cache(search: Search, sparql_template: str, proto_config: str | None = None):
-    res = cache_client.get(search.get_cache_str())
+    res = cache_client.get(search.get_cache_str(sparql_template))
     if res is not None:
         tm_template = os.path.getmtime(f"sparql/{sparql_template}")
         if tm_template > res['time'].timestamp():
@@ -88,7 +88,7 @@ def get_query_from_cache(search: Search, sparql_template: str, proto_config: str
             {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
         res = convert_sparql_result(
             res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
-        cache_client.set(search.get_cache_str(), {
+        cache_client.set(search.get_cache_str(sparql_template), {
                          'time': datetime.datetime.now(), 'data': res})
     return res
 
