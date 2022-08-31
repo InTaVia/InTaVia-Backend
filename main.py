@@ -88,7 +88,8 @@ def get_query_from_cache(search: Search, sparql_template: str, proto_config: str
             {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
         res = convert_sparql_result(
             res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
-        cache_client.set(search.get_cache_str(sparql_template), {
+        cache_key = search.get_cache_str(sparql_template)
+        res_cache_set = cache_client.set(cache_key, {
                          'time': datetime.datetime.now(), 'data': res})
     return res
 
