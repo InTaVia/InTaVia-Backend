@@ -31,11 +31,11 @@ class EntityTypesEnum(str, Enum):
 @dataclasses.dataclass(kw_only=True)
 class Base:
 
-    def get_cache_str(self):
+    def get_cache_str(self, template: str) -> str:
         d1 = dataclasses.asdict(self)
         #d1.pop("page", None)
         #d1.pop("limit", None)
-        return str(hash(json.dumps(d1, sort_keys=True)))
+        return str(hash(json.dumps(d1, sort_keys=True)))+str(hash(template))
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -80,7 +80,8 @@ class Search_Base:
         default=None, description="Filter for places related to the searched entity using URIs")
 
     def __post_init__(self):
-        self._offset = (self.page - 1) * self.limit
+        if hasattr(self, "page"):
+            self._offset = (self.page - 1) * self.limit
         if self.bornBefore is not None:
             self.__setattr__('bornBefore', parse(
                 self.bornBefore).strftime('%Y-%m-%dT00:00:00'))
