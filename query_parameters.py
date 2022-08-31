@@ -80,7 +80,8 @@ class Search_Base:
         default=None, description="Filter for places related to the searched entity using URIs")
 
     def __post_init__(self):
-        self._offset = (self.page - 1) * self.limit
+        if hasattr(self, "page"):
+            self._offset = (self.page - 1) * self.limit
         if self.bornBefore is not None:
             self.__setattr__('bornBefore', parse(
                 self.bornBefore).strftime('%Y-%m-%dT00:00:00'))
