@@ -35,12 +35,6 @@ class Base:
 
     pass
 
-@dataclasses.dataclass(kw_only=True)
-class Entity_Retrieve(Base):
-    id: HttpUrl = Query(description="ID to retrieve (needs to be an URI)")
-    includeEvents: bool = Query(
-        default=False, description="Whether to include data on events")
-
 
 @dataclasses.dataclass(kw_only=True)
 class QueryBase:
@@ -105,6 +99,13 @@ class Search(Search_Base, QueryBase, Base):
 class SearchVocabs(QueryBase, Base):
     q: str = Query(
         default=None, description="Query for a label in the Vocabulary")
+
+
+@dataclasses.dataclass(kw_only=True)
+class Entity_Retrieve(QueryBase, Base):
+    ids: typing.List[HttpUrl] = Query(description="List of IDs to retrieve.")
+    includeEvents: bool = Query(
+        default=False, description="Whether to include data on events")
 
 
 @dataclasses.dataclass(kw_only=True)
