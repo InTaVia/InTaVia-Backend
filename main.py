@@ -315,5 +315,5 @@ async def retrieve_entity(id: Entity_Retrieve = Depends()):
 @app.on_event("startup")
 async def startup():
     redis = aioredis.from_url(
-        "redis://localhost", encoding="utf8", decode_responses=True)
+        f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="api-cache")
