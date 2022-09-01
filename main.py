@@ -1,22 +1,16 @@
 import aioredis
 from tkinter import W
-from fastapi import Depends, FastAPI, Query
-from pydantic import HttpUrl
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, PersonFull, GroupFull, PlaceFull, StatisticsBins, StatisticsOccupation, StatisticsOccupationReturn
-from typing import Union
+from fastapi import Depends, FastAPI
+from models import PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
 import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
-from pymemcache.client.base import Client
-from pymemcache import serde
 import os.path
-import datetime
 from conversion import convert_sparql_result
 from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
-from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from dataclasses import asdict
 import dateutil
 from fastapi.middleware.cors import CORSMiddleware
@@ -203,9 +197,9 @@ config = {
 @cache()
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore(search, "search_v3.sparql")
-    start = (search.page*search.limit)-search.limit
-    end = start + search.limit
-    return {'page': search.page, 'count': int(res[0]["_count"] if len(res) > 0 else 0), 'pages': math.ceil(int(res[0]["_count"])/search.limit if len(res) > 0 else 0), 'results': res}
+    pages = math.ceil(int(res[0]["_count"])/search.limit) if len(res) > 0 else 0 
+    count = int(res[0]["_count"]) if len(res) > 0 else 0
+    return {'page': search.page, 'count': count, 'pages': pages, 'results': res}
 
 
 @app.get("/api/vocabularies/occupations/search",
@@ -220,7 +214,7 @@ async def query_occupations(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore(search, "occupation_v1.sparql")
     start = (search.page*search.limit)-search.limit
     end = start + search.limit
-    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res[start:end]}
+    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res}
 
 
 @app.get(
@@ -306,14 +300,16 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
          tags=["Enities endpoints"],
          description="Endpoint that allows to retrive an entity by id.")
 @cache()
-async def retrieve_entity(id: Entity_Retrieve = Depends()):
+async def retrieve_entity(search: Entity_Retrieve = Depends()):
     res = get_query_from_triplestore(
-        id, "get_entity_v1.sparql", "search_v2.sparql")
-    return {"page": 1, "count": len(res), "pages": 1, "results": res}
+        search, "get_entity_v1.sparql", "search_v3.sparql")
+    pages = math.ceil(int(res[0]["_count"])/search.limit) if len(res) > 0 else 0 
+    count = int(res[0]["_count"]) if len(res) > 0 else 0
+    return {'page': search.page, 'count': count, 'pages': pages, 'results': res}
 
 
 @app.on_event("startup")
 async def startup():
     redis = aioredis.from_url(
-        f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True)
+        f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True, db=1)
     FastAPICache.init(RedisBackend(redis), prefix="api-cache")
