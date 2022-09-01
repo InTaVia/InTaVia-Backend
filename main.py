@@ -73,30 +73,16 @@ if not sparql_endpoint.startswith("http://127.0.0.1:8080"):
 
 jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 
-#cache_client = Client(('localhost', 11211), serde=serde.pickle_serde)
-
 
 def get_query_from_triplestore(search: Search, sparql_template: str, proto_config: str | None = None):
-    #res = cache_client.get(search.get_cache_str(sparql_template))
-    res = None
-    if res is not None:
-        tm_template = os.path.getmtime(f"sparql/{sparql_template}")
-        if tm_template > res['time'].timestamp():
-            res = None
-        else:
-            res = res['data']
-    if res is None:
-        query_template = jinja_env.get_template(
-            sparql_template).render(**asdict(search))
-        sparql.setQuery(query_template)
-        res = sparql.queryAndConvert()
-        rq, proto, opt = pre_process(
-            {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
-        res = convert_sparql_result(
-            res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
-        cache_key = search.get_cache_str(sparql_template)
-        #res_cache_set = cache_client.set(cache_key, {
-        #                 'time': datetime.datetime.now(), 'data': res})
+    query_template = jinja_env.get_template(
+        sparql_template).render(**asdict(search))
+    sparql.setQuery(query_template)
+    res = sparql.queryAndConvert()
+    rq, proto, opt = pre_process(
+        {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
+    res = convert_sparql_result(
+        res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
     return res
 
 
@@ -229,6 +215,7 @@ async def query_entities(search: Search = Depends()):
          description="Endpoint that allows to query and retrieve entities including \
     the node history. Depending on the objects found the return object is \
         different.")
+@cache()
 async def query_occupations(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore(search, "occupation_v1.sparql")
     start = (search.page*search.limit)-search.limit
@@ -242,6 +229,7 @@ async def query_occupations(search: SearchVocabs = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of births"
 )
+@cache()
 async def statistics_birth(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_birthdate_v1.sparql")
     for idx, v in enumerate(res):
@@ -261,6 +249,7 @@ async def statistics_birth(search: StatisticsBase = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of deaths"
 )
+@cache()
 async def statistics_death(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_deathdate_v1.sparql")
     for idx, v in enumerate(res):
@@ -280,6 +269,7 @@ async def statistics_death(search: StatisticsBase = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations"
 )
+@cache()
 async def statistics_occupations(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_occupation_v1.sparql")
     data = res
@@ -291,7 +281,8 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
                 occ["label"] = " / ".join(occ["label"])
             elif ">>" in occ["label"]:
                 occ["label"] = occ["label"].split(" >> ")[-1]
-            data_fin["children"].append({'id': occ["id"], 'label': occ["label"], 'count': occ["count"], "children": []})
+            data_fin["children"].append(
+                {'id': occ["id"], 'label': occ["label"], 'count': occ["count"], "children": []})
         else:
             data_second.append(occ)
     while len(data_second) > 0:
@@ -302,9 +293,10 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
                         occ["label"] = " / ".join(occ["label"])
                     elif ">>" in occ["label"]:
                         occ["label"] = occ["label"].split(" >> ")[-1]
-                    child["children"].append({'id': occ["id"], 'label': occ["label"], 'count': occ["count"]})
+                    child["children"].append(
+                        {'id': occ["id"], 'label': occ["label"], 'count': occ["count"]})
                     data_second.pop(idx)
-                    break   
+                    break
     return {"tree": data_fin}
 
 
@@ -313,12 +305,15 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
          response_model_exclude_none=True,
          tags=["Enities endpoints"],
          description="Endpoint that allows to retrive an entity by id.")
+@cache()
 async def retrieve_entity(id: Entity_Retrieve = Depends()):
-    res = get_query_from_triplestore(id, "get_entity_v1.sparql", "search_v2.sparql")
+    res = get_query_from_triplestore(
+        id, "get_entity_v1.sparql", "search_v2.sparql")
     return {"page": 1, "count": len(res), "pages": 1, "results": res}
 
 
 @app.on_event("startup")
 async def startup():
-    redis =  aioredis.from_url("redis://localhost", encoding="utf8", decode_responses=True)
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    redis = aioredis.from_url(
+        "redis://localhost", encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="api-cache")
