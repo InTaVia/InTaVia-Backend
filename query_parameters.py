@@ -8,6 +8,8 @@ from fastapi import Query
 from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
 from dateutil.parser import *
 import datetime
+import base64
+import hashlib
 
 
 class GenderqueryEnum(str, Enum):
@@ -31,12 +33,7 @@ class EntityTypesEnum(str, Enum):
 @dataclasses.dataclass(kw_only=True)
 class Base:
 
-    def get_cache_str(self, template: str) -> str:
-        d1 = dataclasses.asdict(self)
-        #d1.pop("page", None)
-        #d1.pop("limit", None)
-        return str(hash(json.dumps(d1, sort_keys=True)))+str(hash(template))
-
+    pass
 
 @dataclasses.dataclass(kw_only=True)
 class Entity_Retrieve(Base):

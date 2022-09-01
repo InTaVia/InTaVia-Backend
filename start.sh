@@ -1,4 +1,4 @@
 #!/bin/bash
 
 memcached -d
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --host 0.0.0.0 --port 5000
+gunicorn main:app -w 4 --timeout=200 --threads=4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000
