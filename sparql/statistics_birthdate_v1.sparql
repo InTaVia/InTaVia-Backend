@@ -16,7 +16,7 @@ BIND("person" AS ?entityTypeLabel)
 ?appellation a crm:E33_E41_Linguistic_Appellation .
 ?appellation rdfs:label ?entityLabel .
     ?person a idmcore:Person_Proxy .
-    ?person ^crm:P98_brought_into_life/crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?date .
+    ?person ^crm:P98_brought_into_life/crm:P4_has_time-span/crm:P82b_end_of_the_end ?date .
     {% include 'query_entities_v1.sparql' %}
 }
 GROUP BY ?date

@@ -228,7 +228,7 @@ async def query_occupations(search: SearchVocabs = Depends()):
 async def statistics_birth(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_birthdate_v1.sparql")
     for idx, v in enumerate(res):
-        res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
+        res[idx]["date"] = dateutil.parser.parse(res[idx]["date"][:10])
     bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
     for idx, b in enumerate(bins):
         for date in res:
@@ -248,7 +248,7 @@ async def statistics_birth(search: StatisticsBase = Depends()):
 async def statistics_death(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_deathdate_v1.sparql")
     for idx, v in enumerate(res):
-        res[idx]["date"] = dateutil.parser.parse(res[idx]["date"])
+        res[idx]["date"] = dateutil.parser.parse(res[idx]["date"][:10])
     bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
     for idx, b in enumerate(bins):
         for date in res:
