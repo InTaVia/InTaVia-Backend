@@ -14,8 +14,8 @@
 			"NODE_VERSION": "none"
 		}
 	},
-	//"remoteUser": "vscode",
-	//"containerUser": "vscode",
+	"remoteUser": "vscode",
+	"containerUser": "vscode",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,Z",
 	"runArgs": [
 	  //"--userns=keep-id",
