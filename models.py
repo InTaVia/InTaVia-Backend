@@ -215,9 +215,13 @@ class Place(EntityBase):
 
     def __init__(pydantic_self__, **data: Any) -> None:
         if "_lat_long" in data:
-            coordinates = [float(x.strip())
-                           for x in data["_lat_long"].split(" ")]
-            # FIXME: We are using the wrong format in RDF, fix as soon as the RDF is correct
+            coordinates = []
+            for x in data["_lat_long"].split(" "):
+                try:
+                    coordinates.append(float(x.strip()))
+                except:
+                    pass
+            # FIXME: We are still using inconsistent formatting for ccordinates
             data["geometry"] = Point(coordinates=coordinates[::-1])
         super().__init__(**data)
 
