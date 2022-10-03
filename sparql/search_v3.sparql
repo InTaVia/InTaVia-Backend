@@ -11,8 +11,18 @@ SELECT ?person ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?n
 ?event ?eventLabel ?role ?roleLabel ?start ?end ?role2 ?roleLabel2 ?entity2 ?entity2Label ?entity2TypeLabel ?entity2Type 
 ?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds ?count
 
+{% for dataset in datasets %}
+FROM <{{dataset.value}}>
+{% endfor %}
+
 WITH {
-SELECT DISTINCT ?person ?entityTypeLabel WHERE {
+SELECT DISTINCT ?person ?entityTypeLabel 
+
+{% for dataset in datasets %}
+FROM <{{dataset.value}}>
+{% endfor %}
+
+WHERE {
 {% include 'query_entities_v1.sparql' %}
 {% include 'entity_type_bindings_v1.sparql' %}
 } ORDER BY ?person
@@ -22,6 +32,11 @@ LIMIT {{limit}}
 
 WITH {
     SELECT (COUNT(DISTINCT ?person) AS ?count)
+
+    {% for dataset in datasets %}
+    FROM <{{dataset.value}}>
+    {% endfor %}
+
     WHERE {
         {% include 'query_entities_v1.sparql' %}
         {% include 'entity_type_bindings_v1.sparql' %}

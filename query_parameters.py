@@ -12,6 +12,11 @@ import base64
 import hashlib
 
 
+class DatasetsEnum(str, Enum):
+    APIS = "https://apis.acdh.oeaw.ac.at/data"
+    BSampo = "http://ldf.fi/nbf/data"
+
+
 class GenderqueryEnum(str, Enum):
     male = "male"
     female = "female"
@@ -89,6 +94,13 @@ class Search_Base:
 
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase, Base):
+    datasets: list[DatasetsEnum] = Query(
+        description="Select datasets to limit query to",
+        default=[
+            DatasetsEnum.APIS,
+            DatasetsEnum.BSampo
+        ]
+    )
     kind: list[EntityTypesEnum] = Query(
         default=None, description="Limit Query to entity type.")
     includeEvents: bool = Query(
