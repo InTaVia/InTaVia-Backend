@@ -15,6 +15,8 @@ import hashlib
 class DatasetsEnum(str, Enum):
     APIS = "https://apis.acdh.oeaw.ac.at/data"
     BSampo = "http://ldf.fi/nbf/data"
+    BNet = "http://data.biographynet.nl/"
+    SBI = "http://www.intavia.eu/sbi"
 
 
 class GenderqueryEnum(str, Enum):
@@ -98,7 +100,9 @@ class Search(Search_Base, QueryBase, Base):
         description="Select datasets to limit query to",
         default=[
             DatasetsEnum.APIS,
-            DatasetsEnum.BSampo
+            DatasetsEnum.BSampo,
+            DatasetsEnum.BNet,
+            DatasetsEnum.SBI
         ]
     )
     kind: list[EntityTypesEnum] = Query(
