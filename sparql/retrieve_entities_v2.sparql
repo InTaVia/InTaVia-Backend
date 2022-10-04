@@ -7,9 +7,10 @@ OPTIONAL {?person bioc:has_gender|bioc2:gender ?gender
     OPTIONAL {?gender rdfs:label ?genderLabel }}
 OPTIONAL {?person bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}
 {% if includeEvents %}
-OPTIONAL {?person ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event
+OPTIONAL {?person bioc2:bearer_of ?role . ?role ^bioc2:had_participant_in_role ?event
     OPTIONAL {?event crm:P7_took_place_at ?evPlace 
-        OPTIONAL {?evPlace crm:P168_place_is_defined_by/crm:P168_place_is_defined_by ?evPlaceLatLong}
+        OPTIONAL {?evPlace crm:P168_place_is_defined_by/crm:P168_place_is_defined_by ?evPlaceLatLong
+        }
         OPTIONAL {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
                 ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
                 ?evPlaceAppelation rdfs:label ?evPlaceLabel
