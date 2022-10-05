@@ -130,7 +130,7 @@ config = {
                     }
                 },
                 'place': {
-                    'id': '?evPlace',
+                    'id': '?evPlace$anchor',
                     '_lat_long': '?evPlaceLatLong',
                     'label': {
                         'default': '?evPlaceLabel'

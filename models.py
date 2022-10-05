@@ -264,6 +264,10 @@ class EntityEventRelation(BaseModel):
     source: Source | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
+        # if "label" in data:
+        if isinstance(data["label"], list):
+            data["label"] = data["label"][0]
+        #data["label"] = data["label"][0]
         if not "entity" in data:
             if "kind" in data:
                 if data["kind"] == "person":
@@ -365,7 +369,6 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     def __init__(self, **data: Any) -> None:
         res = []
         errors = []
-        print("test")
         for ent in data["results"]:
             if ent["kind"] == "person":
                 try:
