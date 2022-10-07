@@ -74,11 +74,11 @@ def get_query_from_triplestore(search: Search, sparql_template: str, proto_confi
         sparql_template).render(**asdict(search))
     sparql.setQuery(query_template)
     res = sparql.queryAndConvert()
-    rq, proto, opt = pre_process(
-        {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
-    res = convert_sparql_result(
-        res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
-    return res
+#    rq, proto, opt = pre_process(
+#        {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
+#    res = convert_sparql_result(
+#        res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
+    return res["results"]["bindings"]
 
 
 def create_bins_from_range(start, end, intv):
@@ -195,11 +195,10 @@ config = {
          description="Endpoint that allows to query and retrieve entities including \
     the node history. Depending on the objects found the return object is \
         different.")
-@cache()
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore(search, "search_v3.sparql")
-    pages = math.ceil(int(res[0]["_count"])/search.limit) if len(res) > 0 else 0 
-    count = int(res[0]["_count"]) if len(res) > 0 else 0
+    pages = math.ceil(int(res[0]["count"]["value"])/search.limit) if len(res) > 0 else 0 
+    count = int(res[0]["count"]["value"]) if len(res) > 0 else 0
     return {'page': search.page, 'count': count, 'pages': pages, 'results': res}
 
 

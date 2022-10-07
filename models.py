@@ -47,6 +47,36 @@ class InTaViaConfig:
     validate_assignment = True
 
 
+class InTaViaModelBaseClass(BaseModel):
+
+    @staticmethod
+    def filter_sparql(data: list, filters: typing.List[typing.Tuple[str, str]], list_of_keys: typing.List[str]=None) -> typing.List[dict] | None:
+        """filters sparql result for key value pairs
+
+        Args:
+            data (list): array of results from sparql endpoint (python object converted from json return)
+            filter (typing.List[tuple]): list of tuples containing key / value pair to filter on
+            list_of_keys (typing.List[str], optional): list of keys to return. Defaults to None.
+
+        Returns:
+            typing.List[dict] | None: list of dictionaries containing keys and values
+        """
+        while len(filters) > 0 and len(data) > 0:
+            f1 = filters.pop(0)
+            data = list(filter(lambda x: (x[f1[0]]["value"] == f1[1]), data))
+        if len(data) == 0:
+            return None
+        res = []
+        for item in data:
+            d1 = dict()
+            for key, value in item.items():
+                if list_of_keys is None or key in list_of_keys:
+                   d1[key] = value["value"]
+            res.append(d1)
+        return res
+
+
+
 class EnumVocabsRelation(str, Enum):
     broader = "broader"
     narrower = "narrower"
@@ -330,7 +360,7 @@ class HistoricalEventFull(HistoricalEvent):
     events: typing.List["EntityEvent"] | None = None
 
 
-class PaginatedResponseBase(BaseModel):
+class PaginatedResponseBase(InTaViaModelBaseClass):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
@@ -368,6 +398,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
 
     def __init__(self, **data: Any) -> None:
         res = []
+        data_person = self.filter_sparql(data["results"], [("entityTypeLabel", "person"),])
         errors = []
         for ent in data["results"]:
             if ent["kind"] == "person":
