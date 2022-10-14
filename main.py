@@ -30,7 +30,8 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "https://intavia.acdh-dev.oeaw.ac.at",
-    "https://intavia-workshop.vercel.app"
+    "https://intavia-workshop.vercel.app",
+    "https://intavia-workshop-git-archive-workshop-august-2022-stefanprobst.vercel.app"
 ]
 
 app.add_middleware(
