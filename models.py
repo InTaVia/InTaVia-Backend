@@ -1,12 +1,15 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from distutils.command.config import config
+from inspect import getmro
 import re
+from tkinter import W
 import typing
 from xmlrpc.client import Boolean
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, ValidationError
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt, PositiveInt, ValidationError, constr
 from pydantic.dataclasses import dataclass
 from pydantic.utils import GetterDict
+from pydantic.fields import ModelField
 from enum import Enum
 from geojson_pydantic import Polygon, Point
 from typing import Any, Union
@@ -50,7 +53,7 @@ class InTaViaConfig:
 class InTaViaModelBaseClass(BaseModel):
 
     @staticmethod
-    def filter_sparql(data: list, filters: typing.List[typing.Tuple[str, str]], list_of_keys: typing.List[str]=None) -> typing.List[dict] | None:
+    def filter_sparql(data: list, filters: typing.List[typing.Tuple[str, str]], list_of_keys: typing.List[str] = None, anchor: str | None = None) -> typing.List[dict] | None:
         """filters sparql result for key value pairs
 
         Args:
@@ -71,10 +74,52 @@ class InTaViaModelBaseClass(BaseModel):
             d1 = dict()
             for key, value in item.items():
                 if list_of_keys is None or key in list_of_keys:
-                   d1[key] = value["value"]
+                    d1[key] = value["value"]
             res.append(d1)
+        if anchor is not None:
+            res1 = {}
+            for item in sorted(res, key=lambda x: x[anchor]):
+                pass
         return res
 
+    def get_anchor_element_from_field(self, field: str) -> ModelField:
+        for f in self.__fields__[field].field_info.extra.get("rdfconfig", FieldConfigurationRDF()):
+            if f.anchor:
+                return f
+        return None
+
+    def create_data_from_rdf(self, data: list, fields: dict | None = None) -> dict | None:
+        """creates data from rdf data
+
+        Args:
+            data (list): data from rdf
+            fields (dict): fields to create (defaults to all fields defined in class)
+        """
+        if fields is None:
+            fields = self.__fields__
+        fields_parent = []
+        for key, value in fields.items():
+            for cls in getmro(self.__class__)[2:]:
+                if cls.__module__ != 'models':
+                    continue
+                if key in cls.__fields__:
+                    fields_parent.append(key)
+                    break
+        anchor = False
+        for field in [item for item in fields if item not in fields_parent]:
+            f1 = fields[field]
+            if getattr(f1.field_info.extra.get('rdfconfig', FieldConfigurationRDF()), 'anchor', False):
+                if anchor:
+                    raise ValueError("Only one anchor field allowed")
+                anchor = field
+            if f1.type_ in [str, int, float]:
+                pass
+        print(' ...')
+
+
+class FieldConfigurationRDF(BaseModel):
+    path: constr(regex="^[a-zA-Z0-9\.]+$")
+    anchor: Boolean = False
 
 
 class EnumVocabsRelation(str, Enum):
@@ -177,7 +222,8 @@ class LinkedId(BaseModel):
         if "_str_idprovider" in data:
             # Test for query params and remove them
             if re.search(r"\?[^/]+$", data["_str_idprovider"]):
-                data["_str_idprovider"] = "/".join(data["_str_idprovider"].split("/")[:-1])
+                data["_str_idprovider"] = "/".join(
+                    data["_str_idprovider"].split("/")[:-1])
             for k, v in linked_id_providers.items():
                 if v["baseUrl"] in data["_str_idprovider"]:
                     test = True
@@ -188,14 +234,15 @@ class LinkedId(BaseModel):
                         data["provider"] = LinkedIdProvider(**v)
                         break
                     else:
-                        data["id"] = data["_str_idprovider"] 
+                        data["id"] = data["_str_idprovider"]
             if not test:
                 data["id"] = data["_str_idprovider"]
         super().__init__(**data)
 
 
-class EntityBase(BaseModel):
-    id: str
+class EntityBase(InTaViaModelBaseClass):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(
+        path="person", anchor=True))
     label: InternationalizedLabel | None = None
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     source: Source | None = None
@@ -207,6 +254,7 @@ class EntityBase(BaseModel):
     # relations: list["EntityEventRelation"] | None = None
 
     def __init__(__pydantic_self__, **data: Any) -> None:
+        __pydantic_self__.create_data_from_rdf(data)
         if "label" in data:
             if isinstance(data["label"], list):
                 label = data["label"].pop()
@@ -234,7 +282,8 @@ class Person(EntityBase):
     def __init__(__pydantic_self__, **data: Any) -> None:
         if "gender" in data:    # FIXME: This should be fixed in the data, by adding a label to the gender type
             if "label" not in data["gender"]:
-                data["gender"]["label"] = {"default": data["gender"]["id"].split("/")[-1]}
+                data["gender"]["label"] = {
+                    "default": data["gender"]["id"].split("/")[-1]}
         super().__init__(**data)
 
 
@@ -307,7 +356,6 @@ class EntityEventRelation(BaseModel):
                 elif data["kind"] == "place":
                     data["entity"] = Place(**data)
         super().__init__(**data)
-        print('test')
 
 
 class EntityEvent(BaseModel):
@@ -393,13 +441,22 @@ class PaginatedResponseGetterDict(GetterDict):
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[Union[PersonFull, PlaceFull, GroupFull]]
+    results: typing.List[Union[PersonFull, PlaceFull,
+                               GroupFull]] = Field(description='tetst')
     errors: typing.List[ValidationErrorModel] | None = None
 
     def __init__(self, **data: Any) -> None:
+        # self.create_data_from_rdf(data)
         res = []
-        data_person = self.filter_sparql(data["results"], [("entityTypeLabel", "person"),])
+        data_person = self.filter_sparql(
+            data["results"], [("entityTypeLabel", "person"), ])
         errors = []
+        for person in data_person:
+            try:
+                res.append(PersonFull(**person))
+            except ValidationError as e:
+                errors.append({"id": ent["id"], "error": str(e)})
+
         for ent in data["results"]:
             if ent["kind"] == "person":
                 try:
@@ -448,7 +505,8 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
 class Bin(BaseModel):
     label: str
     count: int
-    values: typing.Tuple[Union[int, float, datetime.datetime], Union[int, float, datetime.datetime]] | None = None
+    values: typing.Tuple[Union[int, float, datetime.datetime],
+                         Union[int, float, datetime.datetime]] | None = None
     order: PositiveInt | None = None
 
 
