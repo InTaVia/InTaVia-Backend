@@ -20,7 +20,7 @@ jobs:
 # as there is no way yet to get the active environment
       environment: production
       image_tagged: InTaVia-Backend
-      registry_root: ghcr.io/acdh-oeaw/
+      registry_root: ghcr.io/intavia/
       default_port: "5000"
       APP_NAME: intaviabackend
 # This together with the branch name is also used as the namespace to deploy to
