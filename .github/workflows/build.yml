@@ -44,7 +44,7 @@ jobs:
         with:
           images: |
             ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs.setup_workflow_env.outputs.image_tagged }}/${{ github.ref_name }}
-          #ghcr.io/acdh-oeaw/InTaVia-Backend
+          #ghcr.io/acdh-oeaw/InTaVia-Backend test
           tags: |
             type=ref,event=branch
             type=ref,event=pr
