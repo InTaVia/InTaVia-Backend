@@ -84,7 +84,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   _3:
       needs: [setup_workflow_env, build_and_push_to_registry]
-      uses: acdh-oeaw/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
+      uses: InTaVia/gl-autodevops-minimal-port-1/.github/workflows/deploy.yml@main
       secrets: inherit
       with:
         DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs.setup_workflow_env.outputs.image_tagged }}/${{ github.ref_name }}
