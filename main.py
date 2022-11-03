@@ -1,7 +1,7 @@
 import aioredis
 from tkinter import W
 from fastapi import Depends, FastAPI
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
+from models import ReconSuggestReturn, PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
 import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -9,7 +9,7 @@ from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
 import os.path
 from conversion import convert_sparql_result
-from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
+from query_parameters import Suggest, SuggestItem, Entity_Retrieve, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from dataclasses import asdict
 import dateutil
@@ -185,9 +185,35 @@ config = {
             'label': '?broaderLabel'
         },
         'count': '?count'
-    }
+    },
+    'recon_suggest_v1.sparql': {
+        'id': '?id',
+        'label': {
+            'default': '?name'
+        }
+    },    
 }
 
+import json
+@app.get('/recon/suggest')
+async def recon_suggest(queries: str):
+    queries = json.loads(queries)
+    result = {}
+    for key in queries:
+        payload = queries[key]
+        q = payload['query']
+        suggestItem = SuggestItem(q)
+        res = get_query_from_triplestore(suggestItem, "recon_suggest_v1.sparql")
+        batch_results = []
+        for r in res:
+            batch_results.append(
+                {
+                    'id': r['id'],
+                    'name': r['label']['default']
+                }
+            )
+        result[key] = { 'result': batch_results}
+    return result
 
 @app.get("/api/entities/search",
          response_model=PaginatedResponseEntities,

@@ -434,3 +434,12 @@ class StatisticsOccupation(BaseModel):
 
 class StatisticsOccupationReturn(BaseModel):
     tree: StatisticsOccupation
+
+class ReconSuggestResultReturn(BaseModel):
+    id: str
+    name: str
+
+class ReconSuggestReturn(BaseModel):
+    result: list[ReconSuggestResultReturn]
+
+

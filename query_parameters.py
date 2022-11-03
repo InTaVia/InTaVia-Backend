@@ -94,6 +94,17 @@ class Search_Base:
                 self.diedAfter).strftime('%Y-%m-%dT00:00:00'))
 
 
+
+@dataclasses.dataclass()
+class SuggestItem(Base):
+    q: str    
+
+@dataclasses.dataclass(kw_only=True)
+class Suggest(Base):
+    queries: str
+
+
+
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase, Base):
     datasets: list[DatasetsEnum] = Query(
