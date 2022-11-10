@@ -77,9 +77,22 @@ class InTaViaModelBaseClass(BaseModel):
                     d1[key] = value["value"]
             res.append(d1)
         if anchor is not None:
-            res1 = {}
-            for item in sorted(res, key=lambda x: x[anchor]):
-                print(item)
+            lst_unique_vals = set([x[anchor] for x in res])
+            res_fin_anchor = []
+            for item in lst_unique_vals:
+                res1 = {}
+                for i2 in list(filter(lambda d: d[anchor] == item, res)):
+                    for k, v in i2.items():
+                        if k not in res1:
+                            res1[k] = v
+                        else:
+                            if isinstance(res1[k], str):
+                                if v != res1[k]:
+                                    res1[k] = [res1[k], v]
+                            elif v not in res1[k]:
+                                res1[k].append(v)
+                res_fin_anchor.append(res1)
+            return res_fin_anchor
         return res
 
     def get_anchor_element_from_field(self, field: str) -> ModelField:
@@ -97,23 +110,32 @@ class InTaViaModelBaseClass(BaseModel):
         """
         if fields is None:
             fields = self.__fields__
-        fields_parent = []
-        for key, value in fields.items():
-            for cls in getmro(self.__class__)[2:]:
-                if cls.__module__ != 'models':
-                    continue
-                if key in cls.__fields__:
-                    fields_parent.append(key)
-                    break
+        # fields_parent = []
+        # for key, value in fields.items():
+        #     for cls in getmro(self.__class__)[2:]:
+        #         if cls.__module__ != 'models':
+        #             continue
+        #         if key in cls.__fields__:
+        #             fields_parent.append(key)
+        #             break
         anchor = False
-        for field in [item for item in fields if item not in fields_parent]:
+        field_serialize = []
+        data_fin = []
+        for field in [item for item in fields]:
             f1 = fields[field]
             if getattr(f1.field_info.extra.get('rdfconfig', object()), 'anchor', False):
                 if anchor:
                     raise ValueError("Only one anchor field allowed")
-                anchor = field
-            if f1.type_ in [str, int, float]:
-                pass
+                anchor = fields[field]
+            if f1.type_.__module__ == "models":
+                field_serialize.append(f1)
+            # if f1.type_ in [str, int, float]:
+            #     pass
+        if not anchor:
+            raise ValidationError(f"Every single object needs one configured anchor element: {self.__class__.__name__} does not have one.")
+        anchor_path = getattr(anchor.field_info.extra.get("rdfconfig"), "path")
+        for d in data:
+            pass
         print(' ...')
 
     def __init__(__pydantic_self__, **data: Any) -> None:
@@ -453,7 +475,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
         # self.create_data_from_rdf(data)
         res = []
         data_person = self.filter_sparql(
-            data["results"], [("entityTypeLabel", "person"), ])
+            data=data["results"], filters=[("entityTypeLabel", "person"), ], anchor='person')
         errors = []
         for person in data_person:
             try:
