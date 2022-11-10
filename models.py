@@ -79,12 +79,12 @@ class InTaViaModelBaseClass(BaseModel):
         if anchor is not None:
             res1 = {}
             for item in sorted(res, key=lambda x: x[anchor]):
-                pass
+                print(item)
         return res
 
     def get_anchor_element_from_field(self, field: str) -> ModelField:
-        for f in self.__fields__[field].field_info.extra.get("rdfconfig", FieldConfigurationRDF()):
-            if f.anchor:
+        for f in self.__fields__[field].field_info.extra.get("rdfconfig", object()):
+            if getattr(f, "anchor", False):
                 return f
         return None
 
@@ -108,13 +108,17 @@ class InTaViaModelBaseClass(BaseModel):
         anchor = False
         for field in [item for item in fields if item not in fields_parent]:
             f1 = fields[field]
-            if getattr(f1.field_info.extra.get('rdfconfig', FieldConfigurationRDF()), 'anchor', False):
+            if getattr(f1.field_info.extra.get('rdfconfig', object()), 'anchor', False):
                 if anchor:
                     raise ValueError("Only one anchor field allowed")
                 anchor = field
             if f1.type_ in [str, int, float]:
                 pass
         print(' ...')
+
+    def __init__(__pydantic_self__, **data: Any) -> None:
+        __pydantic_self__.create_data_from_rdf(data)
+        super().__init__(**data)
 
 
 class FieldConfigurationRDF(BaseModel):
@@ -253,20 +257,20 @@ class EntityBase(InTaViaModelBaseClass):
     media: list[MediaResource] | None = None
     # relations: list["EntityEventRelation"] | None = None
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        __pydantic_self__.create_data_from_rdf(data)
-        if "label" in data:
-            if isinstance(data["label"], list):
-                label = data["label"].pop()
-                data["alternativeLabels"] = data["label"]
-                data["label"] = label
-        if "_linkedIds" in data:
-            data["linkedIds"] = [LinkedId(_str_idprovider=x)
-                                 for x in data["_linkedIds"]]
-        for key, value in source_mapping.items():
-            if key in data["id"]:
-                data["source"] = Source(citation=value)
-        super().__init__(**data)
+    # def __init__(__pydantic_self__, **data: Any) -> None:
+    #     #__pydantic_self__.create_data_from_rdf(data)
+    #     if "label" in data:
+    #         if isinstance(data["label"], list):
+    #             label = data["label"].pop()
+    #             data["alternativeLabels"] = data["label"]
+    #             data["label"] = label
+    #     if "_linkedIds" in data:
+    #         data["linkedIds"] = [LinkedId(_str_idprovider=x)
+    #                              for x in data["_linkedIds"]]
+    #     for key, value in source_mapping.items():
+    #         if key in data["id"]:
+    #             data["source"] = Source(citation=value)
+    #     super().__init__(**data)
 
 
 class GenderType(BaseModel):
@@ -279,12 +283,12 @@ class Person(EntityBase):
     gender: GenderType | None = None
     occupations: typing.List[Occupation] | None = None
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        if "gender" in data:    # FIXME: This should be fixed in the data, by adding a label to the gender type
-            if "label" not in data["gender"]:
-                data["gender"]["label"] = {
-                    "default": data["gender"]["id"].split("/")[-1]}
-        super().__init__(**data)
+    # def __init__(__pydantic_self__, **data: Any) -> None:
+    #     if "gender" in data:    # FIXME: This should be fixed in the data, by adding a label to the gender type
+    #         if "label" not in data["gender"]:
+    #             data["gender"]["label"] = {
+    #                 "default": data["gender"]["id"].split("/")[-1]}
+    #     super().__init__(**data)
 
 
 class Place(EntityBase):
@@ -442,7 +446,7 @@ class PaginatedResponseGetterDict(GetterDict):
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Union[PersonFull, PlaceFull,
-                               GroupFull]] = Field(description='tetst')
+                               GroupFull]] = Field(..., path="person", description='tetst')
     errors: typing.List[ValidationErrorModel] | None = None
 
     def __init__(self, **data: Any) -> None:
@@ -455,7 +459,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
             try:
                 res.append(PersonFull(**person))
             except ValidationError as e:
-                errors.append({"id": ent["id"], "error": str(e)})
+                errors.append({"id": person["person"], "error": str(e)})
 
         for ent in data["results"]:
             if ent["kind"] == "person":
