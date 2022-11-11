@@ -186,7 +186,7 @@ config = {
         },
         'count': '?count'
     },
-    'recon_suggest_v1.sparql': {
+    'recon_reconcile_v1.sparql': {
         'id': '?id',
         'name': {
             'default': '?name'
@@ -197,10 +197,40 @@ config = {
             'id': '?type',
             'name': '?typelabel'
         },
-    },    
+    },
+    'recon_suggest_v1.sparql': {
+        'id': '?id',
+        'name': '?name',
+    },
 }
 
 import json
+@app.get('/recon/reconcile')
+async def recon_suggest(queries: str):
+    queries = json.loads(queries)
+    result = {}
+    for key in queries:
+        payload = queries[key]
+        q = payload['query']
+        suggestItem = SuggestItem(q)
+        res = get_query_from_triplestore(suggestItem, "recon_reconcile_v1.sparql")
+        batch_results = []
+        for r in res:
+            batch_results.append(
+                {
+                    'id': r['id'],
+                    'name': r['name']['default'],
+                    'score': r['score'],
+                    'rank': r['rank'],
+                    'type' : {
+                        'id': r['type']['id'],
+                        'name': r['type']['name']
+                    },
+                }
+            )
+        result[key] = { 'result': batch_results}
+    return result
+
 @app.get('/recon/suggest')
 async def recon_suggest(queries: str):
     queries = json.loads(queries)
@@ -215,13 +245,7 @@ async def recon_suggest(queries: str):
             batch_results.append(
                 {
                     'id': r['id'],
-                    'name': r['name']['default'],
-                    'score': r['score'],
-                    'rank': r['rank'],
-                    'type' : {
-                        'id': r['type']['id'],
-                        'name': r['type']['name']
-                    },
+                    'name': r['name'],
                 }
             )
         result[key] = { 'result': batch_results}

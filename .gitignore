@@ -1,3 +1,4 @@
 *.pyc
 *.env
 redis/
+.DS_Store
