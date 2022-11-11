@@ -2,3 +2,4 @@
 *.env
 redis/
 .DS_Store
+dump.rdb
