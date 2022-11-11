@@ -3,3 +3,4 @@
 redis/
 .DS_Store
 dump.rdb
+start_port5010.sh
