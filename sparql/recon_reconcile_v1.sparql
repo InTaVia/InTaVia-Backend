@@ -1,11 +1,3 @@
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
-PREFIX idmcore: <http://www.intavia.eu/idm-core/>
-PREFIX bd: <http://www.bigdata.com/rdf#>
-prefix bds: <http://www.bigdata.com/rdf/search#>
-
 SELECT DISTINCT ?id ?p ?name ?type ?typelabel ?pid ?rank ((?score0 *100) AS ?score)
 WHERE {
     ?name bds:search "{{q}}" .
@@ -26,3 +18,7 @@ WHERE {
 }
 ORDER BY ?rank
 LIMIT 100
+
+WHERE {  
+{% include 'retrieve_entities_v2.sparql' %}
+}
