@@ -1,3 +1,14 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX bioc: <http://deductions.github.io/biological-collections.owl.ttl#>
+PREFIX bioc: <http://deductions.github.io/biological-collections.owl.ttl#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX bioc: <http://deductions.github.io/biological-collections.owl.ttl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
 {?person a idmcore:Person_Proxy 
 BIND("person" AS ?entityTypeLabel)
 } UNION {

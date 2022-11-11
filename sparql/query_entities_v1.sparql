@@ -1,3 +1,11 @@
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX bioc: <http://deductions.github.io/biological-collections.owl.ttl#>
+PREFIX bioc: <http://deductions.github.io/biological-collections.owl.ttl#>
+PREFIX bds: <http://www.bigdata.com/rdf/search#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
 {% if q %}
 ?person crm:P1_is_identified_by ?appellation .
 

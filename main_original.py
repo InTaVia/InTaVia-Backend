@@ -188,15 +188,9 @@ config = {
     },
     'recon_suggest_v1.sparql': {
         'id': '?id',
-        'name': {
+        'label': {
             'default': '?name'
-        },
-        'score': '?score',
-        'rank': '?rank',
-        'type' : {
-            'id': '?type',
-            'name': '?typelabel'
-        },
+        }
     },    
 }
 
@@ -215,13 +209,7 @@ async def recon_suggest(queries: str):
             batch_results.append(
                 {
                     'id': r['id'],
-                    'name': r['name']['default'],
-                    'score': r['score'],
-                    'rank': r['rank'],
-                    'type' : {
-                        'id': r['type']['id'],
-                        'name': r['type']['name']
-                    },
+                    'name': r['label']['default']
                 }
             )
         result[key] = { 'result': batch_results}
