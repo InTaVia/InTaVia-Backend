@@ -98,7 +98,14 @@ class InTaViaModelBaseClass(BaseModel):
         return flattened_data
 
     @staticmethod
+    def harm_filter_sparql(data: list) -> list | None:
+        for ent in data:
+            if ent:
+                return data
+        return None
+
     def filter_sparql(
+        self,
         data: list | dict,
         filters: typing.List[typing.Tuple[str, str]] | None = None,
         list_of_keys: typing.List[str] = None,
@@ -158,8 +165,8 @@ class InTaViaModelBaseClass(BaseModel):
                     add_vals.append(add_vals_dict)
                 res1["results"] = add_vals
                 res_fin_anchor.append(res1)
-            return res_fin_anchor
-        return data
+            return self.harm_filter_sparql(res_fin_anchor)
+        return self.harm_filter_sparql(data)
 
     def get_anchor_element_from_field(self, field: ModelField) -> typing.Tuple[str, ModelField] | None:
         for f_name, f_class in field.type_.__fields__.items():
@@ -252,13 +259,14 @@ class InTaViaModelBaseClass(BaseModel):
                     anch_f = anch_f[0]
                 rdf_data = __pydantic_self__.filter_sparql(data=data["results"], anchor=anch_f, list_of_keys=f_fields)
                 if rdf_data is not None:
-                    if isinstance(rdf_data, list) and field.outer_type_ == list:
-                        data[field.name] = [field.type_(**item) for item in rdf_data]
-                    elif isinstance(rdf_data, list) and field.outer_type_ != list:
-                        data[field.name] = field.type_(**rdf_data[0])
-                    else:
-                        data[field.name] = field.type_(**rdf_data)
-                    print("init")
+                    if len(rdf_data) > 0:
+                        if isinstance(rdf_data, list) and field.outer_type_.__name__ == "list":
+                            data[field.name] = [field.type_(**item) for item in rdf_data]
+                        elif isinstance(rdf_data, list) and field.outer_type_ != list:
+                            data[field.name] = field.type_(**rdf_data[0])
+                        else:
+                            data[field.name] = field.type_(**rdf_data)
+                        print("init")
         super().__init__(**data)
 
 
@@ -516,12 +524,12 @@ class EntityBase(InTaViaModelBaseClass):
     label: InternationalizedLabel | None = None
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     source: Source | None = None
-    # linkedIds: list[LinkedId] | None = None
-    # _linkedIds: list[HttpUrl] | None = None
-    # alternativeLabels: list[InternationalizedLabel] | None = None
-    # description: str | None = None
-    # media: list[MediaResource] | None = None
-    # relations: list["EntityEventRelation"] | None = None
+    linkedIds: list[LinkedId] | None = None
+    _linkedIds: list[HttpUrl] | None = None
+    alternativeLabels: list[InternationalizedLabel] | None = None
+    description: str | None = None
+    media: list[MediaResource] | None = None
+    relations: list["EntityEventRelation"] | None = None
 
     # def __init__(__pydantic_self__, **data: Any) -> None:
     #     #__pydantic_self__.create_data_from_rdf(data)
@@ -546,8 +554,8 @@ class GenderType(BaseModel):
 
 class Person(EntityBase):
     kind = "person"
-    # gender: GenderType | None = None
-    # occupations: typing.List[Occupation] | None = None
+    gender: GenderType | None = None
+    occupations: typing.List[Occupation] | None = None
 
     # def __init__(__pydantic_self__, **data: Any) -> None:
     #     if "gender" in data:    # FIXME: This should be fixed in the data, by adding a label to the gender type
@@ -630,18 +638,17 @@ class EntityEvent(BaseModel):
     id: str
     label: InternationalizedLabel | None = None
     source: Source | None = None
-    # _source_entity_role: EntityRelationRole | None = None
-    # _self_added: Boolean = False
-    # kind: EntityEventKind | None = None
-    # startDate: str | None = None
-    # endDate: str | None = None
-    # place: Place | None = None
-    # relations: typing.List[EntityEventRelation] | None = None
+    _source_entity_role: EntityRelationRole | None = None
+    _self_added: Boolean = False
+    kind: EntityEventKind | None = None
+    startDate: str | None = None
+    endDate: str | None = None
+    place: Place | None = None
+    relations: typing.List[EntityEventRelation] | None = None
 
 
 class PersonFull(Person):
-    event: str = "test"
-    # events: typing.List["EntityEvent"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
     # def __init__(__pydantic_self__, **data: Any) -> None:
     #     if "events" in data:
