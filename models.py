@@ -60,43 +60,15 @@ def get_source_mapping(source):
     return None
 
 
+def get_entity_class(field, data):
+    pass
+
+
 class InTaViaConfig:
     validate_assignment = True
 
 
 class InTaViaModelBaseClass(BaseModel):
-    def flatten_rdf_data(self, data: dict) -> list:
-        """Flatten the RDF data to a list of dicts. Stores it also in the object.
-
-        Args:
-            data (dict): The RDF data
-
-        Returns:
-            list: A list of dicts
-        """
-        flattened_data = []
-        for ent in data["results"]:
-            d_res = {}
-            for k, v in ent.items():
-                if isinstance(v, dict):
-                    if "value" in v:
-                        if "datatype" in v:
-                            if v["datatype"] == "http://www.w3.org/2001/XMLSchema#dateTime":
-                                v["value"] = datetime.datetime.fromisoformat(v["value"].replace("Z", "+00:00"))
-                            elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
-                                v["value"] = int(v["value"])
-                            elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
-                                v["value"] = bool(v["value"])
-                            elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#float":
-                                v["value"] = float(v["value"])
-                        d_res[k] = v["value"]
-                    else:
-                        d_res[k] = v
-                else:
-                    d_res[k] = v
-            flattened_data.append(d_res)
-        return flattened_data
-
     @staticmethod
     def harm_filter_sparql(data: list) -> list | None:
         for ent in data:
@@ -250,9 +222,16 @@ class InTaViaModelBaseClass(BaseModel):
         print(" ...")
 
     def __init__(__pydantic_self__, **data: Any) -> None:
+        # if isinstance(__pydantic_self__, PaginatedResponseEntities):
+        #     super().__init__(**data)
         data = __pydantic_self__.map_fields_data(data=data)
         for field in __pydantic_self__.__fields__.values():
-            if field.type_.__module__ == "models":
+            if field.type_.__module__ != "pydantic.types":
+                cb1 = getattr(field.field_info.extra.get("rdfconfig", object()), "serialization_class_callback", False)
+                if cb1:
+                    field_initialize = cb1(field, data)
+                else:
+                    field_initialize = field.type_
                 anch_f = __pydantic_self__.get_anchor_element_from_field(field=field)
                 f_fields = __pydantic_self__.get_rdf_variables_from_field(field=field)
                 if anch_f is not None:
@@ -397,10 +376,11 @@ class InTaViaModelBaseClassBak(BaseModel):
 
 
 class FieldConfigurationRDF(BaseModel):
-    path: constr(regex="^[a-zA-Z0-9\.]+$")
+    path: constr(regex="^[a-zA-Z0-9\.]+$") | None = None
     anchor: Boolean = False
     default_value: Boolean = False
     callback_function: Callable | None = None
+    serialization_class_callback: Callable | None = None
 
 
 class EnumVocabsRelation(str, Enum):
@@ -715,48 +695,50 @@ class PaginatedResponseGetterDict(GetterDict):
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[Union[PersonFull, PlaceFull, GroupFull]] = Field(..., path="person", description="tetst")
+    results: typing.List[Union[PersonFull, PlaceFull, GroupFull]] = Field(
+        ..., rdfconfig=FieldConfigurationRDF(serialization_class_callback=get_entity_class)
+    )
     errors: typing.List[ValidationErrorModel] | None = None
 
-    def __init__(self, **data: Any) -> None:
-        # self.create_data_from_rdf(data)
-        data_flattened = self.flatten_rdf_data(data)
-        res = []
-        data_person = self.filter_sparql(
-            data=data_flattened,
-            filters=[
-                ("entityTypeLabel", "person"),
-            ],
-            anchor="person",
-        )
-        errors = []
-        for person in data_person:
-            try:
-                res.append(PersonFull(**person))
-            except ValidationError as e:
-                errors.append({"id": person["person"], "error": str(e)})
+    # def __init__(self, **data: Any) -> None:
+    #     # self.create_data_from_rdf(data)
+    #     data_flattened = self.flatten_rdf_data(data)
+    #     res = []
+    #     data_person = self.filter_sparql(
+    #         data=data_flattened,
+    #         filters=[
+    #             ("entityTypeLabel", "person"),
+    #         ],
+    #         anchor="person",
+    #     )
+    #     errors = []
+    #     for person in data_person:
+    #         try:
+    #             res.append(PersonFull(**person).dict())
+    #         except ValidationError as e:
+    #             errors.append({"id": person["person"], "error": str(e)})
 
-        for ent in data["results"]:
-            if ent["kind"] == "person":
-                try:
-                    res.append(PersonFull(**ent))
-                except ValidationError as e:
-                    errors.append({"id": ent["id"], "error": str(e)})
-            elif ent["kind"] == "group":
-                try:
-                    res.append(GroupFull(**ent))
-                except ValidationError as e:
-                    errors.append({"id": ent["id"], "error": str(e)})
-            elif ent["kind"] == "place":
-                try:
-                    res.append(PlaceFull(**ent))
-                except ValidationError as e:
-                    errors.append({"id": ent["id"], "error": str(e)})
-        data["results"] = res
-        if len(errors) > 0:
-            data["errors"] = errors
-        super().__init__(**data)
-        self.results = res
+    # for ent in data["results"]:
+    #     if ent["kind"] == "person":
+    #         try:
+    #             res.append(PersonFull(**ent))
+    #         except ValidationError as e:
+    #             errors.append({"id": ent["id"], "error": str(e)})
+    #     elif ent["kind"] == "group":
+    #         try:
+    #             res.append(GroupFull(**ent))
+    #         except ValidationError as e:
+    #             errors.append({"id": ent["id"], "error": str(e)})
+    #     elif ent["kind"] == "place":
+    #         try:
+    #             res.append(PlaceFull(**ent))
+    #         except ValidationError as e:
+    #             errors.append({"id": ent["id"], "error": str(e)})
+    # data["results"] = res
+    # if len(errors) > 0:
+    #     data["errors"] = errors
+    # super().__init__(**data)
+    # self.results = res
 
 
 class PaginatedResponseOccupations(PaginatedResponseBase):
