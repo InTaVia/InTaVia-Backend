@@ -6,7 +6,15 @@ import re
 from tkinter import W
 import typing
 from xmlrpc.client import Boolean
-from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt, PositiveInt, ValidationError, constr
+from pydantic import (
+    BaseModel,
+    Field,
+    HttpUrl,
+    NonNegativeInt,
+    PositiveInt,
+    ValidationError,
+    constr,
+)
 from pydantic.dataclasses import dataclass
 from pydantic.utils import GetterDict
 from pydantic.fields import ModelField
@@ -18,31 +26,30 @@ import datetime
 source_mapping = {
     "intavia.eu/apis/personproxy": "Austrian Biographical Dictionary",
     "data.biographynet.nl": "BiographyNET",
-    "intavia.eu/personproxy/bs": "Biography Sampo"
-
+    "intavia.eu/personproxy/bs": "Biography Sampo",
 }
 
 linked_id_providers = {
     "gnd": {
         "label": "Gemeinsame Normdatei (GND)",
         "baseUrl": "https://d-nb.info/gnd",
-        "regex_id": r"/([^/]+)$"
+        "regex_id": r"/([^/]+)$",
     },
     "APIS": {
         "label": "Österreichische Biographische Lexikon, APIS",
         "baseUrl": "https://apis.acdh.oeaw.ac.at",
-        "regex_id": "([0-9]+)/?$"
+        "regex_id": "([0-9]+)/?$",
     },
     "wikidata": {
         "label": "Wikidata",
         "baseUrl": "http://www.wikidata.org/entity",
-        "regex_id": ".+?(Q[^\.]+)"
+        "regex_id": ".+?(Q[^\.]+)",
     },
     "biographysampo": {
         "label": "BiographySampo",
         "baseUrl": "http://ldf.fi/nbf/",
-        "regex_id": "nbf/([^\.]+)"
-    }
+        "regex_id": "nbf/([^\.]+)",
+    },
 }
 
 
@@ -51,9 +58,13 @@ class InTaViaConfig:
 
 
 class InTaViaModelBaseClass(BaseModel):
-
     @staticmethod
-    def filter_sparql(data: list, filters: typing.List[typing.Tuple[str, str]], list_of_keys: typing.List[str] = None, anchor: str | None = None) -> typing.List[dict] | None:
+    def filter_sparql(
+        data: list | dict,
+        filters: typing.List[typing.Tuple[str, str]] | None = None,
+        list_of_keys: typing.List[str] = None,
+        anchor: str | None = None,
+    ) -> typing.List[dict] | None:
         """filters sparql result for key value pairs
 
         Args:
@@ -64,9 +75,12 @@ class InTaViaModelBaseClass(BaseModel):
         Returns:
             typing.List[dict] | None: list of dictionaries containing keys and values
         """
-        while len(filters) > 0 and len(data) > 0:
-            f1 = filters.pop(0)
-            data = list(filter(lambda x: (x[f1[0]]["value"] == f1[1]), data))
+        if isinstance(data, dict):
+            data = [data]
+        if filters is not None:
+            while len(filters) > 0 and len(data) > 0:
+                f1 = filters.pop(0)
+                data = list(filter(lambda x: (x[f1[0]]["value"] == f1[1]), data))
         if len(data) == 0:
             return None
         res = []
@@ -95,11 +109,25 @@ class InTaViaModelBaseClass(BaseModel):
             return res_fin_anchor
         return res
 
-    def get_anchor_element_from_field(self, field: str) -> ModelField:
-        for f in self.__fields__[field].field_info.extra.get("rdfconfig", object()):
-            if getattr(f, "anchor", False):
-                return f
+    def get_anchor_element_from_field(self, field: ModelField) -> ModelField | None:
+        for f_name, f_class in field.type_.__fields__.items():
+            f_conf = f_class.field_info.extra.get("rdfconfig", object())
+            if getattr(f_conf, "anchor", False):
+                return f_name, f_class
         return None
+
+    def filter_data_for_related_field(self, data: any, field: str) -> any:
+        pass
+
+    def get_rdf_variables_from_field(self, field: ModelField) -> typing.List[str]:
+        res = []
+        for f_name, f_class in field.type_.__fields__.items():
+            f_conf = f_class.field_info.extra.get("rdfconfig", object())
+            if hasattr(f_conf, "path"):
+                res.append(f_conf.path)
+            else:
+                res.append(f_name)
+        return res
 
     def create_data_from_rdf(self, data: list, fields: dict | None = None) -> dict | None:
         """creates data from rdf data
@@ -118,12 +146,22 @@ class InTaViaModelBaseClass(BaseModel):
         #         if key in cls.__fields__:
         #             fields_parent.append(key)
         #             break
+        for field, field_class in fields.items():
+            if field_class.type_.__module__ == "models":
+                anch_f = self.get_anchor_element_from_field(field=field_class)
+                f_fields = self.get_rdf_variables_from_field(field=field_class)
+                if anch_f is not None:
+                    anch_f = anch_f[0]
+                rdf_data = self.filter_sparql(data=data, anchor=anch_f, list_of_keys=f_fields)
+                print("test")
+            else:
+                pass
         anchor = False
         field_serialize = []
         data_fin = []
         for field in [item for item in fields]:
             f1 = fields[field]
-            if getattr(f1.field_info.extra.get('rdfconfig', object()), 'anchor', False):
+            if getattr(f1.field_info.extra.get("rdfconfig", object()), "anchor", False):
                 if anchor:
                     raise ValueError("Only one anchor field allowed")
                 anchor = fields[field]
@@ -132,11 +170,13 @@ class InTaViaModelBaseClass(BaseModel):
             # if f1.type_ in [str, int, float]:
             #     pass
         if not anchor:
-            raise ValidationError(f"Every single object needs one configured anchor element: {self.__class__.__name__} does not have one.")
+            raise ValidationError(
+                f"Every single object needs one configured anchor element: {self.__class__.__name__} does not have one."
+            )
         anchor_path = getattr(anchor.field_info.extra.get("rdfconfig"), "path")
         for d in data:
             pass
-        print(' ...')
+        print(" ...")
 
     def __init__(__pydantic_self__, **data: Any) -> None:
         __pydantic_self__.create_data_from_rdf(data)
@@ -172,7 +212,7 @@ class VocabsRelation(BaseModel):
 class InternationalizedLabel(BaseModel):
     """Used to provide internationalized labels"""
 
-    default: str
+    default: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entityLabel", anchor=True))
     en: typing.Optional[str]
     de: str | None = None
     fi: str | None = None
@@ -248,13 +288,11 @@ class LinkedId(BaseModel):
         if "_str_idprovider" in data:
             # Test for query params and remove them
             if re.search(r"\?[^/]+$", data["_str_idprovider"]):
-                data["_str_idprovider"] = "/".join(
-                    data["_str_idprovider"].split("/")[:-1])
+                data["_str_idprovider"] = "/".join(data["_str_idprovider"].split("/")[:-1])
             for k, v in linked_id_providers.items():
                 if v["baseUrl"] in data["_str_idprovider"]:
                     test = True
-                    match = re.search(
-                        v["regex_id"], data["_str_idprovider"])
+                    match = re.search(v["regex_id"], data["_str_idprovider"])
                     if match:
                         data["id"] = match.group(1)
                         data["provider"] = LinkedIdProvider(**v)
@@ -267,8 +305,7 @@ class LinkedId(BaseModel):
 
 
 class EntityBase(InTaViaModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(
-        path="person", anchor=True))
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="person", anchor=True))
     label: InternationalizedLabel | None = None
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     source: Source | None = None
@@ -346,7 +383,6 @@ class HistoricalEvent(EntityBase):
 
 
 class EntityEventRelationGetter(GetterDict):
-
     def get(self, key: Any, default: Any = None) -> Any:
         if key == "entity":
             ent = self._obj["entity"]
@@ -363,8 +399,7 @@ class EntityEventRelationGetter(GetterDict):
 class EntityEventRelation(BaseModel):
     id: str
     label: InternationalizedLabel | None = None
-    entity: Union[Person, Place, Group,
-                  CulturalHeritageObject, HistoricalEvent] | None = None
+    entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent] | None = None
     role: EntityRelationRole | None = None
     source: Source | None = None
 
@@ -372,7 +407,7 @@ class EntityEventRelation(BaseModel):
         # if "label" in data:
         if isinstance(data["label"], list):
             data["label"] = data["label"][0]
-        #data["label"] = data["label"][0]
+        # data["label"] = data["label"][0]
         if not "entity" in data:
             if "kind" in data:
                 if data["kind"] == "person":
@@ -412,8 +447,7 @@ class PersonFull(Person):
                 if not "relations" in data["events"][c]:
                     data["events"][c]["relations"] = []
                 if ev_self["id"] not in [x["id"] for x in data["events"][c]["relations"]]:
-                    data["events"][c]["relations"].insert(
-                        0, EntityEventRelation(**ev_self))
+                    data["events"][c]["relations"].insert(0, EntityEventRelation(**ev_self))
                     data["events"][c]["_self_added"] = True
         super().__init__(**data)
 
@@ -449,7 +483,6 @@ class ValidationErrorModel(BaseModel):
 
 
 class PaginatedResponseGetterDict(GetterDict):
-
     def get(self, key: str, default: Any) -> Any:
         if key == "results":
             res = []
@@ -467,15 +500,19 @@ class PaginatedResponseGetterDict(GetterDict):
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[Union[PersonFull, PlaceFull,
-                               GroupFull]] = Field(..., path="person", description='tetst')
+    results: typing.List[Union[PersonFull, PlaceFull, GroupFull]] = Field(..., path="person", description="tetst")
     errors: typing.List[ValidationErrorModel] | None = None
 
     def __init__(self, **data: Any) -> None:
         # self.create_data_from_rdf(data)
         res = []
         data_person = self.filter_sparql(
-            data=data["results"], filters=[("entityTypeLabel", "person"), ], anchor='person')
+            data=data["results"],
+            filters=[
+                ("entityTypeLabel", "person"),
+            ],
+            anchor="person",
+        )
         errors = []
         for person in data_person:
             try:
@@ -531,8 +568,7 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
 class Bin(BaseModel):
     label: str
     count: int
-    values: typing.Tuple[Union[int, float, datetime.datetime],
-                         Union[int, float, datetime.datetime]] | None = None
+    values: typing.Tuple[Union[int, float, datetime.datetime], Union[int, float, datetime.datetime]] | None = None
     order: PositiveInt | None = None
 
 
