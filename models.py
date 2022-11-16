@@ -227,16 +227,16 @@ class InTaViaModelBaseClass(BaseModel):
         data = __pydantic_self__.map_fields_data(data=data)
         for field in __pydantic_self__.__fields__.values():
             if field.type_.__module__ != "pydantic.types":
-                cb1 = getattr(field.field_info.extra.get("rdfconfig", object()), "serialization_class_callback", False)
-                if cb1:
-                    field_initialize = cb1(field, data)
-                else:
-                    field_initialize = field.type_
                 anch_f = __pydantic_self__.get_anchor_element_from_field(field=field)
                 f_fields = __pydantic_self__.get_rdf_variables_from_field(field=field)
                 if anch_f is not None:
                     anch_f = anch_f[0]
                 rdf_data = __pydantic_self__.filter_sparql(data=data["results"], anchor=anch_f, list_of_keys=f_fields)
+                cb1 = getattr(field.field_info.extra.get("rdfconfig", object()), "serialization_class_callback", False)
+                if cb1:
+                    field_initialize = cb1(field, rdf_data)
+                else:
+                    field_initialize = field.type_
                 if rdf_data is not None:
                     if len(rdf_data) > 0:
                         if isinstance(rdf_data, list) and field.outer_type_.__name__ == "list":
@@ -695,12 +695,14 @@ class PaginatedResponseGetterDict(GetterDict):
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[Union[PersonFull, PlaceFull, GroupFull]] = Field(
+    results: typing.List[Any] = Field(
         ..., rdfconfig=FieldConfigurationRDF(serialization_class_callback=get_entity_class)
     )
     errors: typing.List[ValidationErrorModel] | None = None
 
     # def __init__(self, **data: Any) -> None:
+    #     super().__init__(**data)
+
     #     # self.create_data_from_rdf(data)
     #     data_flattened = self.flatten_rdf_data(data)
     #     res = []
