@@ -61,7 +61,15 @@ def get_source_mapping(source):
 
 
 def get_entity_class(field, data):
-    pass
+    res = []
+    for ent in data[0]["results"]:  # FIXME: this needs a generic approach, data should be filtered before
+        if ent["entityTypeLabel"] == "person":
+            res.append(PersonFull(**ent))
+        elif ent["entityTypeLabel"] == "place":
+            res.append(PlaceFull(**ent))
+        elif ent["entityTypeLabel"] == "organization":
+            res.append(GroupFull(**ent))
+    return res
 
 
 class InTaViaConfig:
@@ -141,6 +149,8 @@ class InTaViaModelBaseClass(BaseModel):
         return self.harm_filter_sparql(data)
 
     def get_anchor_element_from_field(self, field: ModelField) -> typing.Tuple[str, ModelField] | None:
+        if not getattr(field.type_, "__fields__", False):
+            return None
         for f_name, f_class in field.type_.__fields__.items():
             f_conf = f_class.field_info.extra.get("rdfconfig", object())
             if getattr(f_conf, "anchor", False):
@@ -149,8 +159,10 @@ class InTaViaModelBaseClass(BaseModel):
                 return f_name, f_class
         return None
 
-    def get_rdf_variables_from_field(self, field: ModelField) -> typing.List[str]:
+    def get_rdf_variables_from_field(self, field: ModelField) -> typing.List[str] | None:
         res = []
+        if not getattr(field.type_, "__fields__", False):
+            return None
         for f_name, f_class in field.type_.__fields__.items():
             f_conf = f_class.field_info.extra.get("rdfconfig", object())
             if hasattr(f_conf, "path"):
@@ -231,18 +243,17 @@ class InTaViaModelBaseClass(BaseModel):
                 f_fields = __pydantic_self__.get_rdf_variables_from_field(field=field)
                 if anch_f is not None:
                     anch_f = anch_f[0]
-                rdf_data = __pydantic_self__.filter_sparql(data=data["results"], anchor=anch_f, list_of_keys=f_fields)
+                rdf_data = __pydantic_self__.filter_sparql(data=data, anchor=anch_f, list_of_keys=f_fields)
                 cb1 = getattr(field.field_info.extra.get("rdfconfig", object()), "serialization_class_callback", False)
                 if cb1:
-                    field_initialize = cb1(field, rdf_data)
-                else:
-                    field_initialize = field.type_
+                    data = cb1(field, rdf_data)
+                    continue
                 if rdf_data is not None:
                     if len(rdf_data) > 0:
                         if isinstance(rdf_data, list) and field.outer_type_.__name__ == "list":
                             data[field.name] = [field.type_(**item) for item in rdf_data]
                         elif isinstance(rdf_data, list) and field.outer_type_ != list:
-                            data[field.name] = field.type_(**rdf_data[0])
+                            data[field.name] = field.type_(rdf_data[0][field.name])
                         else:
                             data[field.name] = field.type_(**rdf_data)
                         print("init")
@@ -695,7 +706,7 @@ class PaginatedResponseGetterDict(GetterDict):
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[Any] = Field(
+    results: typing.List[Union[PersonFull, PlaceFull]] = Field(
         ..., rdfconfig=FieldConfigurationRDF(serialization_class_callback=get_entity_class)
     )
     errors: typing.List[ValidationErrorModel] | None = None
@@ -741,6 +752,20 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     #     data["errors"] = errors
     # super().__init__(**data)
     # self.results = res
+
+
+PaginatedResponseEntities.update_forward_refs()
+PlaceFull.update_forward_refs()
+PersonFull.update_forward_refs()
+EntityEvent.update_forward_refs()
+GroupFull.update_forward_refs()
+CulturalHeritageObjectFull.update_forward_refs()
+HistoricalEventFull.update_forward_refs()
+Place.update_forward_refs()
+Person.update_forward_refs()
+Group.update_forward_refs()
+CulturalHeritageObject.update_forward_refs()
+HistoricalEvent.update_forward_refs()
 
 
 class PaginatedResponseOccupations(PaginatedResponseBase):
