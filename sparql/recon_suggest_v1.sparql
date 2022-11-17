@@ -6,9 +6,9 @@ PREFIX idmcore: <http://www.intavia.eu/idm-core/>
 PREFIX bd: <http://www.bigdata.com/rdf#>
 prefix bds: <http://www.bigdata.com/rdf/search#>
 
-SELECT DISTINCT ?id ?p ?name ?type ?pid ?score ?rank
+SELECT ?id ?p ?name ?type ?pid ?score ?rank
 WHERE {
-?name bds:search "{{q}}" .
+?name bds:search "{{query}}" .
 ?name bds:matchAllTerms "true" .
 ?name bds:minRelevance "0.25" .
 ?name bds:relevance ?score .
@@ -18,10 +18,10 @@ WHERE {
 {
     SELECT DISTINCT ?id ?type ?pid
     WHERE { 
-        ?id a ?type .
+        ?id a {{type}} .
         #?s crm:P1_is_identified_by ?pid .
     }
   }
 }
 ORDER BY ?rank
-LIMIT 100
+LIMIT {{limit}}

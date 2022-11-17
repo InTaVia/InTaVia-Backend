@@ -95,9 +95,26 @@ class Search_Base:
 
 
 
+
 @dataclasses.dataclass()
-class SuggestItem(Base):
-    q: str    
+class ReconQuery(Base):
+    query: str   
+    limit: str
+    type: str
+
+    def __post_init__(self):
+        
+        match self.type:
+            case 'Person':
+                newType = '<http://www.intavia.eu/idm-core/Provided_' + self.type + '>'
+            case _:
+                newType = '?type'
+
+        self.__setattr__('type', newType)    
+
+@dataclasses.dataclass()       
+class ReconQueryBatch(Base):
+    queries: list[ReconQuery]
 
 @dataclasses.dataclass(kw_only=True)
 class Suggest(Base):

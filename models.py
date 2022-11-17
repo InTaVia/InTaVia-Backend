@@ -435,11 +435,15 @@ class StatisticsOccupation(BaseModel):
 class StatisticsOccupationReturn(BaseModel):
     tree: StatisticsOccupation
 
-class ReconSuggestResultReturn(BaseModel):
+class ReconCandidate(BaseModel):
     id: str
     name: str
+    score: float
 
-class ReconSuggestReturn(BaseModel):
-    result: list[ReconSuggestResultReturn]
+class ReconCandidates(BaseModel):
+    candidates: typing.List["ReconCandidate"] | None = {}
+
+class ReconResponse(BaseModel):
+    results: typing.List["ReconCandidates"] | None = {}
 
 

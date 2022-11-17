@@ -1,7 +1,7 @@
 import aioredis
 from tkinter import W
 from fastapi import Depends, FastAPI
-from models import ReconSuggestReturn, PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
+from models import ReconResponse, PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
 import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -9,7 +9,7 @@ from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
 import os.path
 from conversion import convert_sparql_result
-from query_parameters import Suggest, SuggestItem, Entity_Retrieve, Search, SearchVocabs, StatisticsBase
+from query_parameters import ReconQuery, ReconQueryBatch, Entity_Retrieve, ReconQueryBatch, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from dataclasses import asdict
 import dateutil
@@ -73,6 +73,7 @@ jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 def get_query_from_triplestore(search: Search, sparql_template: str, proto_config: str | None = None):
     query_template = jinja_env.get_template(
         sparql_template).render(**asdict(search))
+    print(query_template)
     sparql.setQuery(query_template)
     res = sparql.queryAndConvert()
     rq, proto, opt = pre_process(
@@ -188,32 +189,33 @@ config = {
     },
     'recon_suggest_v1.sparql': {
         'id': '?id',
-        'label': {
-            'default': '?name'
-        }
+        'score': '?score',
+        'label': '?name'
     },    
 }
 
 import json
-@app.get('/recon/suggest')
-async def recon_suggest(queries: str):
-    queries = json.loads(queries)
-    result = {}
-    for key in queries:
-        payload = queries[key]
-        q = payload['query']
-        suggestItem = SuggestItem(q)
-        res = get_query_from_triplestore(suggestItem, "recon_suggest_v1.sparql")
+@app.post('/reconcile',
+    response_model=ReconResponse,
+    response_model_exclude_none=True,
+    tags=['Reconciliation'],
+    description="Endpoint that implements the reconciliation aPI specification.")
+async def recon_suggest(payload: ReconQueryBatch):
+    results = []
+    response = {"results": results}
+    for reconQuery in payload.queries:
+        res = get_query_from_triplestore(reconQuery, "recon_suggest_v1.sparql")
         batch_results = []
         for r in res:
             batch_results.append(
                 {
                     'id': r['id'],
-                    'name': r['label']['default']
+                    'name': r['label'],
+                    'score': r['score']
                 }
             )
-        result[key] = { 'result': batch_results}
-    return result
+        results.append({"candidates": batch_results})
+    return response
 
 @app.get("/api/entities/search",
          response_model=PaginatedResponseEntities,
