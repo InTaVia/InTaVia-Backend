@@ -5,7 +5,7 @@ import json
 from typing import Any
 import typing
 from fastapi import Query
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
+from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, Extra
 from dateutil.parser import *
 import datetime
 import base64
@@ -102,15 +102,17 @@ class ReconQuery(Base):
     limit: str
     type: str
 
-    def __post_init__(self):
-        
+    def __post_init__(self):        
         match self.type:
             case 'Person':
-                newType = '<http://www.intavia.eu/idm-core/Provided_' + self.type + '>'
+                self.__setattr__('type', '<http://www.intavia.eu/idm-core/Provided_' + self.type + '>')
+            case 'Group':
+                self.__setattr__('type', '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>')
+            case 'Place':
+                self.__setattr__('type', '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>')
             case _:
-                newType = '?type'
-
-        self.__setattr__('type', newType)    
+                self.__setattr__('type', '?type')
+        
 
 @dataclasses.dataclass()       
 class ReconQueryBatch(Base):

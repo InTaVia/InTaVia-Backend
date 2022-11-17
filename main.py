@@ -1,7 +1,6 @@
-from http.client import HTTPException
 import aioredis
 from tkinter import W
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from models import ReconResponse, PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
 import math
 import os
@@ -74,7 +73,6 @@ jinja_env = Environment(loader=FileSystemLoader('sparql/'), autoescape=False)
 def get_query_from_triplestore(search: Search, sparql_template: str, proto_config: str | None = None):
     query_template = jinja_env.get_template(
         sparql_template).render(**asdict(search))
-    print(query_template)
     sparql.setQuery(query_template)
     res = sparql.queryAndConvert()
     rq, proto, opt = pre_process(
@@ -188,15 +186,21 @@ config = {
         },
         'count': '?count'
     },
-    'recon_suggest_v1.sparql': {
+    'recon_provided_person_v1.sparql': {
         'id': '?id',
         'score': '?score',
-        'label': '?name'
+        'label': '?label'
     },    
+    'recon_crm_v1.sparql': {
+        'id': '?id',
+        'score': '?score',
+        'label': '?label'
+    },        
 }
 
 RECON_MAX_BATCH_SIZE = 50
-@app.get('/recon')
+@app.get('/recon', 
+    tags=['Reconciliation'],)
 async def recon_manifest():
     return {
         "versions": ["0.1"],
@@ -210,21 +214,13 @@ async def recon_manifest():
                 "name": "Person"
             },
             {
+                "id": "Group",
+                "name": "Group"
+            },
+            {
                 "id": "Place",
                 "name": "Place"
             },
-            {
-                "id": "Event",
-                "name": "Event"
-            },
-            {
-                "id": "CHO",
-                "name": "Cultural heritage object"
-            },
-            {
-                "id": "Group",
-                "name": "Group (meaning what?)"
-            }            
         ]
     }
 
@@ -235,12 +231,20 @@ async def recon_manifest():
     description="Endpoint that implements the reconciliation aPI specification.")
 async def recon_suggest(payload: ReconQueryBatch):
     if len(payload.queries) > RECON_MAX_BATCH_SIZE:
-        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))
-
+        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))    
     results = []
     response = {"results": results}
     for reconQuery in payload.queries:
-        res = get_query_from_triplestore(reconQuery, "recon_suggest_v1.sparql")
+        if not reconQuery.type in [
+            '<http://www.intavia.eu/idm-core/Provided_Person>',
+            '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>',
+            '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>',
+            ]:
+            raise HTTPException(status_code=400, detail="Unknown type value. See manifest for supported values.")
+        if reconQuery.type in ['<http://www.intavia.eu/idm-core/Provided_Person>']:
+            res = get_query_from_triplestore(reconQuery, "recon_provided_person_v1.sparql")
+        else:
+            res = get_query_from_triplestore(reconQuery, "recon_crm_v1.sparql")
         batch_results = []
         for r in res:
             batch_results.append(
