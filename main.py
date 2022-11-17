@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import aioredis
 from tkinter import W
 from fastapi import Depends, FastAPI
@@ -194,13 +195,48 @@ config = {
     },    
 }
 
-import json
-@app.post('/reconcile',
+RECON_MAX_BATCH_SIZE = 50
+@app.get('/recon')
+async def recon_manifest():
+    return {
+        "versions": ["0.1"],
+        "name": "InTaVia",
+        "identifierSpace": "http://www.intavia.eu/idm-core/",
+        "schemaSpace": "http://www.intavia.eu/idm-core/Provided_Item",
+        "batchSize": RECON_MAX_BATCH_SIZE,
+        "defaultTypes": [
+            {
+                "id": "Person",
+                "name": "Person"
+            },
+            {
+                "id": "Place",
+                "name": "Place"
+            },
+            {
+                "id": "Event",
+                "name": "Event"
+            },
+            {
+                "id": "CHO",
+                "name": "Cultural heritage object"
+            },
+            {
+                "id": "Group",
+                "name": "Group (meaning what?)"
+            }            
+        ]
+    }
+
+@app.post('/recon/reconcile',
     response_model=ReconResponse,
     response_model_exclude_none=True,
     tags=['Reconciliation'],
     description="Endpoint that implements the reconciliation aPI specification.")
 async def recon_suggest(payload: ReconQueryBatch):
+    if len(payload.queries) > RECON_MAX_BATCH_SIZE:
+        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))
+
     results = []
     response = {"results": results}
     for reconQuery in payload.queries:
