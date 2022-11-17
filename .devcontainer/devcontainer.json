@@ -19,7 +19,7 @@
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,Z",
 	"runArgs": [
 	  //"--userns=keep-id",
-	  "--pod=intavia",
+	  "--pod=intavianew",
 	  "--env-file=.devcontainer/development.env"
 	],
 	
@@ -45,7 +45,9 @@
 		"ms-python.vscode-pylance",
 		"stardog-union.stardog-rdf-grammars",
 		"mhutchie.git-graph",
-		"GitHub.vscode-pull-request-github"
+		"GitHub.vscode-pull-request-github",
+		"GitHub.copilot",
+		"njpwerner.autodocstring"
 	],
 	"postCreateCommand": "poetry config virtualenvs.create false && poetry lock && poetry install",
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

@@ -1,3 +1,24 @@
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+
 [tool.poetry]
 name = "intavia-backend"
 version = "0.1.0"
@@ -7,10 +28,10 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = "^0.78.0"
+fastapi = "*"
 uvicorn = "^0.17.6"
 rdflib = "^6.1.1"
-pydantic = "^1.9.1"
+pydantic = ">=1.10.2"
 SPARQLWrapper = "^1.8.5"
 geojson-pydantic = "^0.4.0"
 Jinja2 = "^3.1.2"
@@ -22,9 +43,10 @@ gunicorn = "^20.1.0"
 fastapi-cache2 = {extras = ["redis"], version = "^0.1.9"}
 aioredis = "^2.0.1"
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-flake8 = "^4.0.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+flake8 = "^5.0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
