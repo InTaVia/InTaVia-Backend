@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "main:app"
+                "intavia_backend.main:app"
             ],
             "jinja": true,
             "justMyCode": true
@@ -29,12 +29,12 @@
                 "SPARQL_ENDPOINT": "http://127.0.0.1:8080/bigdata/sparql"
             }
         },
-            {
-                "name": "Dynamic Python: File",
-                "type": "python",
-                "request": "launch",
-                "program": "${file}",
-                "justMyCode": true
-            }
+        {
+            "name": "Dynamic Python: File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "justMyCode": true
+        }
     ]
 }
