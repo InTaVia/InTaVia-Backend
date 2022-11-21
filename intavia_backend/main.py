@@ -1,15 +1,16 @@
+import datetime
 import aioredis
 from tkinter import W
 from fastapi import Depends, FastAPI
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
+from .models import PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
 import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
 import os.path
-from conversion import convert_sparql_result
-from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
+from .conversion import convert_sparql_result
+from .query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from dataclasses import asdict
 import dateutil
@@ -57,7 +58,7 @@ if not sparql_endpoint.startswith("http://127.0.0.1:8080"):
     sparql.setHTTPAuth("BASIC")
     sparql.setCredentials(user=os.environ.get("SPARQL_USER"), passwd=os.environ.get("SPARQL_PASSWORD"))
 
-jinja_env = Environment(loader=FileSystemLoader("sparql/"), autoescape=False)
+jinja_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "sparql")), autoescape=False)
 
 
 def get_query_from_triplestore(search: Search, sparql_template: str, proto_config: str | None = None):
@@ -157,7 +158,7 @@ def flatten_rdf_data(data: dict) -> list:
                 if "value" in v:
                     if "datatype" in v:
                         if v["datatype"] == "http://www.w3.org/2001/XMLSchema#dateTime":
-                            v["value"] = datetime.datetime.fromisoformat(v["value"].replace("Z", "+00:00"))
+                            v["value"] = datetime.datetime.fromisoformat(str(v["value"]).replace("Z", "+00:00"))
                         elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
                             v["value"] = int(v["value"])
                         elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
