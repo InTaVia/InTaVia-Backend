@@ -1,415 +1,10 @@
-from copy import deepcopy
-from dataclasses import dataclass
-from distutils.command.config import config
-from inspect import getmro
-import re
-from tkinter import W
-import typing
-from xmlrpc.client import Boolean
-from pydantic import (
-    BaseModel,
-    Field,
-    HttpUrl,
-    NonNegativeInt,
-    PositiveInt,
-    ValidationError,
-    constr,
-)
-from pydantic.dataclasses import dataclass
-from pydantic.utils import GetterDict
-from pydantic.fields import ModelField
-from enum import Enum
-from geojson_pydantic import Polygon, Point
-from typing import Any, Callable, Union
 import datetime
+from enum import Enum
+import typing
+from geojson_pydantic import Point, Polygon
 
-source_mapping = {
-    "intavia.eu/apis/personproxy": "Austrian Biographical Dictionary",
-    "data.biographynet.nl": "BiographyNET",
-    "intavia.eu/personproxy/bs": "Biography Sampo",
-}
-
-linked_id_providers = {
-    "gnd": {
-        "label": "Gemeinsame Normdatei (GND)",
-        "baseUrl": "https://d-nb.info/gnd",
-        "regex_id": r"/([^/]+)$",
-    },
-    "APIS": {
-        "label": "Österreichische Biographische Lexikon, APIS",
-        "baseUrl": "https://apis.acdh.oeaw.ac.at",
-        "regex_id": "([0-9]+)/?$",
-    },
-    "wikidata": {
-        "label": "Wikidata",
-        "baseUrl": "http://www.wikidata.org/entity",
-        "regex_id": ".+?(Q[^\.]+)",
-    },
-    "biographysampo": {
-        "label": "BiographySampo",
-        "baseUrl": "http://ldf.fi/nbf/",
-        "regex_id": "nbf/([^\.]+)",
-    },
-}
-
-
-def get_source_mapping(source):
-    for key, value in source_mapping.items():
-        if key in source:
-            return value
-    return None
-
-
-def get_entity_class(field, data):
-    # res = []
-    # for ent in data[0]["results"]:  # FIXME: this needs a generic approach, data should be filtered before
-    #     if ent["entityTypeLabel"] == "person":
-    #         res.append(PersonFull(**ent))
-    #     elif ent["entityTypeLabel"] == "place":
-    #         res.append(PlaceFull(**ent))
-    #     elif ent["entityTypeLabel"] == "organization":
-    #         res.append(GroupFull(**ent))
-    # return res
-    return PersonFull
-
-
-class InTaViaConfig:
-    validate_assignment = True
-
-
-class InTaViaModelBaseClass(BaseModel):
-    @staticmethod
-    def harm_filter_sparql(data: list) -> list | None:
-        for ent in data:
-            if ent:
-                return data
-        return None
-
-    def filter_sparql(
-        self,
-        data: list | dict,
-        filters: typing.List[typing.Tuple[str, str]] | None = None,
-        list_of_keys: typing.List[str] = None,
-        anchor: str | None = None,
-        additional_values: typing.List[str] | None = None,
-    ) -> typing.List[dict] | None:
-        """filters sparql result for key value pairs
-
-        Args:
-            data (list): array of results from sparql endpoint (python object converted from json return)
-            filter (typing.List[tuple]): list of tuples containing key / value pair to filter on
-            list_of_keys (typing.List[str], optional): list of keys to return. Defaults to None.
-            additional_values (typing.List[str], optional): list of additional values to return. Defaults to None.
-
-        Returns:
-            typing.List[dict] | None: list of dictionaries containing keys and values
-        """
-        if isinstance(data, dict):
-            data = [data]
-        if additional_values is None:
-            additional_values = []
-        if filters is not None:
-            while len(filters) > 0 and len(data) > 0:
-                f1 = filters.pop(0)
-                data_res = list(filter(lambda x: (x[f1[0]] == f1[1]), data))
-            data = data_res
-        if len(data) == 0:
-            return None
-        res = []
-        if list_of_keys is not None:
-            data = [{k: v for k, v in d.items() if k in list_of_keys} for d in data]
-        if anchor is not None:
-            lst_unique_vals = set([x[anchor] for x in data])
-            res_fin_anchor = []
-            for item in lst_unique_vals:
-                add_vals = []
-                res1 = {}
-                for i2 in list(filter(lambda d: d[anchor] == item, data)):
-                    add_vals_dict = deepcopy(i2)
-                    for k, v in i2.items():
-                        if k in additional_values or k == anchor:
-                            if k not in res1:
-                                res1[k] = v
-                            else:
-                                if isinstance(res1[k], str):
-                                    if v != res1[k]:
-                                        res1[k] = [res1[k], v]
-                                elif isinstance(res1[k], int):
-                                    if v != res1[k]:
-                                        res1[k] = [res1[k], v]
-                                elif isinstance(res1[k], float):
-                                    if v != res1[k]:
-                                        res1[k] = [res1[k], v]
-                                elif v not in res1[k]:
-                                    res1[k].append(v)
-                            # del add_vals_dict[k]
-                    add_vals.append(add_vals_dict)
-                res1["results"] = add_vals
-                res_fin_anchor.append(res1)
-            return self.harm_filter_sparql(res_fin_anchor)
-        return self.harm_filter_sparql(data)
-
-    def get_anchor_element_from_field(self, field: ModelField) -> typing.Tuple[str, ModelField] | None:
-        if not getattr(field.type_, "__fields__", False):
-            return None
-        for f_name, f_class in field.type_.__fields__.items():
-            f_conf = f_class.field_info.extra.get("rdfconfig", object())
-            if getattr(f_conf, "anchor", False):
-                if getattr(f_conf, "path", False):
-                    f_name = getattr(f_conf, "path")
-                return f_name, f_class
-        return None
-
-    def get_rdf_variables_from_field(self, field: ModelField) -> typing.List[str] | None:
-        res = []
-        if not getattr(field.type_, "__fields__", False):
-            return None
-        for f_name, f_class in field.type_.__fields__.items():
-            f_conf = f_class.field_info.extra.get("rdfconfig", object())
-            if hasattr(f_conf, "path"):
-                res.append(f_conf.path)
-            else:
-                res.append(f_name)
-        return res
-
-    def map_fields_data(self, data: dict) -> dict:
-        res = {}
-        for k, v in data.items():
-            mapped = False
-            if k == "results":
-                res[k] = v
-                continue
-            for field_names, field in self.__fields__.items():
-                if field.__module__ == "models":
-                    res[k] = v
-                    mapped = True
-                    break
-                if getattr(field.field_info.extra.get("rdfconfig"), "callback_function", False):
-                    v = getattr(field.field_info.extra.get("rdfconfig"), "callback_function")(v)
-                f_conf = field.field_info.extra.get("rdfconfig", object())
-                if hasattr(f_conf, "path"):
-                    if f_conf.path == k:
-                        res[field_names] = v
-                        mapped = True
-                        break
-                else:
-                    if field_names == k:
-                        res[field_names] = v
-                        mapped = True
-                        break
-            if not mapped:
-                res[k] = v
-        return res
-
-    def create_data_from_rdf(self, data: list, fields: dict | None = None) -> dict | None:
-        """creates data from rdf data
-
-        Args:
-            data (list): data from rdf
-            fields (dict): fields to create (defaults to all fields defined in class)
-        """
-        if fields is None:
-            fields = self.__fields__
-        for field, field_class in fields.items():
-            if field_class.type_.__module__ == "models":
-                anch_f = self.get_anchor_element_from_field(field=field_class)
-                f_fields = self.get_rdf_variables_from_field(field=field_class)
-                if anch_f is not None:
-                    anch_f = anch_f[0]
-                rdf_data = self.filter_sparql(data=data, anchor=anch_f, list_of_keys=f_fields)
-                print("test")
-            else:
-                pass
-        anchor = False
-        field_serialize = []
-        data_fin = []
-        for field in [item for item in fields]:
-            f1 = fields[field]
-            if getattr(f1.field_info.extra.get("rdfconfig", object()), "anchor", False):
-                if anchor:
-                    raise ValueError("Only one anchor field allowed")
-                anchor = fields[field]
-            if f1.type_.__module__ == "models":
-                field_serialize.append(f1)
-            # if f1.type_ in [str, int, float]:
-            #     pass
-        if not anchor:
-            raise ValidationError(
-                f"Every single object needs one configured anchor element: {self.__class__.__name__} does not have one."
-            )
-        anchor_path = getattr(anchor.field_info.extra.get("rdfconfig"), "path")
-        for d in data:
-            pass
-        print(" ...")
-
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        # if isinstance(__pydantic_self__, PaginatedResponseEntities):
-        #     super().__init__(**data)
-        data = __pydantic_self__.map_fields_data(data=data)
-        for field in __pydantic_self__.__fields__.values():
-            if field.type_.__module__ != "pydantic.types":
-                anch_f = __pydantic_self__.get_anchor_element_from_field(field=field)
-                f_fields = __pydantic_self__.get_rdf_variables_from_field(field=field)
-                if anch_f is not None:
-                    anch_f = anch_f[0]
-                rdf_data = __pydantic_self__.filter_sparql(data=data, anchor=anch_f, list_of_keys=f_fields)
-                cb1 = getattr(field.field_info.extra.get("rdfconfig", object()), "serialization_class_callback", False)
-                if isinstance(__pydantic_self__, PaginatedResponseEntities) and field.name == "results":
-                    rdf_data = rdf_data[0]["results"]
-                if rdf_data is not None:
-                    if len(rdf_data) > 0:
-                        if isinstance(rdf_data, list) and field.outer_type_.__name__ in ["list", "Union"]:
-                            if cb1:
-                                data[field.name] = [cb1(field, item)(**item) for item in rdf_data]
-                            else:
-                                data[field.name] = [field.type_(**item) for item in rdf_data]
-                        elif (
-                            isinstance(rdf_data, list)
-                            and field.outer_type_ != list
-                            and field.type_.__module__ == "builtins"
-                        ):
-                            if field.name in rdf_data[0]:
-                                data[field.name] = field.type_(rdf_data[0][field.name])
-                        elif isinstance(rdf_data, list) and field.outer_type_ != list:
-                            data[field.name] = field.type_(**rdf_data[0])
-                        else:
-                            data[field.name] = field.type_(**rdf_data)
-                        print("init")
-        super().__init__(**data)
-
-
-class InTaViaModelBaseClassBak(BaseModel):
-    @staticmethod
-    def filter_sparql(
-        data: list | dict,
-        filters: typing.List[typing.Tuple[str, str]] | None = None,
-        list_of_keys: typing.List[str] = None,
-        anchor: str | None = None,
-    ) -> typing.List[dict] | None:
-        """filters sparql result for key value pairs
-
-        Args:
-            data (list): array of results from sparql endpoint (python object converted from json return)
-            filter (typing.List[tuple]): list of tuples containing key / value pair to filter on
-            list_of_keys (typing.List[str], optional): list of keys to return. Defaults to None.
-
-        Returns:
-            typing.List[dict] | None: list of dictionaries containing keys and values
-        """
-        if isinstance(data, dict):
-            data = [data]
-        if filters is not None:
-            while len(filters) > 0 and len(data) > 0:
-                f1 = filters.pop(0)
-                data = list(filter(lambda x: (x[f1[0]]["value"] == f1[1]), data))
-        if len(data) == 0:
-            return None
-        res = []
-        for item in data:
-            d1 = dict()
-            for key, value in item.items():
-                if list_of_keys is None or key in list_of_keys:
-                    d1[key] = value["value"]
-            res.append(d1)
-        if anchor is not None:
-            lst_unique_vals = set([x[anchor] for x in res])
-            res_fin_anchor = []
-            for item in lst_unique_vals:
-                res1 = {}
-                for i2 in list(filter(lambda d: d[anchor] == item, res)):
-                    for k, v in i2.items():
-                        if k not in res1:
-                            res1[k] = v
-                        else:
-                            if isinstance(res1[k], str):
-                                if v != res1[k]:
-                                    res1[k] = [res1[k], v]
-                            elif v not in res1[k]:
-                                res1[k].append(v)
-                res_fin_anchor.append(res1)
-            return res_fin_anchor
-        return res
-
-    def get_anchor_element_from_field(self, field: ModelField) -> ModelField | None:
-        for f_name, f_class in field.type_.__fields__.items():
-            f_conf = f_class.field_info.extra.get("rdfconfig", object())
-            if getattr(f_conf, "anchor", False):
-                return f_name, f_class
-        return None
-
-    def filter_data_for_related_field(self, data: any, field: str) -> any:
-        pass
-
-    def get_rdf_variables_from_field(self, field: ModelField) -> typing.List[str]:
-        res = []
-        for f_name, f_class in field.type_.__fields__.items():
-            f_conf = f_class.field_info.extra.get("rdfconfig", object())
-            if hasattr(f_conf, "path"):
-                res.append(f_conf.path)
-            else:
-                res.append(f_name)
-        return res
-
-    def create_data_from_rdf(self, data: list, fields: dict | None = None) -> dict | None:
-        """creates data from rdf data
-
-        Args:
-            data (list): data from rdf
-            fields (dict): fields to create (defaults to all fields defined in class)
-        """
-        if fields is None:
-            fields = self.__fields__
-        # fields_parent = []
-        # for key, value in fields.items():
-        #     for cls in getmro(self.__class__)[2:]:
-        #         if cls.__module__ != 'models':
-        #             continue
-        #         if key in cls.__fields__:
-        #             fields_parent.append(key)
-        #             break
-        for field, field_class in fields.items():
-            if field_class.type_.__module__ == "models":
-                anch_f = self.get_anchor_element_from_field(field=field_class)
-                f_fields = self.get_rdf_variables_from_field(field=field_class)
-                if anch_f is not None:
-                    anch_f = anch_f[0]
-                rdf_data = self.filter_sparql(data=data, anchor=anch_f, list_of_keys=f_fields)
-                print("test")
-            else:
-                pass
-        anchor = False
-        field_serialize = []
-        data_fin = []
-        for field in [item for item in fields]:
-            f1 = fields[field]
-            if getattr(f1.field_info.extra.get("rdfconfig", object()), "anchor", False):
-                if anchor:
-                    raise ValueError("Only one anchor field allowed")
-                anchor = fields[field]
-            if f1.type_.__module__ == "models":
-                field_serialize.append(f1)
-            # if f1.type_ in [str, int, float]:
-            #     pass
-        if not anchor:
-            raise ValidationError(
-                f"Every single object needs one configured anchor element: {self.__class__.__name__} does not have one."
-            )
-        anchor_path = getattr(anchor.field_info.extra.get("rdfconfig"), "path")
-        for d in data:
-            pass
-        print(" ...")
-
-    # def __init__(__pydantic_self__, **data: Any) -> None:
-    #     __pydantic_self__.create_data_from_rdf(data)
-    #     super().__init__(**data)
-
-
-class FieldConfigurationRDF(BaseModel):
-    path: constr(regex="^[a-zA-Z0-9\.]+$") | None = None
-    anchor: Boolean = False
-    default_value: Boolean = False
-    callback_function: Callable | None = None
-    serialization_class_callback: Callable | None = None
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt, PositiveInt
+from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
 
 class EnumVocabsRelation(str, Enum):
@@ -426,14 +21,11 @@ class EnumMediaKind(str, Enum):
     video = "video"
 
 
-class VocabsRelation(BaseModel):
+class VocabsRelation(RDFUtilsModelBaseClass):
     kind: EnumVocabsRelation = EnumVocabsRelation.sameas
 
-    # def __init__(__pydantic_self__, **data: Any) -> None:
-    #     super().__init__(**data)
 
-
-class InternationalizedLabel(InTaViaModelBaseClass):
+class InternationalizedLabel(RDFUtilsModelBaseClass):
     """Used to provide internationalized labels"""
 
     default: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entityLabel", anchor=True))
@@ -444,20 +36,20 @@ class InternationalizedLabel(InTaViaModelBaseClass):
     du: str | None = None
 
 
-class GroupType(BaseModel):
+class GroupType(RDFUtilsModelBaseClass):
     """sets the type of Groups (Organizations)"""
 
     id: str
     label: InternationalizedLabel
 
 
-class EntityEventKind(BaseModel):
+class EntityEventKind(RDFUtilsModelBaseClass):
 
     id: str
     label: InternationalizedLabel
 
 
-class Occupation(BaseModel):
+class Occupation(RDFUtilsModelBaseClass):
     id: str
     label: InternationalizedLabel
 
@@ -470,22 +62,22 @@ class OccupationFull(Occupation):
     relations: list[OccupationRelation] | None = None
 
 
-class MediaKind(BaseModel):
+class MediaKind(RDFUtilsModelBaseClass):
     id: str
     label: EnumMediaKind = EnumMediaKind.biographytext
 
 
-class HistoricalEventType(BaseModel):
+class HistoricalEventType(RDFUtilsModelBaseClass):
     id: str
     label: InternationalizedLabel
 
 
-class EntityRelationRole(BaseModel):
+class EntityRelationRole(RDFUtilsModelBaseClass):
     id: str
     label: InternationalizedLabel | None = None
 
 
-class MediaResource(BaseModel):
+class MediaResource(RDFUtilsModelBaseClass):
     id: str
     attribution: str
     url: HttpUrl
@@ -493,16 +85,16 @@ class MediaResource(BaseModel):
     description: str | None = None
 
 
-class Source(InTaViaModelBaseClass):
+class Source(RDFUtilsModelBaseClass):
     citation: str = Field(..., rdfconfig=FieldConfigurationRDF(path="person", callback_function=get_source_mapping))
 
 
-class LinkedIdProvider(BaseModel):
+class LinkedIdProvider(RDFUtilsModelBaseClass):
     label: str
     baseUrl: HttpUrl
 
 
-class LinkedId(BaseModel):
+class LinkedId(RDFUtilsModelBaseClass):
     id: str
     provider: LinkedIdProvider | None = None
     _str_idprovider: str
@@ -528,17 +120,17 @@ class LinkedId(BaseModel):
     #     super().__init__(**data)
 
 
-class EntityBase(InTaViaModelBaseClass):
+class EntityBase(RDFUtilsModelBaseClass):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="person", anchor=True))
     label: InternationalizedLabel | None = None
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
-    # source: Source | None = None
-    # linkedIds: list[LinkedId] | None = None
-    # _linkedIds: list[HttpUrl] | None = None
-    # alternativeLabels: list[InternationalizedLabel] | None = None
-    # description: str | None = None
-    # media: list[MediaResource] | None = None
-    # relations: list["EntityEventRelation"] | None = None
+    source: Source | None = None
+    linkedIds: list[LinkedId] | None = None
+    _linkedIds: list[HttpUrl] | None = None
+    alternativeLabels: list[InternationalizedLabel] | None = None
+    description: str | None = None
+    media: list[MediaResource] | None = None
+    relations: list["EntityEventRelation"] | None = None
 
     # def __init__(__pydantic_self__, **data: Any) -> None:
     #     #__pydantic_self__.create_data_from_rdf(data)
@@ -556,15 +148,15 @@ class EntityBase(InTaViaModelBaseClass):
     #     super().__init__(**data)
 
 
-class GenderType(BaseModel):
+class GenderType(RDFUtilsModelBaseClass):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="gender"))
-    # label: InternationalizedLabel
+    label: InternationalizedLabel
 
 
 class Person(EntityBase):
     kind = "person"
     gender: GenderType | None = None
-    # occupations: typing.List[Occupation] | None = None
+    occupations: typing.List[Occupation] | None = None
 
     # def __init__(__pydantic_self__, **data: Any) -> None:
     #     if "gender" in data:    # FIXME: This should be fixed in the data, by adding a label to the gender type
@@ -577,7 +169,7 @@ class Person(EntityBase):
 class Place(EntityBase):
     kind = "place"
     _lat_long: str | None = None
-    geometry: Union[Polygon, Point] | None = None
+    geometry: typing.Union[Polygon, Point] | None = None
 
     # def __init__(pydantic_self__, **data: Any) -> None:
     #     if "_lat_long" in data:
@@ -606,24 +198,10 @@ class HistoricalEvent(EntityBase):
     type: HistoricalEventType | None = None
 
 
-class EntityEventRelationGetter(GetterDict):
-    def get(self, key: Any, default: Any = None) -> Any:
-        if key == "entity":
-            ent = self._obj["entity"]
-            if ent["kind"] == "person":
-                return Person(**ent)
-            elif ent["kind"] == "group":
-                return Group(**ent)
-            elif ent["kind"] == "place":
-                return Place(**ent)
-        else:
-            return self._obj.get(key, default)
-
-
-class EntityEventRelation(BaseModel):
+class EntityEventRelation(RDFUtilsModelBaseClass):
     id: str
     label: InternationalizedLabel | None = None
-    entity: Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent] | None = None
+    entity: typing.Union[Person, Place, Group, CulturalHeritageObject, HistoricalEvent] | None = None
     role: EntityRelationRole | None = None
     source: Source | None = None
 
@@ -643,12 +221,12 @@ class EntityEventRelation(BaseModel):
     #     super().__init__(**data)
 
 
-class EntityEvent(BaseModel):
+class EntityEvent(RDFUtilsModelBaseClass):
     id: str
     label: InternationalizedLabel | None = None
     source: Source | None = None
     _source_entity_role: EntityRelationRole | None = None
-    _self_added: Boolean = False
+    _self_added: bool = False
     kind: EntityEventKind | None = None
     startDate: str | None = None
     endDate: str | None = None
@@ -658,7 +236,7 @@ class EntityEvent(BaseModel):
 
 class PersonFull(Person):
     test: str = "test"
-    # events: typing.List["EntityEvent"] | None = None
+    events: typing.List["EntityEvent"] | None = None
 
     # def __init__(__pydantic_self__, **data: Any) -> None:
     #     if "events" in data:
@@ -693,7 +271,7 @@ class HistoricalEventFull(HistoricalEvent):
     events: typing.List["EntityEvent"] | None = None
 
 
-class PaginatedResponseBase(InTaViaModelBaseClass):
+class PaginatedResponseBase(RDFUtilsModelBaseClass):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
@@ -702,30 +280,13 @@ class PaginatedResponseBase(InTaViaModelBaseClass):
         super().__init__(**data)
 
 
-class ValidationErrorModel(BaseModel):
+class ValidationErrorModel(RDFUtilsModelBaseClass):
     id: str
     error: str
 
 
-class PaginatedResponseGetterDict(GetterDict):
-    def get(self, key: str, default: Any) -> Any:
-        if key == "results":
-            res = []
-            print("test")
-            for ent in self._obj["results"]:
-                if ent["kind"] == "person":
-                    res.append(PersonFull(**ent))
-                elif ent["kind"] == "group":
-                    res.append(GroupFull(**ent))
-                elif ent["kind"] == "place":
-                    res.append(PlaceFull(**ent))
-            return res
-        else:
-            return self._obj.get(key, default)
-
-
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[Union[PersonFull, PlaceFull]] = Field(
+    results: typing.List[typing.Union[PersonFull, PlaceFull]] = Field(
         ..., rdfconfig=FieldConfigurationRDF(serialization_class_callback=get_entity_class)
     )
     errors: typing.List[ValidationErrorModel] | None = None
@@ -809,23 +370,25 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
     #     getter_dict = PaginatedResponseGetterDict
 
 
-class Bin(BaseModel):
+class Bin(RDFUtilsModelBaseClass):
     label: str
     count: int
-    values: typing.Tuple[Union[int, float, datetime.datetime], Union[int, float, datetime.datetime]] | None = None
+    values: typing.Tuple[
+        typing.Union[int, float, datetime.datetime], typing.Union[int, float, datetime.datetime]
+    ] | None = None
     order: PositiveInt | None = None
 
 
-class StatisticsBins(BaseModel):
+class StatisticsBins(RDFUtilsModelBaseClass):
     bins: list[Bin]
 
 
-class StatisticsOccupation(BaseModel):
+class StatisticsOccupation(RDFUtilsModelBaseClass):
     id: str
     label: str
     count: int = 0
     children: typing.List["StatisticsOccupation"] | None = None
 
 
-class StatisticsOccupationReturn(BaseModel):
+class StatisticsOccupationReturn(RDFUtilsModelBaseClass):
     tree: StatisticsOccupation
