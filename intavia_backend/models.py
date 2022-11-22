@@ -6,6 +6,55 @@ from geojson_pydantic import Point, Polygon
 from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt, PositiveInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
+source_mapping = {
+    "intavia.eu/apis/personproxy": "Austrian Biographical Dictionary",
+    "data.biographynet.nl": "BiographyNET",
+    "intavia.eu/personproxy/bs": "Biography Sampo",
+}
+
+linked_id_providers = {
+    "gnd": {
+        "label": "Gemeinsame Normdatei (GND)",
+        "baseUrl": "https://d-nb.info/gnd",
+        "regex_id": r"/([^/]+)$",
+    },
+    "APIS": {
+        "label": "Österreichische Biographische Lexikon, APIS",
+        "baseUrl": "https://apis.acdh.oeaw.ac.at",
+        "regex_id": "([0-9]+)/?$",
+    },
+    "wikidata": {
+        "label": "Wikidata",
+        "baseUrl": "http://www.wikidata.org/entity",
+        "regex_id": ".+?(Q[^\.]+)",
+    },
+    "biographysampo": {
+        "label": "BiographySampo",
+        "baseUrl": "http://ldf.fi/nbf/",
+        "regex_id": "nbf/([^\.]+)",
+    },
+}
+
+
+def get_source_mapping(source):
+    for key, value in source_mapping.items():
+        if key in source:
+            return value
+    return None
+
+
+def get_entity_class(field, data):
+    # res = []
+    # for ent in data[0]["results"]:  # FIXME: this needs a generic approach, data should be filtered before
+    #     if ent["entityTypeLabel"] == "person":
+    #         res.append(PersonFull(**ent))
+    #     elif ent["entityTypeLabel"] == "place":
+    #         res.append(PlaceFull(**ent))
+    #     elif ent["entityTypeLabel"] == "organization":
+    #         res.append(GroupFull(**ent))
+    # return res
+    return PersonFull
+
 
 class EnumVocabsRelation(str, Enum):
     broader = "broader"
@@ -276,9 +325,6 @@ class PaginatedResponseBase(RDFUtilsModelBaseClass):
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        super().__init__(**data)
-
 
 class ValidationErrorModel(RDFUtilsModelBaseClass):
     id: str
@@ -286,10 +332,10 @@ class ValidationErrorModel(RDFUtilsModelBaseClass):
 
 
 class PaginatedResponseEntities(PaginatedResponseBase):
-    results: typing.List[typing.Union[PersonFull, PlaceFull]] = Field(
+    results: list[typing.Union["PersonFull", "PlaceFull"]] = Field(
         ..., rdfconfig=FieldConfigurationRDF(serialization_class_callback=get_entity_class)
     )
-    errors: typing.List[ValidationErrorModel] | None = None
+    # errors: typing.List[ValidationErrorModel] | None = None
 
     # def __init__(self, **data: Any) -> None:
     #     super().__init__(**data)
@@ -352,18 +398,18 @@ class PaginatedResponseOccupations(PaginatedResponseBase):
     results: typing.List[OccupationFull]
     errors: typing.List[ValidationErrorModel] | None = None
 
-    def __init__(__pydantic_self__, **data: Any) -> None:
-        res = []
-        errors = []
-        for occupation in data["results"]:
-            try:
-                res.append(OccupationFull(**occupation))
-            except ValidationError as e:
-                errors.append({"id": occupation["id"], "error": str(e)})
-        if len(errors) > 0:
-            data["errors"] = errors
-        super().__init__(**data)
-        __pydantic_self__.results = res
+    # def __init__(__pydantic_self__, **data: Any) -> None:
+    #     res = []
+    #     errors = []
+    #     for occupation in data["results"]:
+    #         try:
+    #             res.append(OccupationFull(**occupation))
+    #         except ValidationError as e:
+    #             errors.append({"id": occupation["id"], "error": str(e)})
+    #     if len(errors) > 0:
+    #         data["errors"] = errors
+    #     super().__init__(**data)
+    #     __pydantic_self__.results = res
 
     # class Config:
     #     orm_mode = True
