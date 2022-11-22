@@ -36,6 +36,18 @@ class EntityTypesEnum(str, Enum):
         }
         return map[self.name]
 
+class ReconTypeEnum(str, Enum):
+    Person = "Person"
+    Group = "Group"
+    Place = "Place"
+
+    def get_rdf_uri(self) -> str:
+        map = {
+            'Person': '<http://www.intavia.eu/idm-core/Provided_Person>',
+            'Group': '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>',
+            'Place': '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>'
+        }
+        return map[self.name]    
 
 @dataclasses.dataclass(kw_only=True)
 class Base:
@@ -96,33 +108,20 @@ class Search_Base:
 
 
 
-@dataclasses.dataclass()
+@dataclasses.dataclass(kw_only=True)
 class ReconQuery(Base):
     query: str   
-    limit: str
-    type: str
+    limit: int
+    type: ReconTypeEnum = Query(
+        default=ReconTypeEnum.Person, description="Filter for returned entity type.")         
 
-    def __post_init__(self):        
-        match self.type:
-            case 'Person':
-                self.__setattr__('type', '<http://www.intavia.eu/idm-core/Provided_' + self.type + '>')
-            case 'Group':
-                self.__setattr__('type', '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>')
-            case 'Place':
-                self.__setattr__('type', '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>')
-            case _:
-                self.__setattr__('type', '?type')
-        
-
-@dataclasses.dataclass()       
-class ReconQueryBatch(Base):
+@dataclasses.dataclass(kw_only=True)       
+class ReconQueries(Base):
     queries: list[ReconQuery]
 
-@dataclasses.dataclass(kw_only=True)
-class Suggest(Base):
-    queries: str
-
-
+@dataclasses.dataclass(kw_only=True)       
+class ReconQueryBatch(Base):
+    queries: ReconQueries
 
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase, Base):

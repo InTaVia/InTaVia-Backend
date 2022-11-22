@@ -9,7 +9,7 @@ from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
 import os.path
 from conversion import convert_sparql_result
-from query_parameters import ReconQuery, ReconQueryBatch, Entity_Retrieve, ReconQueryBatch, Search, SearchVocabs, StatisticsBase
+from query_parameters import ReconQueryBatch, Entity_Retrieve, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from dataclasses import asdict
 import dateutil
@@ -229,19 +229,13 @@ async def recon_manifest():
     response_model_exclude_none=True,
     tags=['Reconciliation'],
     description="Endpoint that implements the reconciliation aPI specification.")
-async def recon_suggest(payload: ReconQueryBatch):
-    if len(payload.queries) > RECON_MAX_BATCH_SIZE:
-        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))    
+async def recon(payload: ReconQueryBatch = Depends()):
+    if len(payload.queries.queries) > RECON_MAX_BATCH_SIZE:
+        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))
     results = []
     response = {"results": results}
-    for reconQuery in payload.queries:
-        if not reconQuery.type in [
-            '<http://www.intavia.eu/idm-core/Provided_Person>',
-            '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>',
-            '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>',
-            ]:
-            raise HTTPException(status_code=400, detail="Unknown type value. See manifest for supported values.")
-        if reconQuery.type in ['<http://www.intavia.eu/idm-core/Provided_Person>']:
+    for reconQuery in payload.queries.queries:
+        if reconQuery.type.get_rdf_uri() in ['<http://www.intavia.eu/idm-core/Provided_Person>']:
             res = get_query_from_triplestore(reconQuery, "recon_provided_person_v1.sparql")
         else:
             res = get_query_from_triplestore(reconQuery, "recon_crm_v1.sparql")
@@ -255,6 +249,7 @@ async def recon_suggest(payload: ReconQueryBatch):
                 }
             )
         results.append({"candidates": batch_results})
+    print(response)
     return response
 
 @app.get("/api/entities/search",

@@ -14,17 +14,16 @@ FROM <http://www.intavia.eu/graphs/provided_persons>
 
 where {
   ?label2 bds:search "{{query}}" .
-  ?id a {{type}} .
+  ?id a {{type.get_rdf_uri()}} .
   ?proxy idmcore:person_proxy_for ?id .
   ?proxy crm:P1_is_identified_by ?appellation .
 	?appellation rdfs:label ?label2 .
   ?label2 bds:matchAllTerms "true" .
   ?label2 bds:minRelevance "0.25" .
   ?label2 bds:relevance ?score2 .
-  ?label2 bds:maxRank "100" .
   ?label2 bds:rank ?rank .
   	
 }
 group by ?id
-order by desc(?rank)
+order by asc(?rank)
 limit {{limit}}
