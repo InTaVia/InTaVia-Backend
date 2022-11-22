@@ -4,7 +4,7 @@ from distutils.command.config import config
 import re
 import typing
 from xmlrpc.client import Boolean
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, ValidationError
+from pydantic import Field, BaseModel, HttpUrl, NonNegativeInt, PositiveInt, ValidationError
 from pydantic.dataclasses import dataclass
 from pydantic.utils import GetterDict
 from enum import Enum
@@ -434,3 +434,15 @@ class StatisticsOccupation(BaseModel):
 
 class StatisticsOccupationReturn(BaseModel):
     tree: StatisticsOccupation
+
+class ReconCandidate(BaseModel):
+    id: str
+    name: str
+    score: float
+
+class ReconCandidates(BaseModel):
+    candidates: list[ReconCandidate]
+
+class ReconResponse(BaseModel):
+    results: list[ReconCandidates]
+

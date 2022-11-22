@@ -5,7 +5,7 @@ import json
 from typing import Any
 import typing
 from fastapi import Query
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt
+from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, Extra
 from dateutil.parser import *
 import datetime
 import base64
@@ -36,6 +36,18 @@ class EntityTypesEnum(str, Enum):
         }
         return map[self.name]
 
+class ReconTypeEnum(str, Enum):
+    Person = "Person"
+    Group = "Group"
+    Place = "Place"
+
+    def get_rdf_uri(self) -> str:
+        map = {
+            'Person': '<http://www.intavia.eu/idm-core/Provided_Person>',
+            'Group': '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>',
+            'Place': '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>'
+        }
+        return map[self.name]    
 
 @dataclasses.dataclass(kw_only=True)
 class Base:
@@ -93,6 +105,23 @@ class Search_Base:
             self.__setattr__('diedAfter', parse(
                 self.diedAfter).strftime('%Y-%m-%dT00:00:00'))
 
+
+
+
+@dataclasses.dataclass(kw_only=True)
+class ReconQuery(Base):
+    query: str   
+    limit: int
+    type: ReconTypeEnum = Query(
+        default=ReconTypeEnum.Person, description="Filter for returned entity type.")         
+
+@dataclasses.dataclass(kw_only=True)       
+class ReconQueries(Base):
+    queries: list[ReconQuery]
+
+@dataclasses.dataclass(kw_only=True)       
+class ReconQueryBatch(Base):
+    queries: ReconQueries
 
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase, Base):
