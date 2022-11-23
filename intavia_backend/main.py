@@ -2,7 +2,13 @@ import datetime
 import aioredis
 from tkinter import W
 from fastapi import Depends, FastAPI
-from .models import PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
+from fastapi_versioning import VersionedFastAPI, version
+from .models_v1 import (
+    PaginatedResponseEntities,
+    PaginatedResponseOccupations,
+    StatisticsBins,
+    StatisticsOccupationReturn,
+)
 import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -65,11 +71,9 @@ def get_query_from_triplestore(search: Search, sparql_template: str, proto_confi
     query_template = jinja_env.get_template(sparql_template).render(**asdict(search))
     sparql.setQuery(query_template)
     res = sparql.queryAndConvert()
-    #    rq, proto, opt = pre_process(
-    #        {'proto': config[sparql_template] if proto_config is None else config[proto_config]})
-    #    res = convert_sparql_result(
-    #        res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
-    return res["results"]["bindings"]
+    rq, proto, opt = pre_process({"proto": config[sparql_template] if proto_config is None else config[proto_config]})
+    res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
+    return res
 
 
 def create_bins_from_range(start, end, intv):
@@ -98,7 +102,7 @@ config = {
         "id": "?person$anchor",
         "kind": "?entityTypeLabel",
         "_linkedIds": "?linkedIds$list",
-        "_count": "?count",
+        "count": "?count",
         "gender": {"id": "?gender", "label": {"default": "?genderLabel"}},
         "occupations": {"id": "?occupation$anchor$list", "label": {"default": "?occupationLabel"}},
         "label": {"default": "?entityLabel"},
@@ -183,10 +187,11 @@ def flatten_rdf_data(data: dict) -> list:
     the node history. Depending on the objects found the return object is \
         different.",
 )
+@version(1)
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore(search, "search_v3.sparql")
-    pages = math.ceil(int(res[0]["count"]["value"]) / search.limit) if len(res) > 0 else 0
-    count = int(res[0]["count"]["value"]) if len(res) > 0 else 0
+    pages = math.ceil(int(res[0]["count"]) / search.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
     return {"page": search.page, "count": count, "pages": pages, "results": flatten_rdf_data(res)}
 
 
@@ -199,6 +204,7 @@ async def query_entities(search: Search = Depends()):
     the node history. Depending on the objects found the return object is \
         different.",
 )
+@version(1)
 @cache()
 async def query_occupations(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore(search, "occupation_v1.sparql")
@@ -213,6 +219,7 @@ async def query_occupations(search: SearchVocabs = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of births",
 )
+@version(1)
 @cache()
 async def statistics_birth(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_birthdate_v1.sparql")
@@ -233,6 +240,7 @@ async def statistics_birth(search: StatisticsBase = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of deaths",
 )
+@version(1)
 @cache()
 async def statistics_death(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_deathdate_v1.sparql")
@@ -253,6 +261,7 @@ async def statistics_death(search: StatisticsBase = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations",
 )
+@version(1)
 @cache()
 async def statistics_occupations(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore(search, "statistics_occupation_v1.sparql")
@@ -289,6 +298,7 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
     tags=["Enities endpoints"],
     description="Endpoint that allows to retrive an entity by id.",
 )
+@version(1)
 @cache()
 async def retrieve_entity(search: Entity_Retrieve = Depends()):
     res = get_query_from_triplestore(search, "get_entity_v1.sparql", "search_v3.sparql")
@@ -303,3 +313,20 @@ async def startup():
         f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True, db=1
     )
     FastAPICache.init(RedisBackend(redis), prefix="api-cache")
+
+
+app = VersionedFastAPI(
+    app,
+    version_format="{major}",
+    prefix_format="/v{major}",
+    description="API for the InTaVia project",
+    enable_latest=True,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
