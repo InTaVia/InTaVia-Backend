@@ -48,6 +48,20 @@ def pp_label(field, item, data):
         return item
 
 
+def pp_label_str(field, item, data):
+    if isinstance(item, str):
+        return {"default": item}
+    else:
+        return item
+
+
+def pp_label_list(field, item, data):
+    if isinstance(item, list):
+        return [{"default": i} for i in item]
+    else:
+        return item
+
+
 class EntityType(str, Enum):
     person = "person"
     place = "place"

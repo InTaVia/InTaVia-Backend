@@ -18,14 +18,14 @@ FROM <{{dataset.value}}>
 WITH {
 SELECT DISTINCT ?entity ?entityTypeLabel 
 
-{% for dataset in datasets %}
+{% for dataset in datasets -%}
 FROM <{{dataset.value}}>
 {% endfor %}
 
 WHERE {
 {% include 'query_entities_v2_1.sparql' %}
-{% include 'entity_type_bindings_v1.sparql' %}
-} ORDER BY entity?
+{% include 'entity_type_bindings_v2_1.sparql' %}
+} ORDER BY ?entity
 LIMIT {{limit}}
 {% if _offset > 0 %}OFFSET {{_offset}}{% endif %}
 } AS %query_set
@@ -39,7 +39,7 @@ WITH {
 
     WHERE {
         {% include 'query_entities_v2_1.sparql' %}
-        {% include 'entity_type_bindings_v1.sparql' %}
+        {% include 'entity_type_bindings_v2_1.sparql' %}
     }
 } AS %count_set
 

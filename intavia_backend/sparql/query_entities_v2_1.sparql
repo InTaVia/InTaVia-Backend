@@ -1,59 +1,58 @@
 
-{% if q %}
+{%- if q -%}
 ?entity crm:P1_is_identified_by ?appellation .
-
 ?appellation a crm:E33_E41_Linguistic_Appellation .
 ?appellation rdfs:label ?entityLabel .
 ?entityLabel bds:search "{{q}}" .
-{% endif %}
-{% if occupation %}
+{%- endif -%}
+{%- if occupation -%}
     ?entity bioc:has_occupation ?occupation1 . 
     ?occupation1 rdfs:label ?occupationLabel1 .
     ?occupationLabel1 bds:search "{{occupation}}" .
-{% endif %}
-{% if occupations_id %}
-    {% for occ in occupations_id %}
+{%- endif -%}
+{%- if occupations_id -%}
+    {%- for occ in occupations_id -%}
         {?entity bioc:has_occupation <{{occ}}>}
         {% if not loop.last %}UNION{% endif %}
-        {% endfor %}
-{% endif %}
-{% if bornBefore %}
+        {%- endfor -%}
+{%- endif -%}
+{%- if bornBefore -%}
     ?bornBeforeEvent a crm:E67_Birth .
     ?bornBeforeEvent crm:P98_brought_into_life ?entity .
     ?bornBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornBeforeFilter .
     FILTER(?bornBeforeFilter < xsd:dateTime("{{bornBefore}}"))
-{% endif %}
-{% if bornAfter %}
+{%- endif -%}
+{%- if bornAfter -%}
     ?bornAfterEvent a crm:E67_Birth .
     ?bornAfterEvent crm:P98_brought_into_life ?entity .
     ?bornAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornAfterFilter .
     FILTER(?bornAfterFilter > xsd:dateTime("{{bornAfter}}"))
-{% endif %}
-{% if diedBefore %}
+{%- endif -%}
+{%- if diedBefore -%}
     ?diedBeforeEvent a crm:E69_Death .
     ?diedBeforeEvent crm:P100_was_death_of ?entity .
     ?diedBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedBeforeFilter .
     FILTER(?diedBeforeFilter < xsd:dateTime("{{diedBefore}}"))
-{% endif %}
-{% if diedAfter %}
+{%- endif -%}
+{%- if diedAfter -%}
     ?diedAfterEvent a crm:E69_Death .
     ?diedAfterEvent crm:P100_was_death_of ?entity .
     ?diedAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedAfterFilter .
     FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
-{% endif %}
-{% if kind %}
-    {% for k1 in kind %}
+{%- endif -%}
+{%- if kind -%}
+    {%- for k1 in kind -%}
     {?entity a {{k1.get_rdf_uri()}}}
         {% if not loop.last %}UNION{% endif %}
-    {% endfor %}
-{% endif %}
-{% if gender %}
+    {%- endfor -%}
+{%- endif -%}
+{%- if gender -%}
     ?entity bioc:has_gender bioc:{{gender.name}} .
-{% endif %}
-{% if gender_id %}
+{%- endif -%}
+{%- if gender_id -%}
     ?entity bioc:has_gender|bioc2:gender <{{gender_id}}> .
-{% endif %}
-{% if relatedPlace %}
+{%- endif -%}
+{%- if relatedPlace -%}
 ?entity ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event .
     ?event crm:P7_took_place_at ?evPlace .
         
@@ -61,14 +60,12 @@
                 ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
                 ?evPlaceAppelation rdfs:label ?evPlaceLabel } UNION {
                     ?evPlace rdfs:label ?evPlaceLabel }
-                
-
     ?evPlaceLabel bds:search "{{relatedPlace}}" .
-{% endif %}
-{% if relatedPlaces_id %}
+{%- endif -%}
+{%- if relatedPlaces_id -%}
 ?entity ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event .
-    {% for place in relatedPlaces_id %}
+    {%- for place in relatedPlaces_id -%}
         {?event crm:P7_took_place_at <{{place}}>}
         {% if not loop.last %}UNION{% endif %}
-        {% endfor %}
-{% endif %}
+        {%- endfor -%}
+{%- endif -%}

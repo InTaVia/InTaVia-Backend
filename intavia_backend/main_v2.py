@@ -33,6 +33,7 @@ async def retrieve_entity_v2(entity_id: str):
 )
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore_v2(search, "search_v2_1.sparql")
+    res = flatten_rdf_data(res)
     pages = math.ceil(int(res[0]["count"]) / search.limit) if len(res) > 0 else 0
     count = int(res[0]["count"]) if len(res) > 0 else 0
-    return {"page": search.page, "count": count, "pages": pages, "results": flatten_rdf_data(res)}
+    return {"page": search.page, "count": count, "pages": pages, "results": res}
