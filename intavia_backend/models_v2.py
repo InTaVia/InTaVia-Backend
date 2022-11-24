@@ -62,17 +62,15 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
 
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True))
-    # label: InternationalizedLabel | None = None
+    label: InternationalizedLabel | None = Field(None, rdfconfig=FieldConfigurationRDF(path="entityLabel"))
     type: EntityType = Field(EntityType.person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     # source: Source | None = None
     # linkedIds: list[LinkedId] | None = None
     # _linkedIds: list[HttpUrl] | None = None
-    # alternativeLabels: list[InternationalizedLabel] | None = None
+    alternativeLabels: list[InternationalizedLabel] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="entityLabel")
+    )
     description: str | None = None
     # media: list[MediaResource] | None = None
     events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event"))
-
-
-class FakeList(RDFUtilsModelBaseClass):
-    results: list[Entity] = Field(..., rdfconfig=FieldConfigurationRDF(path="results"))
