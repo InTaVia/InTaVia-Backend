@@ -1,6 +1,7 @@
 from dataclasses import asdict
 import datetime
 import os
+from urllib.parse import quote, unquote
 from SPARQLWrapper import SPARQLWrapper, JSON
 from intavia_backend.query_parameters import Search
 from jinja2 import Environment, FileSystemLoader
@@ -83,7 +84,9 @@ def get_query_from_triplestore_v2(search: Search, sparql_template: str):
     Returns:
         _type_: _description_
     """
-    query_template = jinja_env.get_template(sparql_template).render(**asdict(search))
+    if isinstance(search, Search):
+        search = asdict(search)
+    query_template = jinja_env.get_template(sparql_template).render(**search)
     sparql.setQuery(query_template)
     res = sparql.queryAndConvert()
     return res["results"]["bindings"]
@@ -120,3 +123,18 @@ def flatten_rdf_data(data: dict) -> list:
                 d_res[k] = v
         flattened_data.append(d_res)
     return flattened_data
+
+
+def toggle_urls_encoding(url):
+    """Toggles the encoding of the url.
+
+    Args:
+        url (str): The url
+
+    Returns:
+        str: The encoded/decoded url
+    """
+    if "/" in url:
+        return quote(url, safe="")
+    else:
+        return unquote(url)

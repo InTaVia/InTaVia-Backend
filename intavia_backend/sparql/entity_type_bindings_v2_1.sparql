@@ -1,0 +1,6 @@
+{?entity a idmcore:Person_Proxy 
+BIND("person" AS ?entityTypeLabel)
+} UNION {
+?entity a idmcore:Group 
+BIND("group" AS ?entityTypeLabel)
+} 
