@@ -4,6 +4,7 @@ import os
 from urllib.parse import quote, unquote
 from SPARQLWrapper import SPARQLWrapper, JSON
 from intavia_backend.query_parameters import Search
+from intavia_backend.query_parameters_v2 import Search as SearchV2
 from jinja2 import Environment, FileSystemLoader
 from .conversion import convert_sparql_result
 from SPARQLTransformer import pre_process
@@ -84,7 +85,7 @@ def get_query_from_triplestore_v2(search: Search, sparql_template: str):
     Returns:
         _type_: _description_
     """
-    if isinstance(search, Search):
+    if isinstance(search, Search) or isinstance(search, SearchV2):
         search = asdict(search)
     query_template = jinja_env.get_template(sparql_template).render(**search)
     sparql.setQuery(query_template)

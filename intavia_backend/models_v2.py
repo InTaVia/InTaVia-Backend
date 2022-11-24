@@ -1,6 +1,6 @@
 from enum import Enum
 import typing
-from pydantic import Field
+from pydantic import Field, NonNegativeInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
 
@@ -41,6 +41,13 @@ def get_source_mapping(source):
     return None
 
 
+def pp_label(field, item, data):
+    if isinstance(item, list):
+        return item[0]
+    else:
+        return item
+
+
 class EntityType(str, Enum):
     person = "person"
     place = "place"
@@ -52,17 +59,22 @@ class EntityType(str, Enum):
 class InternationalizedLabel(RDFUtilsModelBaseClass):
     """Used to provide internationalized labels"""
 
-    default: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entityLabel", anchor=True))
+    default: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entityLabel", callback_function=pp_label))
     en: typing.Optional[str]
     de: str | None = None
     fi: str | None = None
     si: str | None = None
     du: str | None = None
 
+    def __init__(__pydantic_self__, **data: typing.Any) -> None:
+        super().__init__(**data)
+
 
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True))
-    label: InternationalizedLabel | None = Field(None, rdfconfig=FieldConfigurationRDF(path="entityLabel"))
+    label: InternationalizedLabel | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="entityLabel", callback_function=pp_label)
+    )
     type: EntityType = Field(EntityType.person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     # source: Source | None = None
@@ -74,3 +86,13 @@ class Entity(RDFUtilsModelBaseClass):
     description: str | None = None
     # media: list[MediaResource] | None = None
     events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event"))
+
+
+class PaginatedResponseBase(RDFUtilsModelBaseClass):
+    count: NonNegativeInt = 0
+    page: NonNegativeInt = 0
+    pages: NonNegativeInt = 0
+
+
+class PaginatedResponseEntities(PaginatedResponseBase):
+    results: typing.List[Entity] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
