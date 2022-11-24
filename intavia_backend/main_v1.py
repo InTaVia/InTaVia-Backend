@@ -26,7 +26,7 @@ from .main_v2 import router as router_v2
 from .utils import get_query_from_triplestore
 
 
-router = APIRouter(route_class=versioned_api_route(1))
+router = APIRouter(route_class=versioned_api_route(1, 0))
 tags_metadata = [
     {"name": "Query endpoints", "description": "Endpoints used to query and filter the InTaVia Knowledgegraph"}
 ]
@@ -51,39 +51,6 @@ def calculate_date_range(start, end, intv):
     for i in range(intv):
         yield (start + diff * i)
     yield end
-
-
-def flatten_rdf_data(data: dict) -> list:
-    """Flatten the RDF data to a list of dicts. Stores it also in the object.
-
-    Args:
-        data (dict): The RDF data
-
-    Returns:
-        list: A list of dicts
-    """
-    flattened_data = []
-    for ent in data:
-        d_res = {}
-        for k, v in ent.items():
-            if isinstance(v, dict):
-                if "value" in v:
-                    if "datatype" in v:
-                        if v["datatype"] == "http://www.w3.org/2001/XMLSchema#dateTime":
-                            v["value"] = datetime.datetime.fromisoformat(str(v["value"]).replace("Z", "+00:00"))
-                        elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
-                            v["value"] = int(v["value"])
-                        elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
-                            v["value"] = bool(v["value"])
-                        elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#float":
-                            v["value"] = float(v["value"])
-                    d_res[k] = v["value"]
-                else:
-                    d_res[k] = v
-            else:
-                d_res[k] = v
-        flattened_data.append(d_res)
-    return flattened_data
 
 
 @router.get(

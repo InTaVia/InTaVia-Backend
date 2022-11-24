@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import datetime
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
 from intavia_backend.query_parameters import Search
@@ -69,3 +70,53 @@ def get_query_from_triplestore(search: Search, sparql_template: str, proto_confi
     rq, proto, opt = pre_process({"proto": config[sparql_template] if proto_config is None else config[proto_config]})
     res = convert_sparql_result(res, proto, {"is_json_ld": False, "langTag": "hide", "voc": "PROTO"})
     return res
+
+
+def get_query_from_triplestore_v2(search: Search, sparql_template: str):
+    """creates the query from the template and the search parameters and returns the json
+       from the triplestore. This is v2 and doesnt need the proto config anymore
+
+    Args:
+        search (Search): _description_
+        sparql_template (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    query_template = jinja_env.get_template(sparql_template).render(**asdict(search))
+    sparql.setQuery(query_template)
+    res = sparql.queryAndConvert()
+    return res["results"]["bindings"]
+
+
+def flatten_rdf_data(data: dict) -> list:
+    """Flatten the RDF data to a list of dicts.
+
+    Args:
+        data (dict): The RDF data
+
+    Returns:
+        list: A list of dicts
+    """
+    flattened_data = []
+    for ent in data:
+        d_res = {}
+        for k, v in ent.items():
+            if isinstance(v, dict):
+                if "value" in v:
+                    if "datatype" in v:
+                        if v["datatype"] == "http://www.w3.org/2001/XMLSchema#dateTime":
+                            v["value"] = datetime.datetime.fromisoformat(str(v["value"]).replace("Z", "+00:00"))
+                        elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
+                            v["value"] = int(v["value"])
+                        elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
+                            v["value"] = bool(v["value"])
+                        elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#float":
+                            v["value"] = float(v["value"])
+                    d_res[k] = v["value"]
+                else:
+                    d_res[k] = v
+            else:
+                d_res[k] = v
+        flattened_data.append(d_res)
+    return flattened_data
