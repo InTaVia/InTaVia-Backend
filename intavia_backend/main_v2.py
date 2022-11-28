@@ -2,7 +2,7 @@ import math
 from fastapi import APIRouter, Depends
 
 from fastapi_versioning import version, versioned_api_route
-from intavia_backend.models_v2 import Entity, PaginatedResponseEntities
+from intavia_backend.models_v2 import Entity, Event, PaginatedResponseEntities
 from intavia_backend.query_parameters_v2 import Entity_Retrieve, Search
 from .utils import flatten_rdf_data, get_query_from_triplestore_v2, toggle_urls_encoding
 
@@ -18,6 +18,19 @@ router = APIRouter(route_class=versioned_api_route(2, 0))
 )
 async def retrieve_entity_v2(entity_id: str):
     res = get_query_from_triplestore_v2({"entity_id": toggle_urls_encoding(entity_id)}, "get_entity_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    return {"_results": flatten_rdf_data(res)}
+
+
+@router.get(
+    "/api/event/{event_id}",
+    response_model=Event,
+    response_model_exclude_none=True,
+    tags=["Events endpoints"],
+    description="Endpoint that allows to retrive any event by id.",
+)
+async def retrieve_event_v2(event_id: str):
+    res = get_query_from_triplestore_v2({"event_id": toggle_urls_encoding(event_id)}, "get_event_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     return {"_results": flatten_rdf_data(res)}
 
