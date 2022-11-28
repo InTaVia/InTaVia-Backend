@@ -73,7 +73,7 @@ class EntityType(str, Enum):
 class InternationalizedLabel(RDFUtilsModelBaseClass):
     """Used to provide internationalized labels"""
 
-    default: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entityLabel", callback_function=pp_label))
+    default: str
     en: typing.Optional[str]
     de: str | None = None
     fi: str | None = None
@@ -87,15 +87,17 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True))
     label: InternationalizedLabel | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="entityLabel", callback_function=pp_label)
+        None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
-    type: EntityType = Field(EntityType.person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
+    type: EntityType = Field(
+        EntityType.person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel", default_dict_key="default")
+    )
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     # source: Source | None = None
     # linkedIds: list[LinkedId] | None = None
     # _linkedIds: list[HttpUrl] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="entityLabel")
+        None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
     description: str | None = None
     # media: list[MediaResource] | None = None
