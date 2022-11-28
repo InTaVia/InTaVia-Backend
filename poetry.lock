@@ -136,18 +136,6 @@ memcache = ["aiomcache"]
 redis = ["redis (>=4.2.0rc1,<5.0.0)"]
 
 [[package]]
-name = "fastapi-versioning"
-version = "0.10.0"
-description = "api versioning for fastapi web applications"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-fastapi = ">=0.56.0"
-starlette = "*"
-
-[[package]]
 name = "flake8"
 version = "5.0.4"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -555,7 +543,7 @@ standard = ["PyYAML (>=5.1)", "colorama (>=0.4)", "httptools (>=0.4.0)", "python
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "b3869e10f7439ee71dacbf945448641f08543313ea164df1772c7c26e7a5b3d7"
+content-hash = "cc8cfba3f29fbdcc771a8fd30fe5e3b97dffd944835ea1f00f3fa453bb9d9829"
 
 [metadata.files]
 aioredis = [
@@ -616,10 +604,6 @@ fastapi = [
 fastapi-cache2 = [
     {file = "fastapi-cache2-0.1.9.tar.gz", hash = "sha256:816612f7b29b4ea4ed3b4e03c55b7f96b4e4d6dffce6a95e2cf5cf36a980eaaa"},
     {file = "fastapi_cache2-0.1.9-py3-none-any.whl", hash = "sha256:5b6f32bc8e786d9fffe4f3ef343861cab276acc64fb5d8d09077524743ad3702"},
-]
-fastapi-versioning = [
-    {file = "fastapi_versioning-0.10.0-py3-none-any.whl", hash = "sha256:afe0ad7a56383b884c399341260bd3301b40e5a1cf9f6dc4211a349489087e1b"},
-    {file = "fastapi_versioning-0.10.0.tar.gz", hash = "sha256:5c18ea4e9ae1afd39c9e5bed1c240bf1cabdc75217579af78249ccb651c7b5b5"},
 ]
 flake8 = [
     {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
