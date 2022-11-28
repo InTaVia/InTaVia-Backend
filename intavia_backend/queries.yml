@@ -1,0 +1,5 @@
+search:
+  route: /api/entities/search
+  sparql-template: person_v1.sparql
+  query-parameters: 
+  response-model: PaginatedResponseEntities

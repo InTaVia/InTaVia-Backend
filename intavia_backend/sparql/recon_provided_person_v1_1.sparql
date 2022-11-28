@@ -1,0 +1,29 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX idmcore: <http://www.intavia.eu/idm-core/>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+prefix bds: <http://www.bigdata.com/rdf/search#>
+
+SELECT ?id (GROUP_CONCAT(?label2;SEPARATOR="|") as ?label) (max(?score2) as ?score)
+FROM <https://apis.acdh.oeaw.ac.at/data> 
+FROM <http://ldf.fi/nbf/data> 
+FROM <http://data.biographynet.nl/>
+FROM <http://www.intavia.eu/sbi>
+FROM <http://www.intavia.eu/graphs/provided_persons>
+
+where {
+  ?label2 bds:search "{{query}}" .
+  ?id a {{type.get_rdf_uri()}} .
+  ?proxy idmcore:person_proxy_for ?id .
+  ?proxy crm:P1_is_identified_by ?appellation .
+	?appellation rdfs:label ?label2 .
+  ?label2 bds:matchAllTerms "true" .
+  ?label2 bds:minRelevance "0.25" .
+  ?label2 bds:relevance ?score2 .
+  ?label2 bds:rank ?rank .
+  	
+}
+group by ?id
+order by asc(?rank)
+limit {{limit}}
