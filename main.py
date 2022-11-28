@@ -1,7 +1,7 @@
 import aioredis
 from tkinter import W
-from fastapi import Depends, FastAPI
-from models import PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
+from fastapi import Depends, FastAPI, HTTPException
+from models import ReconResponse, PaginatedResponseEntities, PaginatedResponseOccupations, StatisticsBins, StatisticsOccupationReturn
 import math
 import os
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -9,7 +9,7 @@ from SPARQLTransformer import pre_process
 from jinja2 import Environment, FileSystemLoader
 import os.path
 from conversion import convert_sparql_result
-from query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
+from query_parameters import ReconQueryBatch, Entity_Retrieve, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from dataclasses import asdict
 import dateutil
@@ -185,9 +185,72 @@ config = {
             'label': '?broaderLabel'
         },
         'count': '?count'
-    }
+    },
+    'recon_provided_person_v1.sparql': {
+        'id': '?id',
+        'score': '?score',
+        'label': '?label'
+    },    
+    'recon_crm_v1.sparql': {
+        'id': '?id',
+        'score': '?score',
+        'label': '?label'
+    },        
 }
 
+RECON_MAX_BATCH_SIZE = 50
+@app.get('/recon', 
+    tags=['Reconciliation'],)
+async def recon_manifest():
+    return {
+        "versions": ["0.1"],
+        "name": "InTaVia",
+        "identifierSpace": "http://www.intavia.eu/idm-core/",
+        "schemaSpace": "http://www.intavia.eu/idm-core/Provided_Item",
+        "batchSize": RECON_MAX_BATCH_SIZE,
+        "defaultTypes": [
+            {
+                "id": "Person",
+                "name": "Person"
+            },
+            {
+                "id": "Group",
+                "name": "Group"
+            },
+            {
+                "id": "Place",
+                "name": "Place"
+            },
+        ]
+    }
+
+@app.post('/recon/reconcile',
+    response_model=ReconResponse,
+    response_model_exclude_none=True,
+    tags=['Reconciliation'],
+    description="Endpoint that implements the reconciliation aPI specification.")
+async def recon(payload: ReconQueryBatch = Depends()):
+    if len(payload.queries.queries) > RECON_MAX_BATCH_SIZE:
+        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))
+    results = []
+    response = {"results": results}
+    for reconQuery in payload.queries.queries:
+        if reconQuery.type.get_rdf_uri() in ['<http://www.intavia.eu/idm-core/Provided_Person>']:
+            res = get_query_from_triplestore(reconQuery, "recon_provided_person_v1.sparql")
+        else:
+            res = get_query_from_triplestore(reconQuery, "recon_crm_v1.sparql")
+        batch_results = []
+        for r in res:
+            batch_results.append(
+                {
+                    'id': r['id'],
+                    'name': r['label'],
+                    'score': r['score']
+                }
+            )
+        results.append({"candidates": batch_results})
+    print(response)
+    return response
 
 @app.get("/api/entities/search",
          response_model=PaginatedResponseEntities,
