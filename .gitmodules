@@ -1,0 +1,6 @@
+[submodule "fastapi-rdf-utils"]
+	path = rdf-fastapi-utils
+	url = https://github.com/acdh-oeaw/rdf-fastapi-utils.git
+[submodule "fastapi-versioning"]
+	path = fastapi-versioning
+	url = https://github.com/acdh-oeaw/fastapi-versioning.git

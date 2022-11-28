@@ -429,3 +429,17 @@ class ReconCandidates(BaseModel):
 
 class ReconResponse(BaseModel):
     results: list[ReconCandidates]
+
+
+class ReconCandidate(BaseModel):
+    id: str
+    name: str
+    score: float
+
+
+class ReconCandidates(BaseModel):
+    candidates: list[ReconCandidate]
+
+
+class ReconResponse(BaseModel):
+    results: list[ReconCandidates]

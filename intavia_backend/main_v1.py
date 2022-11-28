@@ -1,11 +1,12 @@
 import datetime
 import aioredis
 from tkinter import W
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from fastapi_versioning import VersionedFastAPI, version, versioned_api_route
 from .models_v1 import (
     PaginatedResponseEntities,
     PaginatedResponseOccupations,
+    ReconResponse,
     StatisticsBins,
     StatisticsOccupationReturn,
 )
@@ -14,7 +15,7 @@ import os
 from jinja2 import Environment, FileSystemLoader
 import os.path
 from .conversion import convert_sparql_result
-from .query_parameters import Entity_Retrieve, Search, SearchVocabs, StatisticsBase
+from .query_parameters import Entity_Retrieve, ReconQueryBatch, Search, SearchVocabs, StatisticsBase
 import sentry_sdk
 from dataclasses import asdict
 import dateutil
@@ -174,3 +175,50 @@ async def retrieve_entity(search: Entity_Retrieve = Depends()):
     pages = math.ceil(int(res[0]["_count"]) / search.limit) if len(res) > 0 else 0
     count = int(res[0]["_count"]) if len(res) > 0 else 0
     return {"page": search.page, "count": count, "pages": pages, "results": res}
+
+
+RECON_MAX_BATCH_SIZE = 50
+
+
+@router.get(
+    "/recon",
+    tags=["Reconciliation"],
+)
+async def recon_manifest():
+    return {
+        "versions": ["0.1"],
+        "name": "InTaVia",
+        "identifierSpace": "http://www.intavia.eu/idm-core/",
+        "schemaSpace": "http://www.intavia.eu/idm-core/Provided_Item",
+        "batchSize": RECON_MAX_BATCH_SIZE,
+        "defaultTypes": [
+            {"id": "Person", "name": "Person"},
+            {"id": "Group", "name": "Group"},
+            {"id": "Place", "name": "Place"},
+        ],
+    }
+
+
+@router.post(
+    "/recon/reconcile",
+    response_model=ReconResponse,
+    response_model_exclude_none=True,
+    tags=["Reconciliation"],
+    description="Endpoint that implements the reconciliation aPI specification.",
+)
+async def recon(payload: ReconQueryBatch = Depends()):
+    if len(payload.queries.queries) > RECON_MAX_BATCH_SIZE:
+        raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))
+    results = []
+    response = {"results": results}
+    for reconQuery in payload.queries.queries:
+        if reconQuery.type.get_rdf_uri() in ["<http://www.intavia.eu/idm-core/Provided_Person>"]:
+            res = get_query_from_triplestore(reconQuery, "recon_provided_person_v1_1.sparql")
+        else:
+            res = get_query_from_triplestore(reconQuery, "recon_crm_v1_1.sparql")
+        batch_results = []
+        for r in res:
+            batch_results.append({"id": r["id"], "name": r["label"], "score": r["score"]})
+        results.append({"candidates": batch_results})
+    print(response)
+    return response

@@ -54,6 +54,8 @@ config = {
         "broader": {"id": "?broader$anchor", "label": "?broaderLabel"},
         "count": "?count",
     },
+    "recon_provided_person_v1_1.sparql": {"id": "?id", "score": "?score", "label": "?label"},
+    "recon_crm_v1_1.sparql": {"id": "?id", "score": "?score", "label": "?label"},
 }
 
 jinja_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "sparql")), autoescape=False)
