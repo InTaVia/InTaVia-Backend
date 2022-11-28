@@ -1,0 +1,756 @@
+{
+      "id": "http://www.intavia.eu/bs/personproxy/6010",
+      "kind": "person",
+      "_linkedIds": [
+            "http://ldf.fi/nbf/p6010",
+            "http://www.wikidata.org/entity/Q539032"
+      ],
+      "_count": 17,
+      "gender": {
+            "id": "http://ldf.fi/schema/bioc/Female"
+      },
+      "label": [
+            {
+                  "default": "Wichman, Eva"
+            },
+            {
+                  "default": "Wichmann, Eva Aline"
+            }
+      ],
+      "events": [
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-8",
+                  "label": {
+                        "default": "Kontaktin p\u00e4\u00e4toimittaja 1951 - 1953"
+                  },
+                  "startDate": "1951-01-01T00:00:00.000Z",
+                  "endDate": "1953-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-8"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-9",
+                  "label": {
+                        "default": "Taidearvostelija Vapaassa Sanassa, Kansan Uutisissa 1954 - 1964"
+                  },
+                  "startDate": "1954-01-01T00:00:00.000Z",
+                  "endDate": "1964-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-9"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-29",
+                  "label": {
+                        "default": "Dikter nu. 1975"
+                  },
+                  "startDate": "1975-01-01T00:00:00.000Z",
+                  "endDate": "1975-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-29"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-28",
+                  "label": {
+                        "default": "Orientering. 1967 (runoja)"
+                  },
+                  "startDate": "1967-01-01T00:00:00.000Z",
+                  "endDate": "1967-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-28"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-30",
+                  "label": {
+                        "default": "Bitar av livet, belysta. 1977 (I.-B. Amnellin kanssa)"
+                  },
+                  "startDate": "1977-01-01T00:00:00.000Z",
+                  "endDate": "1977-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-30"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-1",
+                  "label": {
+                        "default": "K\u00e4ynyt 7 luokkaa Nya svenska samskolania 1918 - 1924"
+                  },
+                  "startDate": "1918-01-01T00:00:00.000Z",
+                  "endDate": "1924-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-1"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-32",
+                  "label": {
+                        "default": "Granbergin palkinto 1945"
+                  },
+                  "startDate": "1945-01-01T00:00:00.000Z",
+                  "endDate": "1945-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-32"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-2",
+                  "label": {
+                        "default": "Progressin sihteeri 1960 - 1965"
+                  },
+                  "startDate": "1960-01-01T00:00:00.000Z",
+                  "endDate": "1965-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-2"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-3",
+                  "label": {
+                        "default": "Taideteollisuuskeskuskoulu 1924 - 1928"
+                  },
+                  "startDate": "1924-01-01T00:00:00.000Z",
+                  "endDate": "1928-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-3"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-5",
+                  "label": {
+                        "default": "Taiteellinen johtaja Huhtam\u00e4ki-Hellas Oy:ss\u00e4 1933 - 1935"
+                  },
+                  "startDate": "1933-01-01T00:00:00.000Z",
+                  "endDate": "1935-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-5"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-6",
+                  "label": {
+                        "default": "Somistaja Oy Karl Fazer Ab:ssa 1935 - 1937"
+                  },
+                  "startDate": "1935-01-01T00:00:00.000Z",
+                  "endDate": "1937-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-6"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-7",
+                  "label": {
+                        "default": "Ny Tidin oikolukija 1950 - 1952, toimittaja 1952 - 1954"
+                  },
+                  "startDate": "1952-01-01T00:00:00.000Z",
+                  "endDate": "1954-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-7"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-7",
+                  "label": {
+                        "default": "Ny Tidin oikolukija 1950 - 1952, toimittaja 1952 - 1954"
+                  },
+                  "startDate": "1950-01-01T00:00:00.000Z",
+                  "endDate": "1954-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-7"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-7",
+                  "label": {
+                        "default": "Ny Tidin oikolukija 1950 - 1952, toimittaja 1952 - 1954"
+                  },
+                  "startDate": "1952-01-01T00:00:00.000Z",
+                  "endDate": "1952-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-7"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-7",
+                  "label": {
+                        "default": "Ny Tidin oikolukija 1950 - 1952, toimittaja 1952 - 1954"
+                  },
+                  "startDate": "1950-01-01T00:00:00.000Z",
+                  "endDate": "1952-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-7"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/birthevent/6010",
+                  "label": {
+                        "default": "Birth of Wichman, Eva"
+                  },
+                  "startDate": "1908-03-28T00:00:00.000Z",
+                  "endDate": "1908-03-28T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/born_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.9384 +60.1699 )"
+                        ],
+                        "label": {
+                              "default": "Helsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/birthevent/6010",
+                  "label": {
+                        "default": "Birth of Wichman, Eva"
+                  },
+                  "startDate": "1908-03-28T00:00:00.000Z",
+                  "endDate": "1908-03-28T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/born_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.989 +60.1659 )"
+                        ],
+                        "label": {
+                              "default": "Helsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/birthevent/6010",
+                  "label": {
+                        "default": "Birth of Wichman, Eva"
+                  },
+                  "startDate": "1908-03-28T00:00:00.000Z",
+                  "endDate": "1908-03-28T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/born_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.9384 +60.1699 )"
+                        ],
+                        "label": {
+                              "default": "Hlsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/birthevent/6010",
+                  "label": {
+                        "default": "Birth of Wichman, Eva"
+                  },
+                  "startDate": "1908-03-28T00:00:00.000Z",
+                  "endDate": "1908-03-28T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/born_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.989 +60.1659 )"
+                        ],
+                        "label": {
+                              "default": "Hlsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/deathevent/6010",
+                  "label": {
+                        "default": "Death of Wichman, Eva"
+                  },
+                  "startDate": "1975-01-01T00:00:00.000Z",
+                  "endDate": "1975-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/deceased_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.9384 +60.1699 )"
+                        ],
+                        "label": {
+                              "default": "Helsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/deathevent/6010",
+                  "label": {
+                        "default": "Death of Wichman, Eva"
+                  },
+                  "startDate": "1975-01-01T00:00:00.000Z",
+                  "endDate": "1975-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/deceased_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.989 +60.1659 )"
+                        ],
+                        "label": {
+                              "default": "Helsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/deathevent/6010",
+                  "label": {
+                        "default": "Death of Wichman, Eva"
+                  },
+                  "startDate": "1975-01-01T00:00:00.000Z",
+                  "endDate": "1975-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/deceased_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.9384 +60.1699 )"
+                        ],
+                        "label": {
+                              "default": "Hlsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/deathevent/6010",
+                  "label": {
+                        "default": "Death of Wichman, Eva"
+                  },
+                  "startDate": "1975-01-01T00:00:00.000Z",
+                  "endDate": "1975-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/bs/deceased_person/6010"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/1757",
+                        "_lat_long": [
+                              "Point ( +24.989 +60.1659 )"
+                        ],
+                        "label": {
+                              "default": "Hlsinki"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-11",
+                  "label": {
+                        "default": "Mania. 1937 (novelleja)"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1937-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-11"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1937-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/90",
+                        "_lat_long": [
+                              "Point ( +2.35222 +48.8566 )"
+                        ],
+                        "label": {
+                              "default": "Pariisi"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1937-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/490",
+                        "_lat_long": [
+                              "Point ( +9.18998 +45.4642 )"
+                        ],
+                        "label": {
+                              "default": "Milano"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1933-01-01T00:00:00.000Z",
+                  "endDate": "1937-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/90",
+                        "_lat_long": [
+                              "Point ( +2.35222 +48.8566 )"
+                        ],
+                        "label": {
+                              "default": "Pariisi"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1933-01-01T00:00:00.000Z",
+                  "endDate": "1937-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/490",
+                        "_lat_long": [
+                              "Point ( +9.18998 +45.4642 )"
+                        ],
+                        "label": {
+                              "default": "Milano"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1933-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/90",
+                        "_lat_long": [
+                              "Point ( +2.35222 +48.8566 )"
+                        ],
+                        "label": {
+                              "default": "Pariisi"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1933-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/490",
+                        "_lat_long": [
+                              "Point ( +9.18998 +45.4642 )"
+                        ],
+                        "label": {
+                              "default": "Milano"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1933-01-01T00:00:00.000Z",
+                  "endDate": "1933-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/90",
+                        "_lat_long": [
+                              "Point ( +2.35222 +48.8566 )"
+                        ],
+                        "label": {
+                              "default": "Pariisi"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-31",
+                  "label": {
+                        "default": "Kultamitali Milanon triennaalissa 1933, Pariisin maailmann\u00e4yttelyss\u00e4 1937 puuleikkikaluista"
+                  },
+                  "startDate": "1933-01-01T00:00:00.000Z",
+                  "endDate": "1933-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-31"
+                  },
+                  "place": {
+                        "id": "http://www.intavia.eu/bs/place/490",
+                        "_lat_long": [
+                              "Point ( +9.18998 +45.4642 )"
+                        ],
+                        "label": {
+                              "default": "Milano"
+                        }
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-12",
+                  "label": {
+                        "default": "H\u00e4r \u00e4r allt som f\u00f6rut. 1938 (novelleja)"
+                  },
+                  "startDate": "1938-01-01T00:00:00.000Z",
+                  "endDate": "1938-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-12"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-13",
+                  "label": {
+                        "default": "Molnet s\u00e5g mig. 1942 (novelleja)"
+                  },
+                  "startDate": "1942-01-01T00:00:00.000Z",
+                  "endDate": "1942-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-13"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-14",
+                  "label": {
+                        "default": "Oh\u00f6rbart vattenfall. 1944 (romaani)"
+                  },
+                  "startDate": "1944-01-01T00:00:00.000Z",
+                  "endDate": "1944-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-14"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-15",
+                  "label": {
+                        "default": "Min\u00e4 olin tyhm\u00e4 neitsyt : kertomus omasta el\u00e4m\u00e4st\u00e4ni. 1946"
+                  },
+                  "startDate": "1946-01-01T00:00:00.000Z",
+                  "endDate": "1946-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-15"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-16",
+                  "label": {
+                        "default": "Orm\u00f6ga. 1946 (runoja)"
+                  },
+                  "startDate": "1946-01-01T00:00:00.000Z",
+                  "endDate": "1946-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-16"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-17",
+                  "label": {
+                        "default": "Den andra tonen. 1948 (runoja)"
+                  },
+                  "startDate": "1948-01-01T00:00:00.000Z",
+                  "endDate": "1948-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-17"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-18",
+                  "label": {
+                        "default": "D\u00e4r vi g\u00e5r - . 1949 (runoja)"
+                  },
+                  "startDate": "1949-01-01T00:00:00.000Z",
+                  "endDate": "1949-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-18"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-19",
+                  "label": {
+                        "default": "Dikt i dag. 1951"
+                  },
+                  "startDate": "1951-01-01T00:00:00.000Z",
+                  "endDate": "1951-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-19"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-20",
+                  "label": {
+                        "default": "De levande. 1954 (runoja)"
+                  },
+                  "startDate": "1954-01-01T00:00:00.000Z",
+                  "endDate": "1954-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-20"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-21",
+                  "label": {
+                        "default": "Sm\u00e5kryp i bl\u00e5sten : urval 1937 - 1949. 1954 (runoja)"
+                  },
+                  "startDate": "1954-01-01T00:00:00.000Z",
+                  "endDate": "1954-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-21"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-21",
+                  "label": {
+                        "default": "Sm\u00e5kryp i bl\u00e5sten : urval 1937 - 1949. 1954 (runoja)"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1954-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-21"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-21",
+                  "label": {
+                        "default": "Sm\u00e5kryp i bl\u00e5sten : urval 1937 - 1949. 1954 (runoja)"
+                  },
+                  "startDate": "1954-01-01T00:00:00.000Z",
+                  "endDate": "1949-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-21"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-21",
+                  "label": {
+                        "default": "Sm\u00e5kryp i bl\u00e5sten : urval 1937 - 1949. 1954 (runoja)"
+                  },
+                  "startDate": "1937-01-01T00:00:00.000Z",
+                  "endDate": "1949-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-21"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-22",
+                  "label": {
+                        "default": "F\u00e4rgernas strand. 1956 (runoja)"
+                  },
+                  "startDate": "1956-01-01T00:00:00.000Z",
+                  "endDate": "1956-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-22"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-23",
+                  "label": {
+                        "default": "Andarnas flykt : v\u00e5rt hj\u00e4rtas kultur : inbillning. 1957 (runoja)"
+                  },
+                  "startDate": "1957-01-01T00:00:00.000Z",
+                  "endDate": "1957-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-23"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-24",
+                  "label": {
+                        "default": "Dikter. 1960"
+                  },
+                  "startDate": "1960-01-01T00:00:00.000Z",
+                  "endDate": "1960-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-24"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-25",
+                  "label": {
+                        "default": "Diktarv\u00e4g. 1961"
+                  },
+                  "startDate": "1961-01-01T00:00:00.000Z",
+                  "endDate": "1961-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-25"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-26",
+                  "label": {
+                        "default": "Se dig omkring : molnet s\u00e5g mig och andra ber\u00e4ttelser. 1962 (novelleja)"
+                  },
+                  "startDate": "1962-01-01T00:00:00.000Z",
+                  "endDate": "1962-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-26"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-33",
+                  "label": {
+                        "default": "L\u00e4ngmanin palkinto 1962"
+                  },
+                  "startDate": "1962-01-01T00:00:00.000Z",
+                  "endDate": "1962-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-33"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-27",
+                  "label": {
+                        "default": "Det sker med ens. 1964 (runoja)"
+                  },
+                  "startDate": "1964-01-01T00:00:00.000Z",
+                  "endDate": "1964-12-31T23:59:59.000Z",
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-27"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-10",
+                  "label": {
+                        "default": "Kiilan j\u00e4sen"
+                  },
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-10"
+                  }
+            },
+            {
+                  "id": "http://www.intavia.eu/bs/event/6010-4",
+                  "label": {
+                        "default": "Piirt\u00e4j\u00e4, lelumuotoilija"
+                  },
+                  "_source_entity_role": {
+                        "id": "http://www.intavia.eu/idm/role/participatingActor/6010-4"
+                  }
+            }
+      ]
+}
