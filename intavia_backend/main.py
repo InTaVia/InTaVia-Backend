@@ -19,7 +19,7 @@ app = FastAPI(
 app.include_router(router_v1)
 app.include_router(router_v2)
 # origins = ["http://localhost:3000", "https://intavia.acdh-dev.oeaw.ac.at", "https://intavia-workshop.vercel.app"]
-origins = [*]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
