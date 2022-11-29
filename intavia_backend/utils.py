@@ -1,3 +1,4 @@
+import base64
 from dataclasses import asdict
 import datetime
 import os
@@ -138,6 +139,6 @@ def toggle_urls_encoding(url):
         str: The encoded/decoded url
     """
     if "/" in url:
-        return quote(url, safe="")
+        return base64.urlsafe_b64encode(url.encode("utf-8")).decode("utf-8")
     else:
-        return unquote(url)
+        return base64.urlsafe_b64decode(url.encode("utf-8")).decode("utf-8")
