@@ -24,14 +24,6 @@ app.include_router(router_v2)
 # origins = ["http://localhost:3000", "https://intavia.acdh-dev.oeaw.ac.at", "https://intavia-workshop.vercel.app"]
 origins = ["*"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 sentry_sdk.init(
     dsn="https://a1253a59c2564963a8f126208f03a655@sentry.acdh-dev.oeaw.ac.at/9",
     # Set traces_sample_rate to 1.0 to capture 100%
@@ -49,3 +41,11 @@ async def startup():
         f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True, db=1
     )
     FastAPICache.init(RedisBackend(redis), prefix="api-cache")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
