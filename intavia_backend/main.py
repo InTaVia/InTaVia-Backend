@@ -8,6 +8,7 @@ from .main_v1 import router as router_v1
 from .main_v2 import router as router_v2
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
 
 
 app = FastAPI(
@@ -16,6 +17,8 @@ app = FastAPI(
     description="Development version of the InTaVia backend.",
     version="0.1.0",
 )
+
+
 app.include_router(router_v1)
 app.include_router(router_v2)
 # origins = ["http://localhost:3000", "https://intavia.acdh-dev.oeaw.ac.at", "https://intavia-workshop.vercel.app"]
@@ -37,8 +40,8 @@ sentry_sdk.init(
     traces_sample_rate=1.0,
 )
 
-# app.add_middleware(SentryAsgiMiddleware)
 
+app = VersionedFastAPI(app, version_format="{major}", prefix_format="/v{major}")
 
 @app.on_event("startup")
 async def startup():
@@ -46,6 +49,3 @@ async def startup():
         f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True, db=1
     )
     FastAPICache.init(RedisBackend(redis), prefix="api-cache")
-
-
-app = VersionedFastAPI(app, version_format="{major}", prefix_format="/v{major}")
