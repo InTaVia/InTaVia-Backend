@@ -23,7 +23,6 @@ import dateutil
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
-from .main_v2 import router as router_v2
 from .utils import get_query_from_triplestore
 
 
