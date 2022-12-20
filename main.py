@@ -42,8 +42,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 sentry_sdk.init(
-    dsn="https://a1253a59c2564963a8f126208f03a655@sentry.acdh-dev.oeaw.ac.at/9",
-
+    dsn="https://936a6c77abda4ced81e17cd4e27906a7@o4504360778661888.ingest.sentry.io/4504361556574208",
+    environment="production",
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production,
@@ -87,7 +87,7 @@ def create_bins_from_range(start, end, intv):
     bins_fin = []
     for i in range(0, intv):
         bins_fin.append({
-            "values": (bins[i], bins[i+1]),
+            "values": (bins[i], bins[i + 1]),
             "label": f"{bins[i].strftime('%Y')} - {bins[i+1].strftime('%Y')}",
             "count": 0
         })
@@ -190,17 +190,19 @@ config = {
         'id': '?id',
         'score': '?score',
         'label': '?label'
-    },    
+    },
     'recon_crm_v1.sparql': {
         'id': '?id',
         'score': '?score',
         'label': '?label'
-    },        
+    },
 }
 
 RECON_MAX_BATCH_SIZE = 50
-@app.get('/recon', 
-    tags=['Reconciliation'],)
+
+
+@app.get('/recon',
+         tags=['Reconciliation'],)
 async def recon_manifest():
     return {
         "versions": ["0.1"],
@@ -224,11 +226,12 @@ async def recon_manifest():
         ]
     }
 
+
 @app.post('/recon/reconcile',
-    response_model=ReconResponse,
-    response_model_exclude_none=True,
-    tags=['Reconciliation'],
-    description="Endpoint that implements the reconciliation aPI specification.")
+          response_model=ReconResponse,
+          response_model_exclude_none=True,
+          tags=['Reconciliation'],
+          description="Endpoint that implements the reconciliation aPI specification.")
 async def recon(payload: ReconQueryBatch = Depends()):
     if len(payload.queries.queries) > RECON_MAX_BATCH_SIZE:
         raise HTTPException(status_code=413, detail="Maximum batch size is " + str(RECON_MAX_BATCH_SIZE))
@@ -252,6 +255,7 @@ async def recon(payload: ReconQueryBatch = Depends()):
     print(response)
     return response
 
+
 @app.get("/api/entities/search",
          response_model=PaginatedResponseEntities,
          response_model_exclude_none=True,
@@ -262,7 +266,7 @@ async def recon(payload: ReconQueryBatch = Depends()):
 @cache()
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore(search, "search_v3.sparql")
-    pages = math.ceil(int(res[0]["_count"])/search.limit) if len(res) > 0 else 0 
+    pages = math.ceil(int(res[0]["_count"]) / search.limit) if len(res) > 0 else 0
     count = int(res[0]["_count"]) if len(res) > 0 else 0
     return {'page': search.page, 'count': count, 'pages': pages, 'results': res}
 
@@ -277,9 +281,9 @@ async def query_entities(search: Search = Depends()):
 @cache()
 async def query_occupations(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore(search, "occupation_v1.sparql")
-    start = (search.page*search.limit)-search.limit
+    start = (search.page * search.limit) - search.limit
     end = start + search.limit
-    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res)/search.limit), 'results': res}
+    return {'page': search.page, 'count': len(res), 'pages': math.ceil(len(res) / search.limit), 'results': res}
 
 
 @app.get(
@@ -368,7 +372,7 @@ async def statistics_occupations(search: StatisticsBase = Depends()):
 async def retrieve_entity(search: Entity_Retrieve = Depends()):
     res = get_query_from_triplestore(
         search, "get_entity_v1.sparql", "search_v3.sparql")
-    pages = math.ceil(int(res[0]["_count"])/search.limit) if len(res) > 0 else 0 
+    pages = math.ceil(int(res[0]["_count"]) / search.limit) if len(res) > 0 else 0
     count = int(res[0]["_count"]) if len(res) > 0 else 0
     return {'page': search.page, 'count': count, 'pages': pages, 'results': res}
 
