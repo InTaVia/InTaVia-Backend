@@ -2,8 +2,8 @@ import math
 from fastapi import APIRouter, Depends
 
 from fastapi_versioning import version, versioned_api_route
-from intavia_backend.models_v2 import Entity, Event, PaginatedResponseEntities
-from intavia_backend.query_parameters_v2 import Entity_Retrieve, Search
+from intavia_backend.models_v2 import Entity, Event, PaginatedResponseEntities, PaginatedResponseVocabularyEntries
+from intavia_backend.query_parameters_v2 import Entity_Retrieve, Search, SearchVocabs
 from .utils import flatten_rdf_data, get_query_from_triplestore_v2, toggle_urls_encoding
 
 router = APIRouter(route_class=versioned_api_route(2, 0))
@@ -46,6 +46,21 @@ async def retrieve_event_v2(event_id: str):
 )
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore_v2(search, "search_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / search.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": search.page, "count": count, "pages": pages, "results": res}
+
+
+@router.get(
+    "/api/vocabularies/occupations/search",
+    response_model=PaginatedResponseVocabularyEntries,
+    response_model_exclude_none=True,
+    tags=["Vocabulary endpoints"],
+    description="Endpoint that allows to query and retrieve occupation concepts.",
+)
+async def query_occupations(search: SearchVocabs = Depends()):
+    res = get_query_from_triplestore_v2(search, "occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
     pages = math.ceil(int(res[0]["count"]) / search.limit) if len(res) > 0 else 0
     count = int(res[0]["count"]) if len(res) > 0 else 0

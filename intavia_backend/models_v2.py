@@ -150,8 +150,9 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
-    relation_type: EnumVocabsRelation = Field(..., rdfconfig=FieldConfigurationRDF(path="relation_type"))
-    related_vocabulary: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="related_vocabulary"))
+    relation_type: EnumVocabsRelation = Field(
+        EnumVocabsRelation.broader, rdfconfig=FieldConfigurationRDF(path="relation_type"))
+    related_vocabulary: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True))
 
 
 class VocabularyEntry(RDFUtilsModelBaseClass):
@@ -160,7 +161,8 @@ class VocabularyEntry(RDFUtilsModelBaseClass):
         None, rdfconfig=FieldConfigurationRDF(path="vocabulary_label", default_dict_key="default")
     )
     related: typing.List[VocabularyRelation] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="related", anchor=True))
+        None, rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True)
+    )
 
 
 class PaginatedResponseBase(RDFUtilsModelBaseClass):
