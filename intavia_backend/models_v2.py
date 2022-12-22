@@ -147,7 +147,7 @@ class Event(RDFUtilsModelBaseClass):
     # source: Source | None = None
     # kind: EntityEventKind | None = None
     startDate: str | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="start", callback_function=convert_date_to_iso8601)
+        None, rdfconfig=FieldConfigurationRDF(path="begin", callback_function=convert_date_to_iso8601)
     )
     endDate: str | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="end", callback_function=convert_date_to_iso8601)
