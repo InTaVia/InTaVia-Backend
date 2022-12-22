@@ -44,7 +44,6 @@ app.add_middleware(
 sentry_sdk.init(
     dsn="https://936a6c77abda4ced81e17cd4e27906a7@o4504360778661888.ingest.sentry.io/4504361556574208",
     environment="production",
-
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production,
