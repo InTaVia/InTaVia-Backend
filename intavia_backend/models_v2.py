@@ -1,9 +1,12 @@
+import base64
 import datetime
 from enum import Enum
+import os
 import typing
 from pydantic import Field, HttpUrl, NonNegativeInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
+BASE_URL = os.getenv("BASE_URL", "http://intavia-backend.acdh-dev.oeaw.ac.at")
 
 source_mapping = {
     "intavia.eu/apis/personproxy": "Austrian Biographical Dictionary",
@@ -70,6 +73,24 @@ def convert_date_to_iso8601(field, item, data):
         return item
 
 
+def pp_base64_entity(field, item, data):
+    if item is None:
+        return None
+    base_url = f"{BASE_URL}/v2/api/entity/"
+    if isinstance(item, list):
+        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in item]
+    return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
+
+
+def pp_base64_event(field, item, data):
+    if item is None:
+        return None
+    base_url = f"{BASE_URL}/v2/api/event/"
+    if isinstance(item, list):
+        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in item]
+    return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
+
+
 class EnumVocabsRelation(str, Enum):
     broader = "broader"
     narrower = "narrower"
@@ -99,7 +120,9 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
 
 
 class Entity(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True))
+    id: str = Field(
+        ..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True, callback_function=pp_base64_entity)
+    )
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
@@ -113,11 +136,11 @@ class Entity(RDFUtilsModelBaseClass):
     )
     description: str | None = None
     # media: list[MediaResource] | None = None
-    events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event"))
+    events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event", callback_function=pp_base64_event))
 
 
 class Event(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="event", anchor=True))
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="event", anchor=True, callback_function=pp_base64_event))
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="event_label", default_dict_key="default")
     )
@@ -130,9 +153,7 @@ class Event(RDFUtilsModelBaseClass):
         None, rdfconfig=FieldConfigurationRDF(path="end", callback_function=convert_date_to_iso8601)
     )
     # place: Place | None = None
-    relations: typing.List["EntityEventRelation"] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="role", anchor=True)
-    )
+    relations: typing.List["EntityEventRelation"] | None
 
 
 class EntityEventRelation(RDFUtilsModelBaseClass):
@@ -146,7 +167,7 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
             path="role_type",
         ),
     )
-    entity: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="entity"))
+    entity: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", callback_function=pp_base64_entity))
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
