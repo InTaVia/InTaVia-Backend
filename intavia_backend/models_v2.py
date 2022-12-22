@@ -70,6 +70,12 @@ def convert_date_to_iso8601(field, item, data):
         return item
 
 
+class EnumVocabsRelation(str, Enum):
+    broader = "broader"
+    narrower = "narrower"
+    sameas = "same-as"
+
+
 class EntityType(str, Enum):
     person = "person"
     place = "place"
@@ -143,6 +149,19 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
     entity: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="entity"))
 
 
+class VocabularyRelation(RDFUtilsModelBaseClass):
+    relation_type: EnumVocabsRelation = Field(None, rdfconfig=FieldConfigurationRDF(path="relation_type"))
+    related_vocabulary: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True))
+
+
+class VocabularyEntry(RDFUtilsModelBaseClass):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="vocabulary", anchor=True))
+    label: InternationalizedLabel | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="vocabulary_label", default_dict_key="default")
+    )
+    related: typing.List["VocabularyRelation"] | None
+
+
 class PaginatedResponseBase(RDFUtilsModelBaseClass):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
@@ -153,6 +172,12 @@ class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Entity] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
+class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
+    results: typing.List[VocabularyEntry] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
 EntityEventRelation.update_forward_refs()
 Event.update_forward_refs()
 Entity.update_forward_refs()
+VocabularyEntry.update_forward_refs()
+VocabularyRelation.update_forward_refs()
