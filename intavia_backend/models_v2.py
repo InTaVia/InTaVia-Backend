@@ -150,7 +150,9 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
-    relation_type: EnumVocabsRelation = Field(None, rdfconfig=FieldConfigurationRDF(path="relation_type"))
+    relation_type: EnumVocabsRelation = Field(
+        EnumVocabsRelation.broader, rdfconfig=FieldConfigurationRDF(path="relation_type")
+    )
     related_vocabulary: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True))
 
 
