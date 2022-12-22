@@ -16,19 +16,21 @@ WITH {
     {% endfor %}
 
     WHERE {
-      ?vocabulary rdfs:subClassOf+ bioc:Occupation .
+      ?vocabulary rdfs:subClassOf bioc:Occupation .
       ?vocabulary rdfs:label ?vocabulary_label .
-      ?vocabulary_label bds:search "{{q}}"
+      ?vocabulary_label bds:search "{{q}}" .
+      ?vocabulary_label bds:matchAllTerms "true" .
     }
 } AS %count_set
 
 WHERE {
   INCLUDE %count_set
-  ?vocabulary rdfs:subClassOf+ bioc:Occupation .
+  ?vocabulary rdfs:subClassOf bioc:Occupation .
   ?vocabulary rdfs:label ?vocabulary_label .
-  ?vocabulary_label bds:search "{{q}}"
+  ?vocabulary_label bds:search "{{q}}" .
+  ?vocabulary_label bds:matchAllTerms "true" .
   OPTIONAL{
-  	?vocabulary rdfs:subClassOf+ ?related_vocabulary .
+  	?vocabulary rdfs:subClassOf ?related_vocabulary .
     FILTER(?related_vocabulary != bioc:Occupation)
     BIND('broader' as ?relation_type)
   }

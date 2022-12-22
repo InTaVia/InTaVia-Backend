@@ -150,8 +150,7 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
-    relation_type: EnumVocabsRelation = Field(
-        EnumVocabsRelation.broader, rdfconfig=FieldConfigurationRDF(path="relation_type"))
+    relation_type: EnumVocabsRelation = Field(None, rdfconfig=FieldConfigurationRDF(path="relation_type"))
     related_vocabulary: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True))
 
 
@@ -160,9 +159,7 @@ class VocabularyEntry(RDFUtilsModelBaseClass):
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="vocabulary_label", default_dict_key="default")
     )
-    related: typing.List[VocabularyRelation] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True)
-    )
+    related: typing.List["VocabularyRelation"] | None
 
 
 class PaginatedResponseBase(RDFUtilsModelBaseClass):
@@ -182,3 +179,5 @@ class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
 EntityEventRelation.update_forward_refs()
 Event.update_forward_refs()
 Entity.update_forward_refs()
+VocabularyEntry.update_forward_refs()
+VocabularyRelation.update_forward_refs()
