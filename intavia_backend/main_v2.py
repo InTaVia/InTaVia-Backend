@@ -6,7 +6,9 @@ from intavia_backend.models_v2 import (
     Entity,
     Event,
     PaginatedResponseEntities,
+    PaginatedResponseVocRoleEntries,
     PaginatedResponseVocabularyEntries,
+    VocRole,
     VocabularyEntry,
 )
 from intavia_backend.query_parameters_v2 import Entity_Retrieve, Search, SearchVocabs
@@ -83,6 +85,36 @@ async def query_occupations(search: SearchVocabs = Depends()):
 async def retrieve_occupation_v2(occupation_id: str):
     res = get_query_from_triplestore_v2(
         {"occupation_id": toggle_urls_encoding(occupation_id)}, "occupation_retrieve_v2_1.sparql"
+    )
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    return {"_results": flatten_rdf_data(res)}
+
+
+@router.get(
+    "/api/vocabularies/role/search",
+    response_model=PaginatedResponseVocRoleEntries,
+    response_model_exclude_none=True,
+    tags=["Vocabulary endpoints"],
+    description="Endpoint that allows to query and retrieve event roles.",
+)
+async def query_event_roles(search: SearchVocabs = Depends()):
+    res = get_query_from_triplestore_v2(search, "event_role_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / search.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": search.page, "count": count, "pages": pages, "results": res}
+
+
+@router.get(
+    "/api/vocabularies/role/{event_role_id}",
+    response_model=VocRole,
+    response_model_exclude_none=True,
+    tags=["Vocabulary endpoints"],
+    description="Endpoint that allows to retrive any roles by id.",
+)
+async def retrieve_event_role_v2(event_role_id: str):
+    res = get_query_from_triplestore_v2(
+        {"event_role_id": toggle_urls_encoding(event_role_id)}, "event_role_retrieve_v2_1.sparql"
     )
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     return {"_results": flatten_rdf_data(res)}

@@ -82,6 +82,15 @@ def pp_base64_entity(field, item, data):
     return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
 
 
+def pp_base64_voc_role(field, item, data):
+    if item is None:
+        return None
+    base_url = f"{BASE_URL}/v2/api/vocabularies/role/"
+    if isinstance(item, list):
+        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in item]
+    return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
+
+
 def pp_base64_event(field, item, data):
     if item is None:
         return None
@@ -185,6 +194,12 @@ class VocabularyEntry(RDFUtilsModelBaseClass):
     related: typing.List["VocabularyRelation"] | None
 
 
+class VocRole(VocabularyEntry):
+    id: str = Field(
+        ..., rdfconfig=FieldConfigurationRDF(path="vocabulary", anchor=True, callback_function=pp_base64_voc_role)
+    )
+
+
 class PaginatedResponseBase(RDFUtilsModelBaseClass):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
@@ -197,6 +212,10 @@ class PaginatedResponseEntities(PaginatedResponseBase):
 
 class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
     results: typing.List[VocabularyEntry] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseVocRoleEntries(PaginatedResponseBase):
+    results: typing.List[VocRole] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
 EntityEventRelation.update_forward_refs()
