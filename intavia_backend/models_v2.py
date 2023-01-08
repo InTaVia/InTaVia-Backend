@@ -191,7 +191,7 @@ class VocRole(VocabularyEntry):
     id: str = Field(
         ...,
         rdfconfig=FieldConfigurationRDF(
-            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/vocrole/")
+            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/vocabularies/vocrole/")
         ),
     )
 
@@ -200,7 +200,7 @@ class VocEventKind(VocabularyEntry):
     id: str = Field(
         ...,
         rdfconfig=FieldConfigurationRDF(
-            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/event_kind/")
+            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/vocabularies/event_kind/")
         ),
     )
 
