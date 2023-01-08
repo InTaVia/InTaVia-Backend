@@ -1,0 +1,16 @@
+PREFIX bds:  <http://www.bigdata.com/rdf/search#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+
+SELECT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type
+
+WHERE {
+  BIND(<{{event_kind_id}}> as ?vocabulary)
+  ?vocabulary rdfs:subClassOf crm:E5_Event .
+  ?vocabulary rdfs:label ?vocabulary_label .
+  OPTIONAL{
+  	?vocabulary rdfs:subClassOf ?related_vocabulary .
+    FILTER(?related_vocabulary != crm:E5_Event)
+    BIND('broader' as ?relation_type)
+  }
+  }

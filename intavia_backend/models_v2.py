@@ -1,9 +1,12 @@
+import base64
 import datetime
 from enum import Enum
+import os
 import typing
 from pydantic import Field, HttpUrl, NonNegativeInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
+BASE_URL = os.getenv("BASE_URL", "http://intavia-backend.acdh-dev.oeaw.ac.at")
 
 source_mapping = {
     "intavia.eu/apis/personproxy": "Austrian Biographical Dictionary",
@@ -70,6 +73,14 @@ def convert_date_to_iso8601(field, item, data):
         return item
 
 
+def pp_base64(data, base_url):
+    if data is None:
+        return None
+    if isinstance(data, list):
+        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in data]
+    return base_url + base64.urlsafe_b64encode(data.encode("utf-8")).decode("utf-8")
+
+
 class EnumVocabsRelation(str, Enum):
     broader = "broader"
     narrower = "narrower"
@@ -99,7 +110,12 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
 
 
 class Entity(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True))
+    id: str = Field(
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="entity", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/entity/")
+        ),
+    )
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
@@ -113,26 +129,31 @@ class Entity(RDFUtilsModelBaseClass):
     )
     description: str | None = None
     # media: list[MediaResource] | None = None
-    events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event"))
+    events: list | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="event", encode_function=(pp_base64, f"{BASE_URL}/v2/api/event/"))
+    )
 
 
 class Event(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="event", anchor=True))
+    id: str = Field(
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="event", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/event/")
+        ),
+    )
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="event_label", default_dict_key="default")
     )
     # source: Source | None = None
     # kind: EntityEventKind | None = None
     startDate: str | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="start", callback_function=convert_date_to_iso8601)
+        None, rdfconfig=FieldConfigurationRDF(path="begin", callback_function=convert_date_to_iso8601)
     )
     endDate: str | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="end", callback_function=convert_date_to_iso8601)
     )
     # place: Place | None = None
-    relations: typing.List["EntityEventRelation"] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="role", anchor=True)
-    )
+    relations: typing.List["EntityEventRelation"] | None
 
 
 class EntityEventRelation(RDFUtilsModelBaseClass):
@@ -146,11 +167,15 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
             path="role_type",
         ),
     )
-    entity: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="entity"))
+    entity: HttpUrl = Field(
+        ..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=(pp_base64, f"{BASE_URL}/v2/api/entity/"))
+    )
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
-    relation_type: EnumVocabsRelation = Field(None, rdfconfig=FieldConfigurationRDF(path="relation_type"))
+    relation_type: EnumVocabsRelation = Field(
+        EnumVocabsRelation.broader, rdfconfig=FieldConfigurationRDF(path="relation_type")
+    )
     related_vocabulary: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="related_vocabulary", anchor=True))
 
 
@@ -160,6 +185,24 @@ class VocabularyEntry(RDFUtilsModelBaseClass):
         None, rdfconfig=FieldConfigurationRDF(path="vocabulary_label", default_dict_key="default")
     )
     related: typing.List["VocabularyRelation"] | None
+
+
+class VocRole(VocabularyEntry):
+    id: str = Field(
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/vocabularies/vocrole/")
+        ),
+    )
+
+
+class VocEventKind(VocabularyEntry):
+    id: str = Field(
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/vocabularies/event_kind/")
+        ),
+    )
 
 
 class PaginatedResponseBase(RDFUtilsModelBaseClass):
@@ -174,6 +217,14 @@ class PaginatedResponseEntities(PaginatedResponseBase):
 
 class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
     results: typing.List[VocabularyEntry] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseVocRoleEntries(PaginatedResponseBase):
+    results: typing.List[VocRole] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseEventKindsEntries(PaginatedResponseBase):
+    results: typing.List[VocEventKind] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
 EntityEventRelation.update_forward_refs()
