@@ -73,31 +73,12 @@ def convert_date_to_iso8601(field, item, data):
         return item
 
 
-def pp_base64_entity(field, item, data):
-    if item is None:
+def pp_base64(data, base_url):
+    if data is None:
         return None
-    base_url = f"{BASE_URL}/v2/api/entity/"
-    if isinstance(item, list):
-        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in item]
-    return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
-
-
-def pp_base64_voc_role(field, item, data):
-    if item is None:
-        return None
-    base_url = f"{BASE_URL}/v2/api/vocabularies/role/"
-    if isinstance(item, list):
-        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in item]
-    return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
-
-
-def pp_base64_event(field, item, data):
-    if item is None:
-        return None
-    base_url = f"{BASE_URL}/v2/api/event/"
-    if isinstance(item, list):
-        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in item]
-    return base_url + base64.urlsafe_b64encode(item.encode("utf-8")).decode("utf-8")
+    if isinstance(data, list):
+        return [base_url + base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in data]
+    return base_url + base64.urlsafe_b64encode(data.encode("utf-8")).decode("utf-8")
 
 
 class EnumVocabsRelation(str, Enum):
@@ -130,7 +111,10 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
 
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(
-        ..., rdfconfig=FieldConfigurationRDF(path="entity", anchor=True, callback_function=pp_base64_entity)
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="entity", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/entity/")
+        ),
     )
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
@@ -145,11 +129,18 @@ class Entity(RDFUtilsModelBaseClass):
     )
     description: str | None = None
     # media: list[MediaResource] | None = None
-    events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event", callback_function=pp_base64_event))
+    events: list | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="event", encode_function=(pp_base64, f"{BASE_URL}/v2/api/event/"))
+    )
 
 
 class Event(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="event", anchor=True, callback_function=pp_base64_event))
+    id: str = Field(
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="event", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/event/")
+        ),
+    )
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="event_label", default_dict_key="default")
     )
@@ -176,7 +167,9 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
             path="role_type",
         ),
     )
-    entity: HttpUrl = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", callback_function=pp_base64_entity))
+    entity: HttpUrl = Field(
+        ..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=(pp_base64, f"{BASE_URL}/v2/api/entity/"))
+    )
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
@@ -196,7 +189,10 @@ class VocabularyEntry(RDFUtilsModelBaseClass):
 
 class VocRole(VocabularyEntry):
     id: str = Field(
-        ..., rdfconfig=FieldConfigurationRDF(path="vocabulary", anchor=True, callback_function=pp_base64_voc_role)
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/vocrole/")
+        ),
     )
 
 
