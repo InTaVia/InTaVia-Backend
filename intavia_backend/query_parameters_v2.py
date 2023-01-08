@@ -33,6 +33,7 @@ class EntityTypesEnum(str, Enum):
         map = {"person": "idmcore:Person_Proxy", "group": "idmcore:Group"}
         return map[self.name]
 
+
 class ReconTypeEnum(str, Enum):
     Person = "Person"
     Group = "Group"
@@ -40,11 +41,12 @@ class ReconTypeEnum(str, Enum):
 
     def get_rdf_uri(self) -> str:
         map = {
-            'Person': '<http://www.intavia.eu/idm-core/Provided_Person>',
-            'Group': '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>',
-            'Place': '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>'
+            "Person": "<http://www.intavia.eu/idm-core/Provided_Person>",
+            "Group": "<http://www.cidoc-crm.org/cidoc-crm/E74_Group>",
+            "Place": "<http://www.cidoc-crm.org/cidoc-crm/E53_Place>",
         }
-        return map[self.name]    
+        return map[self.name]
+
 
 @dataclasses.dataclass(kw_only=True)
 class Base:
@@ -57,6 +59,10 @@ class QueryBase:
     page: PositiveInt = Query(default=1, gte=1)
     limit: int = Query(default=50, le=1000, gte=1)
     _offset: int = Query(default=0, include_in_schema=False)
+
+    def __post_init__(self):
+        if hasattr(self, "page"):
+            self._offset = (self.page - 1) * self.limit
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -100,22 +106,22 @@ class Search_Base:
             self.__setattr__("diedAfter", parse(self.diedAfter).strftime("%Y-%m-%dT00:00:00"))
 
 
+@dataclasses.dataclass(kw_only=True)
+class ReconQuery(Base):
+    query: str
+    limit: int
+    type: ReconTypeEnum = Query(default=ReconTypeEnum.Person, description="Filter for returned entity type.")
 
 
 @dataclasses.dataclass(kw_only=True)
-class ReconQuery(Base):
-    query: str   
-    limit: int
-    type: ReconTypeEnum = Query(
-        default=ReconTypeEnum.Person, description="Filter for returned entity type.")         
-
-@dataclasses.dataclass(kw_only=True)       
 class ReconQueries(Base):
     queries: list[ReconQuery]
 
-@dataclasses.dataclass(kw_only=True)       
+
+@dataclasses.dataclass(kw_only=True)
 class ReconQueryBatch(Base):
     queries: ReconQueries
+
 
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase, Base):
@@ -130,6 +136,10 @@ class Search(Search_Base, QueryBase, Base):
 @dataclasses.dataclass(kw_only=True)
 class SearchVocabs(QueryBase, Base):
     q: str = Query(default=None, description="Query for a label in the Vocabulary")
+    datasets: list[DatasetsEnum] = Query(
+        description="Select datasets to limit query to",
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
+    )
 
 
 @dataclasses.dataclass(kw_only=True)

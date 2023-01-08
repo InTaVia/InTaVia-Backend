@@ -1,0 +1,20 @@
+PREFIX bds:  <http://www.bigdata.com/rdf/search#>
+PREFIX bioc: <http://ldf.fi/schema/bioc/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type
+
+{% for dataset in datasets %}
+FROM <{{dataset.value}}>
+{% endfor %}
+
+WHERE {
+  BIND(<{{occupation_id}}> as ?vocabulary)
+  ?vocabulary rdfs:subClassOf bioc:Occupation .
+  ?vocabulary rdfs:label ?vocabulary_label .
+  OPTIONAL{
+  	?vocabulary rdfs:subClassOf ?related_vocabulary .
+    FILTER(?related_vocabulary != bioc:Occupation)
+    BIND('broader' as ?relation_type)
+  }
+  }
