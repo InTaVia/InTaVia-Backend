@@ -196,6 +196,15 @@ class VocRole(VocabularyEntry):
     )
 
 
+class VocEventKind(VocabularyEntry):
+    id: str = Field(
+        ...,
+        rdfconfig=FieldConfigurationRDF(
+            path="vocabulary", anchor=True, encode_function=(pp_base64, f"{BASE_URL}/v2/api/event_kind/")
+        ),
+    )
+
+
 class PaginatedResponseBase(RDFUtilsModelBaseClass):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
@@ -212,6 +221,10 @@ class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
 
 class PaginatedResponseVocRoleEntries(PaginatedResponseBase):
     results: typing.List[VocRole] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseEventKindsEntries(PaginatedResponseBase):
+    results: typing.List[VocEventKind] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
 EntityEventRelation.update_forward_refs()

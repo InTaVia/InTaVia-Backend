@@ -1,0 +1,38 @@
+PREFIX bds:  <http://www.bigdata.com/rdf/search#>
+PREFIX bioc: <http://ldf.fi/schema/bioc/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+
+SELECT DISTINCT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type ?count
+
+
+WITH {
+    SELECT (COUNT(DISTINCT ?vocabulary) AS ?count)
+
+
+    WHERE {
+      ?vocabulary rdfs:subClassOf crm:E5_Event .
+      ?vocabulary rdfs:label ?vocabulary_label .
+      {% if q %}
+      ?vocabulary_label bds:search "{{q}}" .
+      ?vocabulary_label bds:matchAllTerms "true" .
+      {% endif %}
+    }
+} AS %count_set
+
+WHERE {
+  INCLUDE %count_set
+  ?vocabulary rdfs:subClassOf crm:E5_Event .
+  ?vocabulary rdfs:label ?vocabulary_label .
+  {% if q %}
+  ?vocabulary_label bds:search "{{q}}" .
+  ?vocabulary_label bds:matchAllTerms "true" .
+  {% endif %}
+  OPTIONAL{
+  	?vocabulary rdfs:subClassOf ?related_vocabulary .
+    FILTER(?related_vocabulary != crm:E5_Event)
+    BIND('broader' as ?relation_type)
+  }
+  } ORDER BY ?vocabulary
+LIMIT {{limit}}
+{% if _offset > 0 %}OFFSET {{_offset}}{% endif %}
