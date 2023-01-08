@@ -41,9 +41,9 @@ class ReconTypeEnum(str, Enum):
 
     def get_rdf_uri(self) -> str:
         map = {
-            'Person': '<http://www.intavia.eu/idm-core/Provided_Person>',
-            'Group': '<http://www.cidoc-crm.org/cidoc-crm/E74_Group>',
-            'Place': '<http://www.cidoc-crm.org/cidoc-crm/E53_Place>'
+            "Person": "<http://www.intavia.eu/idm-core/Provided_Person>",
+            "Group": "<http://www.cidoc-crm.org/cidoc-crm/E74_Group>",
+            "Place": "<http://www.cidoc-crm.org/cidoc-crm/E53_Place>",
         }
         return map[self.name]
 
@@ -59,6 +59,10 @@ class QueryBase:
     page: PositiveInt = Query(default=1, gte=1)
     limit: int = Query(default=50, le=1000, gte=1)
     _offset: int = Query(default=0, include_in_schema=False)
+
+    def __post_init__(self):
+        if hasattr(self, "page"):
+            self._offset = (self.page - 1) * self.limit
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -106,8 +110,7 @@ class Search_Base:
 class ReconQuery(Base):
     query: str
     limit: int
-    type: ReconTypeEnum = Query(
-        default=ReconTypeEnum.Person, description="Filter for returned entity type.")
+    type: ReconTypeEnum = Query(default=ReconTypeEnum.Person, description="Filter for returned entity type.")
 
 
 @dataclasses.dataclass(kw_only=True)
