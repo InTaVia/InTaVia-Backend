@@ -1,11 +1,15 @@
-?event bioc:had_participant_in_role ?role .
-?role ^bioc:bearer_of ?entity .
 ?event a ?event_type .
+  ?event (bioc:had_participant_in_role/^bioc:bearer_of)|crm:P7_took_place_at ?entity .
 OPTIONAL {?event rdfs:label ?event_label }
+OPTIONAL {?event bioc:had_participant_in_role ?role .
+    ?role ^bioc:bearer_of ?entity .
+    OPTIONAL {?role rdfs:label ?role_label}
+  }
+  OPTIONAL {?event crm:P7_took_place_at ?entity .
+    BIND("took place in" as ?role_label)
+  }
 OPTIONAL {?event crm:P4_has_time-span ?time_span
 OPTIONAL {?time_span crm:P82a_begin_of_the_begin ?begin }
 OPTIONAL {?time_span crm:P82b_end_of_the_end ?end }
 OPTIONAL {?time_span rdfs:label ?time_span_label }
 }
-OPTIONAl {?role a ?role_type }
-OPTIONAL {?role rdfs:label ?role_label }

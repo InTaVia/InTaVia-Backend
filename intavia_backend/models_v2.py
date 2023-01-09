@@ -152,7 +152,7 @@ class Event(RDFUtilsModelBaseClass):
 
 
 class EntityEventRelation(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role", anchor=True))
+    # id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role", anchor=True))
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="role_label", default_dict_key="default")
     )
