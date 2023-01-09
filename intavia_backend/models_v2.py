@@ -138,6 +138,7 @@ class Event(RDFUtilsModelBaseClass):
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="event_label", default_dict_key="default")
     )
+    kind: str | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event_type", encode_function=pp_base64))
     # source: Source | None = None
     # kind: EntityEventKind | None = None
     startDate: str | None = Field(
