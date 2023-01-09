@@ -1,15 +1,11 @@
-import copy
 import dataclasses
 from enum import Enum
-import json
-from typing import Any
 import typing
 from fastapi import Query
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, Extra
-from dateutil.parser import *
+from pydantic import HttpUrl, PositiveInt
+from dateutil.parser import parse
 import datetime
 import base64
-import hashlib
 
 
 def toggle_urls_encoding(url):
@@ -102,8 +98,8 @@ class Search_Base:
     diedBefore: str | datetime.datetime = Query(
         default=None, description="Filters for Persons died before a certain date"
     )
-    occupations_id: typing.List[HttpUrl] | None = Query(
-        default=None, description="filters for persons with occupations using URIs"
+    occupations_id: typing.List[str] | None = Query(
+        default=None, description="filters for persons with occupations using IDs"
     )
     relatedPlace: str = Query(default=None, description="Filter for places related to the searched entity")
     relatedPlaces_id: typing.List[HttpUrl] = Query(
