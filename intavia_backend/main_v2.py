@@ -7,6 +7,7 @@ from intavia_backend.models_v2 import (
     Event,
     PaginatedResponseEntities,
     PaginatedResponseEventKindsEntries,
+    PaginatedResponseOccupationEntries,
     PaginatedResponseVocRoleEntries,
     PaginatedResponseVocabularyEntries,
     VocEventKind,
@@ -64,7 +65,7 @@ async def query_entities(search: Search = Depends()):
 
 @router.get(
     "/api/vocabularies/occupations/search",
-    response_model=PaginatedResponseVocabularyEntries,
+    response_model=PaginatedResponseOccupationEntries,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to query and retrieve occupation concepts.",
