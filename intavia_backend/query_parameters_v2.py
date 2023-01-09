@@ -1,15 +1,28 @@
-import copy
 import dataclasses
 from enum import Enum
-import json
-from typing import Any
 import typing
 from fastapi import Query
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, PositiveInt, Extra
-from dateutil.parser import *
+from pydantic import HttpUrl, PositiveInt
+from dateutil.parser import parse
 import datetime
 import base64
-import hashlib
+
+
+def toggle_urls_encoding(url):
+    """Toggles the encoding of the url.
+
+    Args:
+        url (str): The url
+
+    Returns:
+        str: The encoded/decoded url
+    """
+    if "/v2/api" in url:
+        return base64.urlsafe_b64decode(url.split("/")[-1].encode("utf-8")).decode("utf-8")
+    elif "/" in url:
+        return base64.urlsafe_b64encode(url.encode("utf-8")).decode("utf-8")
+    else:
+        return base64.urlsafe_b64decode(url.encode("utf-8")).decode("utf-8")
 
 
 class DatasetsEnum(str, Enum):
@@ -85,8 +98,8 @@ class Search_Base:
     diedBefore: str | datetime.datetime = Query(
         default=None, description="Filters for Persons died before a certain date"
     )
-    occupations_id: typing.List[HttpUrl] | None = Query(
-        default=None, description="filters for persons with occupations using URIs"
+    occupations_id: typing.List[str] | None = Query(
+        default=None, description="filters for persons with occupations using IDs"
     )
     relatedPlace: str = Query(default=None, description="Filter for places related to the searched entity")
     relatedPlaces_id: typing.List[HttpUrl] = Query(
@@ -104,6 +117,8 @@ class Search_Base:
             self.__setattr__("diedBefore", parse(self.diedBefore).strftime("%Y-%m-%dT00:00:00"))
         if self.diedAfter is not None:
             self.__setattr__("diedAfter", parse(self.diedAfter).strftime("%Y-%m-%dT00:00:00"))
+        if self.occupations_id is not None:
+            self.__setattr__("occupations_id", [toggle_urls_encoding(x) for x in self.occupations_id])
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -130,7 +145,6 @@ class Search(Search_Base, QueryBase, Base):
         default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
     )
     kind: list[EntityTypesEnum] = Query(default=None, description="Limit Query to entity type.")
-    includeEvents: bool = Query(default=False, description="Whether to include data on events")
 
 
 @dataclasses.dataclass(kw_only=True)
