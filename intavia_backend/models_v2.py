@@ -88,9 +88,9 @@ class EnumVocabsRelation(str, Enum):
 
 
 class EntityType(str, Enum):
-    person = "person"
-    place = "place"
-    group = "group"
+    Person = "Person"
+    Place = "Place"
+    Group = "Group"
     CulturalHeritageObject = "CulturalHeritageObject"
     HistoricalEvent = "HistoricalEvent"
 
@@ -117,7 +117,7 @@ class Entity(RDFUtilsModelBaseClass):
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
-    kind: EntityType = Field(EntityType.person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
+    kind: EntityType = Field(EntityType.Person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     # source: Source | None = None
     # linkedIds: list[LinkedId] | None = None
