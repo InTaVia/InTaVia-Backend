@@ -155,11 +155,9 @@ class EntityEventRelation(RDFUtilsModelBaseClass):
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="role_label", default_dict_key="default")
     )
-    kind: HttpUrl | None = Field(
+    role: str | None = Field(
         None,
-        rdfconfig=FieldConfigurationRDF(
-            path="role_type",
-        ),
+        rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64),
     )
     entity: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=pp_base64))
 
