@@ -2,9 +2,10 @@ import base64
 import datetime
 from enum import Enum
 import os
+import re
 import typing
 from geojson_pydantic import Point, Polygon
-from pydantic import Field, HttpUrl, NonNegativeInt
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
 BASE_URL = os.getenv("BASE_URL", "http://intavia-backend.acdh-dev.oeaw.ac.at")
@@ -51,6 +52,32 @@ def pp_label(field, item, data):
         return item[0]
     else:
         return item
+
+
+def pp_id_provider(field, item, data):
+    res = []
+    if isinstance(item, str):
+        item = [item]
+    for it in item:
+        data = {}
+        test = False
+        # Test for query params and remove them
+        if re.search(r"\?[^/]+$", it):
+            it = "/".join(it.split("/")[:-1])
+        for k, v in linked_id_providers.items():
+            if v["baseUrl"] in it:
+                test = True
+                match = re.search(v["regex_id"], it)
+                if match:
+                    data["id"] = match.group(1)
+                    data["provider"] = LinkedIdProvider(**v)
+                    break
+                else:
+                    data["id"] = it
+        if not test:
+            data["id"] = it
+        res.append(data)
+    return res
 
 
 def pp_label_str(field, item, data):
@@ -116,6 +143,16 @@ class EntityType(str, Enum):
     HistoricalEvent = "HistoricalEvent"
 
 
+class LinkedIdProvider(BaseModel):
+    label: str
+    baseUrl: HttpUrl
+
+
+class LinkedId(BaseModel):
+    id: str
+    provider: LinkedIdProvider | None = None
+
+
 class InternationalizedLabel(RDFUtilsModelBaseClass):
     """Used to provide internationalized labels"""
 
@@ -146,7 +183,9 @@ class Entity(RDFUtilsModelBaseClass):
     kind: EntityType = Field(EntityType.Person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     # source: Source | None = None
-    # linkedIds: list[LinkedId] | None = None
+    linkedIds: list[LinkedId] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds")
+    )
     # _linkedIds: list[HttpUrl] | None = None
     gender: GenderType | None = Field(
         None, rdfconfig=FieldConfigurationRDF(callback_function=pp_gender_to_label, path="gender")
