@@ -73,6 +73,14 @@ def convert_date_to_iso8601(field, item, data):
         return item
 
 
+def pp_gender_to_label(field, item, data):
+    if "Male" in item["gender"] and "genderLabel" not in item:
+        item["genderLabel"] = "male"
+    if "Female" in item["gender"] and "genderLabel" not in item:
+        item["genderLabel"] = "female"
+    return item
+
+
 def pp_base64(data):
     if data is None:
         return None
@@ -109,6 +117,11 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
         super().__init__(**data)
 
 
+class GenderType(RDFUtilsModelBaseClass):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="gender", anchor=True))
+    label: str = Field(None, rdfconfig=FieldConfigurationRDF(path="genderLabel"))
+
+
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(
         ...,
@@ -122,6 +135,9 @@ class Entity(RDFUtilsModelBaseClass):
     # source: Source | None = None
     # linkedIds: list[LinkedId] | None = None
     # _linkedIds: list[HttpUrl] | None = None
+    gender: GenderType | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_gender_to_label, path="gender")
+    )
     alternativeLabels: list[InternationalizedLabel] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
