@@ -2,8 +2,10 @@ import base64
 import datetime
 from enum import Enum
 import os
+import re
 import typing
-from pydantic import Field, HttpUrl, NonNegativeInt
+from geojson_pydantic import Point, Polygon
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
 BASE_URL = os.getenv("BASE_URL", "http://intavia-backend.acdh-dev.oeaw.ac.at")
@@ -52,6 +54,44 @@ def pp_label(field, item, data):
         return item
 
 
+def pp_id_provider(field, item, data):
+    """function that uses sameas links and regexes to generate
+    linkedId objects
+
+    Args:
+        field (class): field class instance
+        item (list): list of IDs extracted from the sparql query
+        data (dict): complete data
+
+    Returns:
+        list: list of dicts describing the linkedIds
+    """
+
+    res = []
+    if isinstance(item, str):
+        item = [item]
+    for it in item:
+        data = {}
+        test = False
+        # Test for query params and remove them
+        if re.search(r"\?[^/]+$", it):
+            it = "/".join(it.split("/")[:-1])
+        for k, v in linked_id_providers.items():
+            if v["baseUrl"] in it:
+                test = True
+                match = re.search(v["regex_id"], it)
+                if match:
+                    data["id"] = match.group(1)
+                    data["provider"] = LinkedIdProvider(**v)
+                    break
+                else:
+                    data["id"] = it
+        if not test:
+            data["id"] = it
+        res.append(data)
+    return res
+
+
 def pp_label_str(field, item, data):
     if isinstance(item, str):
         return {"default": item}
@@ -71,6 +111,26 @@ def convert_date_to_iso8601(field, item, data):
         return item.isoformat().split("T")[0]
     else:
         return item
+
+
+def pp_gender_to_label(field, item, data):
+    if "Male" in item["gender"] and "genderLabel" not in item:
+        item["genderLabel"] = "male"
+    if "Female" in item["gender"] and "genderLabel" not in item:
+        item["genderLabel"] = "female"
+    return item
+
+
+def pp_lat_long(field, item, data):
+    if isinstance(item, str):
+        item = [
+            item,
+        ]
+    for it in item:
+        if it.startswith("Point"):
+            lst_item = it.split(" ")
+            item = Point(coordinates=[lst_item[2], lst_item[3]])
+    return item
 
 
 def pp_base64(data):
@@ -95,6 +155,16 @@ class EntityType(str, Enum):
     HistoricalEvent = "HistoricalEvent"
 
 
+class LinkedIdProvider(BaseModel):
+    label: str
+    baseUrl: HttpUrl
+
+
+class LinkedId(BaseModel):
+    id: str
+    provider: LinkedIdProvider | None = None
+
+
 class InternationalizedLabel(RDFUtilsModelBaseClass):
     """Used to provide internationalized labels"""
 
@@ -109,6 +179,11 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
         super().__init__(**data)
 
 
+class GenderType(RDFUtilsModelBaseClass):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="gender", anchor=True))
+    label: str = Field(None, rdfconfig=FieldConfigurationRDF(path="genderLabel"))
+
+
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(
         ...,
@@ -120,13 +195,21 @@ class Entity(RDFUtilsModelBaseClass):
     kind: EntityType = Field(EntityType.Person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
     # source: Source | None = None
-    # linkedIds: list[LinkedId] | None = None
+    linkedIds: list[LinkedId] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds")
+    )
     # _linkedIds: list[HttpUrl] | None = None
+    gender: GenderType | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_gender_to_label, path="gender")
+    )
     alternativeLabels: list[InternationalizedLabel] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
     description: str | None = None
     # media: list[MediaResource] | None = None
+    geometry: typing.Union[Polygon, Point] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
+    )
     events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event", encode_function=pp_base64))
 
 
@@ -138,6 +221,7 @@ class Event(RDFUtilsModelBaseClass):
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="event_label", default_dict_key="default")
     )
+    kind: str | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event_type", encode_function=pp_base64))
     # source: Source | None = None
     # kind: EntityEventKind | None = None
     startDate: str | None = Field(
@@ -151,7 +235,7 @@ class Event(RDFUtilsModelBaseClass):
 
 
 class EntityEventRelation(RDFUtilsModelBaseClass):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role", anchor=True))
+    # id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role", anchor=True))
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="role_label", default_dict_key="default")
     )

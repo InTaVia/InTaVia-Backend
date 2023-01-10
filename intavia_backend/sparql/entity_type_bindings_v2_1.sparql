@@ -3,4 +3,7 @@ BIND("Person" AS ?entityTypeLabel)
 } UNION {
 ?entity a idmcore:Group 
 BIND("Group" AS ?entityTypeLabel)
+} UNION {
+?entity a crm:E53_Place 
+BIND("Place" AS ?entityTypeLabel)
 } 
