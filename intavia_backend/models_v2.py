@@ -3,6 +3,7 @@ import datetime
 from enum import Enum
 import os
 import typing
+from geojson_pydantic import Point, Polygon
 from pydantic import Field, HttpUrl, NonNegativeInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
@@ -81,6 +82,18 @@ def pp_gender_to_label(field, item, data):
     return item
 
 
+def pp_lat_long(field, item, data):
+    if isinstance(item, str):
+        item = [
+            item,
+        ]
+    for it in item:
+        if it.startswith("Point"):
+            lst_item = it.split(" ")
+            item = Point(coordinates=[lst_item[2], lst_item[3]])
+    return item
+
+
 def pp_base64(data):
     if data is None:
         return None
@@ -143,6 +156,9 @@ class Entity(RDFUtilsModelBaseClass):
     )
     description: str | None = None
     # media: list[MediaResource] | None = None
+    geometry: typing.Union[Polygon, Point] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
+    )
     events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event", encode_function=pp_base64))
 
 

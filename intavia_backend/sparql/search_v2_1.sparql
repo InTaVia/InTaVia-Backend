@@ -9,7 +9,7 @@ PREFIX bioc2: <http://ldf.fi/schema/bioc/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
-?event ?linkedIds ?count
+?event ?linkedIds ?count ?geometry
 
 {% for dataset in datasets %}
 FROM <{{dataset.value}}>
