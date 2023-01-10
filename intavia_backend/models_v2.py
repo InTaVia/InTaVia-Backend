@@ -55,6 +55,18 @@ def pp_label(field, item, data):
 
 
 def pp_id_provider(field, item, data):
+    """function that uses sameas links and regexes to generate
+    linkedId objects
+
+    Args:
+        field (class): field class instance
+        item (list): list of IDs extracted from the sparql query
+        data (dict): complete data
+
+    Returns:
+        list: list of dicts describing the linkedIds
+    """
+
     res = []
     if isinstance(item, str):
         item = [item]
