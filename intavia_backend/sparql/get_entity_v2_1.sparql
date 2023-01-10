@@ -9,7 +9,7 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
 ?event ?eventLabel ?role ?roleLabel ?start ?end ?role2 ?roleLabel2 ?entity2 ?entity2Label ?entity2TypeLabel ?entity2Type 
-?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds ?count
+?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds ?count ?geometry
 
 {% for dataset in datasets %}
 FROM <{{dataset.value}}>
