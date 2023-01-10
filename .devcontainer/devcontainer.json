@@ -12,7 +12,8 @@
 				"GitHub.copilot",
 				"me-dutour-mathieu.vscode-github-actions",
 				"mhutchie.git-graph",
-				"ms-python.python"
+				"ms-python.python",
+				"njpwerner.autodocstring"
 			]
 		}
 	},
