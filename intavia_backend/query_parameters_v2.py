@@ -2,7 +2,7 @@ import dataclasses
 from enum import Enum
 import typing
 from fastapi import Query
-from pydantic import HttpUrl, PositiveInt
+from pydantic import BaseModel, HttpUrl, PositiveInt
 from dateutil.parser import parse
 import datetime
 import base64
@@ -164,3 +164,14 @@ class Entity_Retrieve(QueryBase, Base):
 @dataclasses.dataclass(kw_only=True)
 class StatisticsBase(Search_Base, Base):
     bins: PositiveInt = 10
+
+
+# Models for JSON body
+
+
+class RequestID(BaseModel):
+    id: list[str]
+
+    def __init__(__pydantic_self__, **data: typing.Any) -> None:
+        data["id"] = [toggle_urls_encoding(item) for item in data["id"]]
+        super().__init__(**data)
