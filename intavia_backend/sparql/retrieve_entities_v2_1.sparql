@@ -6,5 +6,8 @@ OPTIONAL {?entity owl:sameAs ?linkedIds}
 OPTIONAL {?entity bioc:has_gender|bioc2:gender ?gender 
     OPTIONAL {?gender rdfs:label ?genderLabel }}
 OPTIONAL {?entity bioc:has_nationality ?nationality . ?nationality rdfs:label ?nationalityLabel .}
-OPTIONAL {?entity bioc2:bearer_of ?role . ?role ^bioc2:had_participant_in_role ?event}
+OPTIONAL {?entity bioc2:bearer_of ?role . 
+        ?role ^bioc2:had_participant_in_role ?event .
+        ?role a ?role_type
+}
 OPTIONAL {?entity crm:P168_place_is_defined_by/crm:P168_place_is_defined_by ?geometry}
