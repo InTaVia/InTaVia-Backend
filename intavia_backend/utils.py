@@ -5,7 +5,7 @@ import os
 from urllib.parse import quote, unquote
 from SPARQLWrapper import SPARQLWrapper, JSON
 from intavia_backend.query_parameters import Search
-from intavia_backend.query_parameters_v2 import Search as SearchV2, SearchVocabs
+from intavia_backend.query_parameters_v2 import QueryBase, Search as SearchV2, SearchVocabs
 from jinja2 import Environment, FileSystemLoader
 from .conversion import convert_sparql_result
 from SPARQLTransformer import pre_process
@@ -77,7 +77,7 @@ def get_query_from_triplestore(search: Search, sparql_template: str, proto_confi
     return res
 
 
-def get_query_from_triplestore_v2(search: Search, sparql_template: str):
+def get_query_from_triplestore_v2(search: Search | QueryBase, sparql_template: str):
     """creates the query from the template and the search parameters and returns the json
        from the triplestore. This is v2 and doesnt need the proto config anymore
 
@@ -88,7 +88,12 @@ def get_query_from_triplestore_v2(search: Search, sparql_template: str):
     Returns:
         _type_: _description_
     """
-    if isinstance(search, Search) or isinstance(search, SearchV2) or isinstance(search, SearchVocabs):
+    if (
+        isinstance(search, Search)
+        or isinstance(search, SearchV2)
+        or isinstance(search, SearchVocabs)
+        or isinstance(search, QueryBase)
+    ):
         search = asdict(search)
     query_template = jinja_env.get_template(sparql_template).render(**search)
     sparql.setQuery(query_template)
