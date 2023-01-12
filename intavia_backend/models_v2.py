@@ -184,6 +184,11 @@ class GenderType(RDFUtilsModelBaseClass):
     label: str = Field(None, rdfconfig=FieldConfigurationRDF(path="genderLabel"))
 
 
+class EntityEventRelation(RDFUtilsModelBaseClass):
+    event: str = Field(..., rdfconfig=FieldConfigurationRDF(path="event", anchor=True, encode_function=pp_base64))
+    role: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64))
+
+
 class Entity(RDFUtilsModelBaseClass):
     id: str = Field(
         ...,
@@ -210,7 +215,7 @@ class Entity(RDFUtilsModelBaseClass):
     geometry: typing.Union[Polygon, Point] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
     )
-    events: list | None = Field(None, rdfconfig=FieldConfigurationRDF(path="event", encode_function=pp_base64))
+    relations: list[EntityEventRelation] | None
 
 
 class Event(RDFUtilsModelBaseClass):
@@ -231,16 +236,12 @@ class Event(RDFUtilsModelBaseClass):
         None, rdfconfig=FieldConfigurationRDF(path="end", callback_function=convert_date_to_iso8601)
     )
     # place: Place | None = None
-    relations: typing.List["EntityEventRelation"] | None
+    relations: typing.List["EventEntityRelation"] | None
 
 
-class EntityEventRelation(RDFUtilsModelBaseClass):
-    # id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role", anchor=True))
-    label: InternationalizedLabel | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="role_label", default_dict_key="default")
-    )
+class EventEntityRelation(RDFUtilsModelBaseClass):
     role: str | None = Field(
-        None,
+        ...,
         rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64),
     )
     entity: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=pp_base64))
