@@ -161,6 +161,26 @@ async def retrieve_event_role_v2(event_role_id: str):
     return {"_results": flatten_rdf_data(res)}
 
 
+@router.post(
+    "/api/vocabularies/role/retrieve",
+    response_model=PaginatedResponseVocabularyEntries,
+    response_model_exclude_none=True,
+    tags=["Vocabulary endpoints"],
+    description="Endpoint that allows to bulk retrieve event roles when IDs are known.",
+)
+async def bulk_retrieve_voc_event_roles(
+    ids: RequestID,
+    query: QueryBase = Depends(),
+):
+    query_dict = asdict(query)
+    query_dict["ids"] = ids.id
+    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_event_role_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": query.page, "count": count, "pages": pages, "results": res}
+
+
 @router.get(
     "/api/vocabularies/event_kind/search",
     response_model=PaginatedResponseVocabularyEntries,

@@ -1,0 +1,41 @@
+PREFIX bds:  <http://www.bigdata.com/rdf/search#>
+PREFIX bioc: <http://ldf.fi/schema/bioc/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type ?count
+
+{% for dataset in datasets %}
+FROM <{{dataset.value}}>
+{% endfor %}
+
+WITH {
+    SELECT (COUNT(DISTINCT ?vocabulary) AS ?count)
+
+    {% for dataset in datasets %}
+    FROM <{{dataset.value}}>
+    {% endfor %}
+
+    WHERE {
+    {% for id in ids %}
+    {BIND(<{{id}}> as ?vocabulary)}{% if not loop.last %} UNION {% endif %}
+    {% endfor %}
+      ?vocabulary rdfs:subClassOf bioc:Event_Role .
+      ?vocabulary rdfs:label ?vocabulary_label .
+    }
+} AS %count_set
+
+WHERE {
+  INCLUDE %count_set
+    {% for id in ids %}
+    {BIND(<{{id}}> as ?vocabulary)}{% if not loop.last %} UNION {% endif %}
+    {% endfor %}
+  ?vocabulary rdfs:subClassOf bioc:Event_Role .
+  ?vocabulary rdfs:label ?vocabulary_label .
+  OPTIONAL{
+  	?vocabulary rdfs:subClassOf ?related_vocabulary .
+    FILTER(?related_vocabulary != bioc:Event_Role)
+    BIND('broader' as ?relation_type)
+  }
+  } ORDER BY ?vocabulary
+LIMIT {{limit}}
+{% if _offset > 0 %}OFFSET {{_offset}}{% endif %}
