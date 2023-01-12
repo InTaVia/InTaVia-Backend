@@ -112,7 +112,7 @@ async def query_event_roles(search: SearchVocabs = Depends()):
 )
 async def retrieve_event_role_v2(event_role_id: str):
     if toggle_urls_encoding(event_role_id) == "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at":
-        return {"id": event_role_id, "label": {"default": "took place at"}}
+        return {"_results": [{"vocabulary": event_role_id, "vocabulary_label": "took place at"}]}
     res = get_query_from_triplestore_v2(
         {"event_role_id": toggle_urls_encoding(event_role_id)}, "event_role_retrieve_v2_1.sparql"
     )
