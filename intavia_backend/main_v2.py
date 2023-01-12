@@ -209,3 +209,23 @@ async def retrieve_event_kind_v2(event_kind_id: str):
     )
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     return {"_results": flatten_rdf_data(res)}
+
+
+@router.post(
+    "/api/vocabularies/event_kind/retrieve",
+    response_model=PaginatedResponseVocabularyEntries,
+    response_model_exclude_none=True,
+    tags=["Vocabulary endpoints"],
+    description="Endpoint that allows to bulk retrieve event kinds when IDs are known.",
+)
+async def bulk_retrieve_voc_event_kinds(
+    ids: RequestID,
+    query: QueryBase = Depends(),
+):
+    query_dict = asdict(query)
+    query_dict["ids"] = ids.id
+    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_event_kind_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": query.page, "count": count, "pages": pages, "results": res}
