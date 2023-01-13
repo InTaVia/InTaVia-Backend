@@ -155,17 +155,24 @@ class EntityType(str, Enum):
     HistoricalEvent = "HistoricalEvent"
 
 
-class LinkedIdProvider(BaseModel):
+class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):
+    class Config:
+        RDF_utils_catch_errors = True
+        RDF_utils_error_key = "error"
+        RDF_utils_move_errors_to_top = True
+
+
+class LinkedIdProvider(IntaViaBackendBaseModel):
     label: str
     baseUrl: HttpUrl
 
 
-class LinkedId(BaseModel):
+class LinkedId(IntaViaBackendBaseModel):
     id: str
     provider: LinkedIdProvider | None = None
 
 
-class InternationalizedLabel(RDFUtilsModelBaseClass):
+class InternationalizedLabel(IntaViaBackendBaseModel):
     """Used to provide internationalized labels"""
 
     default: str
@@ -179,17 +186,19 @@ class InternationalizedLabel(RDFUtilsModelBaseClass):
         super().__init__(**data)
 
 
-class GenderType(RDFUtilsModelBaseClass):
+class GenderType(IntaViaBackendBaseModel):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="gender", anchor=True))
-    label: str = Field(None, rdfconfig=FieldConfigurationRDF(path="genderLabel"))
+    label: InternationalizedLabel = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="genderLabel", default_dict_key="default")
+    )
 
 
-class EntityEventRelation(RDFUtilsModelBaseClass):
+class EntityEventRelation(IntaViaBackendBaseModel):
     event: str = Field(..., rdfconfig=FieldConfigurationRDF(path="event", anchor=True, encode_function=pp_base64))
     role: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64))
 
 
-class Entity(RDFUtilsModelBaseClass):
+class Entity(IntaViaBackendBaseModel):
     id: str = Field(
         ...,
         rdfconfig=FieldConfigurationRDF(path="entity", anchor=True, encode_function=pp_base64),
@@ -218,7 +227,7 @@ class Entity(RDFUtilsModelBaseClass):
     relations: list[EntityEventRelation] | None
 
 
-class Event(RDFUtilsModelBaseClass):
+class Event(IntaViaBackendBaseModel):
     id: str = Field(
         ...,
         rdfconfig=FieldConfigurationRDF(path="event", anchor=True, encode_function=pp_base64),
@@ -239,7 +248,7 @@ class Event(RDFUtilsModelBaseClass):
     relations: typing.List["EventEntityRelation"] | None
 
 
-class EventEntityRelation(RDFUtilsModelBaseClass):
+class EventEntityRelation(IntaViaBackendBaseModel):
     role: str | None = Field(
         ...,
         rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64),
@@ -247,7 +256,7 @@ class EventEntityRelation(RDFUtilsModelBaseClass):
     entity: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=pp_base64, anchor=True))
 
 
-class VocabularyRelation(RDFUtilsModelBaseClass):
+class VocabularyRelation(IntaViaBackendBaseModel):
     relation_type: EnumVocabsRelation = Field(
         EnumVocabsRelation.broader, rdfconfig=FieldConfigurationRDF(path="relation_type")
     )
@@ -256,7 +265,7 @@ class VocabularyRelation(RDFUtilsModelBaseClass):
     )
 
 
-class VocabularyEntry(RDFUtilsModelBaseClass):
+class VocabularyEntry(IntaViaBackendBaseModel):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="vocabulary", anchor=True, encode_function=pp_base64))
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="vocabulary_label", default_dict_key="default")
@@ -264,7 +273,7 @@ class VocabularyEntry(RDFUtilsModelBaseClass):
     related: typing.List["VocabularyRelation"] | None
 
 
-class PaginatedResponseBase(RDFUtilsModelBaseClass):
+class PaginatedResponseBase(IntaViaBackendBaseModel):
     count: NonNegativeInt = 0
     page: NonNegativeInt = 0
     pages: NonNegativeInt = 0
