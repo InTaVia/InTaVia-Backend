@@ -244,7 +244,7 @@ class EventEntityRelation(RDFUtilsModelBaseClass):
         ...,
         rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64),
     )
-    entity: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=pp_base64))
+    entity: str = Field(..., rdfconfig=FieldConfigurationRDF(path="entity", encode_function=pp_base64, anchor=True))
 
 
 class VocabularyRelation(RDFUtilsModelBaseClass):
@@ -272,6 +272,10 @@ class PaginatedResponseBase(RDFUtilsModelBaseClass):
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Entity] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseEvents(PaginatedResponseBase):
+    results: typing.List[Event] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
 class PaginatedResponseVocabularyEntries(PaginatedResponseBase):

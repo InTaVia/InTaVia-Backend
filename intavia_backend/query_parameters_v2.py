@@ -79,6 +79,25 @@ class QueryBase:
 
 
 @dataclasses.dataclass(kw_only=True)
+class SearchEventsBase:
+    q: str = Query(default=None, max_length=200, description="Searches across labels of all events")
+    related_entities: str = Query(default=None, max_length=200, description="Searches labels of related entities")
+    related_entities_id: typing.List[str] = Query(default=None, description="Searches related entities using IDs")
+    role: str = Query(default=None, max_length=200, description="Searches labels of roles")
+    role_id: typing.List[str] = Query(default=None, description="Searches roles using IDs")
+    event_kind: str = Query(default=None, max_length=200, description="Searches labels of entity kinds")
+    event_kind_id: typing.List[str] = Query(default=None, description="Searches entity kinds using IDs")
+
+    def __post_init__(self):
+        if self.related_entities_id is not None:
+            self.__setattr__("related_entities_id", [toggle_urls_encoding(x) for x in self.related_entities_id])
+        if self.role_id is not None:
+            self.__setattr__("role_id", [toggle_urls_encoding(x) for x in self.role_id])
+        if self.event_kind_id is not None:
+            self.__setattr__("event_kind_id", [toggle_urls_encoding(x) for x in self.event_kind_id])
+
+
+@dataclasses.dataclass(kw_only=True)
 class Search_Base:
     q: str = Query(default=None, max_length=200, description="Searches across labels of all entity proxies")
     occupation: str = Query(default=None, max_length=200, description="Searches the labels of the Occupations")
@@ -145,6 +164,14 @@ class Search(Search_Base, QueryBase, Base):
         default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
     )
     kind: list[EntityTypesEnum] = Query(default=None, description="Limit Query to entity type.")
+
+
+@dataclasses.dataclass(kw_only=True)
+class SearchEvents(SearchEventsBase, QueryBase, Base):
+    datasets: list[DatasetsEnum] = Query(
+        description="Select datasets to limit query to",
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
+    )
 
 
 @dataclasses.dataclass(kw_only=True)
