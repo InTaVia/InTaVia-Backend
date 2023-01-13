@@ -4,14 +4,14 @@
 ?eventLabel bds:search "{{q}}" .
 {%- endif -%}
 {%- if related_entities -%}
-?event bioc:had_participant_in_role/^bioc:bearer_of/crm:P1_is_identified_by ?related_entity_appellation .
+?event (((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at)/crm:P1_is_identified_by ?related_entity_appellation .
 ?related_entity_appellation a crm:E33_E41_Linguistic_Appellation .
 ?related_entity_appellation rdfs:label ?related_entity_appellation_label .
 ?related_entity_appellation_label bds:search "{{related_entities}}" .
 {%- endif -%}
 {%- if related_entities_id -%}
     {%- for ent in related_entities_id -%}
-        {?event bioc:had_participant_in_role/^bioc:bearer_of <{{ent}}>}
+        {?event ((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at <{{ent}}>}
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}
@@ -23,7 +23,11 @@
 {%- endif -%}
 {%- if role_id -%}
     {%- for role in role_id -%}
+        {% if role == 'http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at' %}
+        {?event crm:P7_took_place_at ?place}
+        {% else %}
         {?event bioc:had_participant_in_role <{{role}}>}
+        {% endif %}
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}

@@ -91,6 +91,10 @@ class SearchEventsBase:
     def __post_init__(self):
         if self.related_entities_id is not None:
             self.__setattr__("related_entities_id", [toggle_urls_encoding(x) for x in self.related_entities_id])
+        if self.role_id is not None:
+            self.__setattr__("role_id", [toggle_urls_encoding(x) for x in self.role_id])
+        if self.event_kind_id is not None:
+            self.__setattr__("event_kind_id", [toggle_urls_encoding(x) for x in self.event_kind_id])
 
 
 @dataclasses.dataclass(kw_only=True)
