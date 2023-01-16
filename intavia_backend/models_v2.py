@@ -156,9 +156,11 @@ class EntityType(str, Enum):
 
 
 class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):
+    errors: typing.List[str] | None = None
+
     class Config:
         RDF_utils_catch_errors = True
-        RDF_utils_error_key = "error"
+        RDF_utils_error_field_name = "errors"
         RDF_utils_move_errors_to_top = True
 
 
