@@ -139,10 +139,15 @@ async def query_occupations(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any occupation by id.",
 )
 async def retrieve_occupation_v2(occupation_id: str):
-    res = get_query_from_triplestore_v2(
-        {"occupation_id": toggle_urls_encoding(occupation_id)}, "occupation_retrieve_v2_1.sparql"
-    )
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    try:
+        occupation_id = toggle_urls_encoding(occupation_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"occupation_id": occupation_id}, "occupation_retrieve_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
