@@ -49,8 +49,14 @@ async def query_events(search: SearchEvents = Depends()):
     description="Endpoint that allows to retrive any event by id.",
 )
 async def retrieve_event_v2(event_id: str):
-    res = get_query_from_triplestore_v2({"event_id": toggle_urls_encoding(event_id)}, "get_event_v2_1.sparql")
+    try:
+        event_id = toggle_urls_encoding(event_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"event_id": event_id}, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
@@ -64,9 +70,9 @@ async def retrieve_event_v2(event_id: str):
 async def retrieve_entity_v2(entity_id: str):
     try:
         entity_id = toggle_urls_encoding(entity_id)
-    except UnicodeDecodeError:
+    except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"entity_id": toggle_urls_encoding(entity_id)}, "get_entity_v2_1.sparql")
+    res = get_query_from_triplestore_v2({"entity_id": entity_id}, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
