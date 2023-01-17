@@ -1,6 +1,6 @@
 from dataclasses import asdict
 import math
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from fastapi_versioning import version, versioned_api_route
 from intavia_backend.models_v2 import (
@@ -49,8 +49,14 @@ async def query_events(search: SearchEvents = Depends()):
     description="Endpoint that allows to retrive any event by id.",
 )
 async def retrieve_event_v2(event_id: str):
-    res = get_query_from_triplestore_v2({"event_id": toggle_urls_encoding(event_id)}, "get_event_v2_1.sparql")
+    try:
+        event_id = toggle_urls_encoding(event_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"event_id": event_id}, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
@@ -62,8 +68,14 @@ async def retrieve_event_v2(event_id: str):
     description="Endpoint that allows to retrive an entity by id.",
 )
 async def retrieve_entity_v2(entity_id: str):
-    res = get_query_from_triplestore_v2({"entity_id": toggle_urls_encoding(entity_id)}, "get_entity_v2_1.sparql")
+    try:
+        entity_id = toggle_urls_encoding(entity_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"entity_id": entity_id}, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
@@ -127,10 +139,15 @@ async def query_occupations(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any occupation by id.",
 )
 async def retrieve_occupation_v2(occupation_id: str):
-    res = get_query_from_triplestore_v2(
-        {"occupation_id": toggle_urls_encoding(occupation_id)}, "occupation_retrieve_v2_1.sparql"
-    )
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    try:
+        occupation_id = toggle_urls_encoding(occupation_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"occupation_id": occupation_id}, "occupation_retrieve_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
@@ -177,11 +194,16 @@ async def query_event_roles(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any roles by id.",
 )
 async def retrieve_event_role_v2(event_role_id: str):
-    if toggle_urls_encoding(event_role_id) == "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at":
+    try:
+        event_role_id = toggle_urls_encoding(event_role_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    if event_role_id == "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at":
         return {"_results": [{"vocabulary": event_role_id, "vocabulary_label": "took place at"}]}
-    res = get_query_from_triplestore_v2(
-        {"event_role_id": toggle_urls_encoding(event_role_id)}, "event_role_retrieve_v2_1.sparql"
-    )
+    res = get_query_from_triplestore_v2({"event_role_id": event_role_id}, "event_role_retrieve_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     return {"_results": flatten_rdf_data(res)}
 
@@ -229,10 +251,14 @@ async def query_event_kind(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any event kinds by id.",
 )
 async def retrieve_event_kind_v2(event_kind_id: str):
-    res = get_query_from_triplestore_v2(
-        {"event_kind_id": toggle_urls_encoding(event_kind_id)}, "event_kind_retrieve_v2_1.sparql"
-    )
+    try:
+        event_kind_id = toggle_urls_encoding(event_kind_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"event_kind_id": event_kind_id}, "event_kind_retrieve_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
