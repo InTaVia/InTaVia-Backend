@@ -1,0 +1,3 @@
+{% for id in ids %}
+{BIND(<{{id}}> as ?event)}{% if not loop.last %} UNION {% endif %}
+{% endfor %}

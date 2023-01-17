@@ -41,6 +41,26 @@ async def query_events(search: SearchEvents = Depends()):
     return {"page": search.page, "count": count, "pages": pages, "results": res}
 
 
+@router.post(
+    "/api/event/retrieve",
+    response_model=PaginatedResponseEvents,
+    response_model_exclude_none=True,
+    tags=["Events endpoints"],
+    description="Endpoint that allows to bulk retrieve events when IDs are known.",
+)
+async def bulk_retrieve_events(
+    ids: RequestID,
+    query: QueryBase = Depends(),
+):
+    query_dict = asdict(query)
+    query_dict["ids"] = ids.id
+    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_events_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": query.page, "count": count, "pages": pages, "results": res}
+
+
 @router.get(
     "/api/event/{event_id}",
     response_model=Event,
