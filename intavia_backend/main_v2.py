@@ -1,6 +1,6 @@
 from dataclasses import asdict
 import math
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from fastapi_versioning import version, versioned_api_route
 from intavia_backend.models_v2 import (
@@ -62,8 +62,14 @@ async def retrieve_event_v2(event_id: str):
     description="Endpoint that allows to retrive an entity by id.",
 )
 async def retrieve_entity_v2(entity_id: str):
+    try:
+        entity_id = toggle_urls_encoding(entity_id)
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=404, detail="Item not found")
     res = get_query_from_triplestore_v2({"entity_id": toggle_urls_encoding(entity_id)}, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
