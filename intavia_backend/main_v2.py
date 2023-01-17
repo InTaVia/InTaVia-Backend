@@ -251,10 +251,14 @@ async def query_event_kind(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any event kinds by id.",
 )
 async def retrieve_event_kind_v2(event_kind_id: str):
-    res = get_query_from_triplestore_v2(
-        {"event_kind_id": toggle_urls_encoding(event_kind_id)}, "event_kind_retrieve_v2_1.sparql"
-    )
+    try:
+        event_kind_id = toggle_urls_encoding(event_kind_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"event_kind_id": event_kind_id}, "event_kind_retrieve_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     return {"_results": flatten_rdf_data(res)}
 
 
