@@ -194,11 +194,16 @@ async def query_event_roles(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any roles by id.",
 )
 async def retrieve_event_role_v2(event_role_id: str):
-    if toggle_urls_encoding(event_role_id) == "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at":
+    try:
+        event_role_id = toggle_urls_encoding(event_role_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    if event_role_id == "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at":
         return {"_results": [{"vocabulary": event_role_id, "vocabulary_label": "took place at"}]}
-    res = get_query_from_triplestore_v2(
-        {"event_role_id": toggle_urls_encoding(event_role_id)}, "event_role_retrieve_v2_1.sparql"
-    )
+    res = get_query_from_triplestore_v2({"event_role_id": event_role_id}, "event_role_retrieve_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     return {"_results": flatten_rdf_data(res)}
 
