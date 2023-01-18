@@ -85,8 +85,8 @@ class SearchEventsBase:
     related_entities_id: typing.List[str] = Query(default=None, description="Searches related entities using IDs")
     role: str = Query(default=None, max_length=200, description="Searches labels of roles")
     role_id: typing.List[str] = Query(default=None, description="Searches roles using IDs")
-    event_kind: str = Query(default=None, max_length=200, description="Searches labels of entity kinds")
-    event_kind_id: typing.List[str] = Query(default=None, description="Searches entity kinds using IDs")
+    event_kind: str = Query(default=None, max_length=200, description="Searches labels of event kinds")
+    event_kind_id: typing.List[str] = Query(default=None, description="Searches event kinds using IDs")
 
     def __post_init__(self):
         if self.related_entities_id is not None:
