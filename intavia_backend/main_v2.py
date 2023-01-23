@@ -73,7 +73,7 @@ async def retrieve_event_v2(event_id: str):
         event_id = toggle_urls_encoding(event_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"event_id": event_id}, "get_entity_v2_1.sparql")
+    res = get_query_from_triplestore_v2({"event_id": event_id}, "get_event_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
