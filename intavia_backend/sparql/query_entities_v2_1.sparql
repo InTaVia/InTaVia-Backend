@@ -9,6 +9,7 @@
     ?entity bioc:has_occupation ?occupation1 . 
     ?occupation1 rdfs:label ?occupationLabel1 .
     ?occupationLabel1 bds:search "{{occupation}}" .
+    ?occupationLabel1 bds:matchAllTerms "true" .
 {%- endif -%}
 {%- if occupations_id -%}
     {%- for occ in occupations_id -%}
@@ -47,13 +48,13 @@
     {%- endfor -%}
 {%- endif -%}
 {%- if gender -%}
-    ?entity bioc:has_gender bioc:{{gender.name}} .
+    ?entity bioc:has_gender|bioc:gender bioc:{{gender.name}} .
 {%- endif -%}
 {%- if gender_id -%}
-    ?entity bioc:has_gender|bioc2:gender <{{gender_id}}> .
+    ?entity bioc:has_gender|bioc:gender <{{gender_id}}> .
 {%- endif -%}
 {%- if relatedPlace -%}
-?entity ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event .
+?entity bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role ?event .
     ?event crm:P7_took_place_at ?evPlace .
         
         {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
@@ -63,7 +64,7 @@
     ?evPlaceLabel bds:search "{{relatedPlace}}" .
 {%- endif -%}
 {%- if relatedPlaces_id -%}
-?entity ^bioc:inheres_in|bioc2:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc2:had_participant_in_role ?event .
+?entity bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role ?event .
     {%- for place in relatedPlaces_id -%}
         {?event crm:P7_took_place_at <{{place}}>}
         {% if not loop.last %}UNION{% endif %}
