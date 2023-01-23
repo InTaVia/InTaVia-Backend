@@ -9,6 +9,7 @@ from intavia_backend.models_v2 import (
     PaginatedResponseEntities,
     PaginatedResponseEvents,
     PaginatedResponseVocabularyEntries,
+    StatisticsOccupationReturn,
     VocabularyEntry,
 )
 from intavia_backend.query_parameters_v2 import (
@@ -18,6 +19,7 @@ from intavia_backend.query_parameters_v2 import (
     Search,
     SearchEvents,
     SearchVocabs,
+    StatisticsBase,
 )
 from .utils import flatten_rdf_data, get_query_from_triplestore_v2, toggle_urls_encoding
 
@@ -300,3 +302,38 @@ async def bulk_retrieve_voc_event_kinds(
     pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
     count = int(res[0]["count"]) if len(res) > 0 else 0
     return {"page": query.page, "count": count, "pages": pages, "results": res}
+
+
+@router.get(
+    "/api/statistics/occupations/search",
+    response_model=StatisticsOccupationReturn,
+    tags=["Statistics"],
+    description="Endpoint that returns counts of the occupations",
+)
+async def statistics_occupations(search: StatisticsBase = Depends()):
+    res = get_query_from_triplestore_v2(search, "statistics_occupation_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    data = res
+    data_fin = {"id": "root", "label": "root", "count": 0, "children": []}
+    data_second = []
+    for idx, occ in enumerate(data):
+        if "broader" not in occ:
+            if isinstance(occ["label"], list):
+                occ["label"] = " / ".join(occ["label"])
+            elif ">>" in occ["label"]:
+                occ["label"] = occ["label"].split(" >> ")[-1]
+            data_fin["children"].append({"id": occ["id"], "label": occ["label"], "count": occ["count"], "children": []})
+        else:
+            data_second.append(occ)
+    while len(data_second) > 0:
+        for idx, occ in enumerate(data_second):
+            for child in data_fin["children"]:
+                if child["id"] == occ["broader"]["id"]:
+                    if isinstance(occ["label"], list):
+                        occ["label"] = " / ".join(occ["label"])
+                    elif ">>" in occ["label"]:
+                        occ["label"] = occ["label"].split(" >> ")[-1]
+                    child["children"].append({"id": occ["id"], "label": occ["label"], "count": occ["count"]})
+                    data_second.pop(idx)
+                    break
+    return {"tree": data_fin}

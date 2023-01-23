@@ -293,6 +293,17 @@ class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
     results: typing.List[VocabularyEntry] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
+class StatisticsOccupation(BaseModel):
+    id: str
+    label: str
+    count: int = 0
+    children: typing.List["StatisticsOccupation"] | None = None
+
+
+class StatisticsOccupationReturn(BaseModel):
+    tree: StatisticsOccupation
+
+
 EntityEventRelation.update_forward_refs()
 Event.update_forward_refs()
 Entity.update_forward_refs()
