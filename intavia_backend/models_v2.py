@@ -293,6 +293,22 @@ class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
     results: typing.List[VocabularyEntry] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
+class StatisticsOccupationPrelimBroader(IntaViaBackendBaseModel):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="broaderUri", anchor=True))
+    label: str | None = Field(None, rdfconfig=FieldConfigurationRDF(path="broaderLabel"))
+
+
+class StatisticsOccupationPrelim(IntaViaBackendBaseModel):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupation", anchor=True))
+    label: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupationLabel"))
+    count: int = Field(..., rdfconfig=FieldConfigurationRDF(path="count"))
+    broader: list[StatisticsOccupationPrelimBroader] | None = None
+
+
+class StatisticsOccupationPrelimList(IntaViaBackendBaseModel):
+    results: list[StatisticsOccupationPrelim] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
 class StatisticsOccupation(BaseModel):
     id: str
     label: str

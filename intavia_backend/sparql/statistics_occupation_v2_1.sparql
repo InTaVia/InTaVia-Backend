@@ -5,16 +5,16 @@ PREFIX idm: <https://www.intavia.eu/idm/>
 PREFIX idmcore: <http://www.intavia.eu/idm-core/>
 PREFIX bioc: <http://ldf.fi/schema/bioc/> 
 
-SELECT ?occupation (COUNT(DISTINCT ?entity) as ?count) ?occupationLabel ?broader ?broaderLabel
+SELECT ?occupation (COUNT(DISTINCT ?entity) as ?count) ?occupationLabel ?broaderUri ?broaderLabel
 WHERE {
 
 ?entity a idmcore:Person_Proxy .
 ?entity bioc:has_occupation ?occupation .
 ?occupation rdfs:label ?occupationLabel .
 OPTIONAl {
-    ?occupation rdfs:subClassOf ?broader .
-    ?broader rdfs:label ?broaderLabel
+    ?occupation rdfs:subClassOf ?broaderUri .
+    ?broaderUri rdfs:label ?broaderLabel
 }
 {% include 'query_entities_v2_1.sparql' %}
 }
-GROUP BY ?occupation ?occupationLabel ?broader ?broaderLabel
+GROUP BY ?occupation ?occupationLabel ?broaderUri ?broaderLabel
