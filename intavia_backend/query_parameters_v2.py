@@ -167,6 +167,14 @@ class Search(Search_Base, QueryBase, Base):
 
 
 @dataclasses.dataclass(kw_only=True)
+class SearchOccupationsStats(Search_Base, QueryBase, Base):
+    datasets: list[DatasetsEnum] = Query(
+        description="Select datasets to limit query to",
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
+    )
+
+
+@dataclasses.dataclass(kw_only=True)
 class SearchEvents(SearchEventsBase, QueryBase, Base):
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
