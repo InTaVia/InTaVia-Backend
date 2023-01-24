@@ -10,7 +10,8 @@ WHERE {
 
 ?entity a idmcore:Person_Proxy .
     ?entity ^crm:P100_was_death_of/crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?date .
-    {% include 'query_entities_v2_1.sparql' %}
+    {% if ids %}{% include 'bulk_query_entities_v2_1.sparql' %}{% else %}
+    {% include 'query_entities_v2_1.sparql' %}{% endif %}
 }
 GROUP BY ?date
 ORDER BY ASC(?date)

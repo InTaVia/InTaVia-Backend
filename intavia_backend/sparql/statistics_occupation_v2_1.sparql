@@ -15,6 +15,7 @@ OPTIONAl {
     ?occupation rdfs:subClassOf ?broaderUri .
     ?broaderUri rdfs:label ?broaderLabel
 }
-{% include 'query_entities_v2_1.sparql' %}
+    {% if ids %}{% include 'bulk_query_entities_v2_1.sparql' %}{% else %}
+    {% include 'query_entities_v2_1.sparql' %}{% endif %}
 }
 GROUP BY ?occupation ?occupationLabel ?broaderUri ?broaderLabel

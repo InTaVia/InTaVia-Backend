@@ -8,6 +8,7 @@ from intavia_backend.query_parameters import Search
 from intavia_backend.query_parameters_v2 import (
     QueryBase,
     Search as SearchV2,
+    Search_Base,
     SearchEvents,
     SearchVocabs,
     StatisticsBase,
@@ -101,6 +102,7 @@ def get_query_from_triplestore_v2(search: Search | QueryBase | SearchEvents, spa
         or isinstance(search, QueryBase)
         or isinstance(search, SearchEvents)
         or isinstance(search, StatisticsBase)
+        or isinstance(search, Search_Base)
     ):
         search = asdict(search)
     query_template = jinja_env.get_template(sparql_template).render(**search)
