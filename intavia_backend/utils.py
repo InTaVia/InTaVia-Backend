@@ -5,7 +5,14 @@ import os
 from urllib.parse import quote, unquote
 from SPARQLWrapper import SPARQLWrapper, JSON
 from intavia_backend.query_parameters import Search
-from intavia_backend.query_parameters_v2 import QueryBase, Search as SearchV2, SearchEvents, SearchVocabs
+from intavia_backend.query_parameters_v2 import (
+    QueryBase,
+    Search as SearchV2,
+    Search_Base,
+    SearchEvents,
+    SearchVocabs,
+    StatisticsBase,
+)
 from jinja2 import Environment, FileSystemLoader
 from .conversion import convert_sparql_result
 from SPARQLTransformer import pre_process
@@ -94,6 +101,8 @@ def get_query_from_triplestore_v2(search: Search | QueryBase | SearchEvents, spa
         or isinstance(search, SearchVocabs)
         or isinstance(search, QueryBase)
         or isinstance(search, SearchEvents)
+        or isinstance(search, StatisticsBase)
+        or isinstance(search, Search_Base)
     ):
         search = asdict(search)
     query_template = jinja_env.get_template(sparql_template).render(**search)
@@ -148,3 +157,24 @@ def toggle_urls_encoding(url):
         return base64.urlsafe_b64encode(url.encode("utf-8")).decode("utf-8")
     else:
         return base64.urlsafe_b64decode(url.encode("utf-8")).decode("utf-8")
+
+
+def calculate_date_range(start, end, intv):
+    diff = (end - start) / intv
+    for i in range(intv):
+        yield (start + diff * i)
+    yield end
+
+
+def create_bins_from_range(start, end, intv):
+    bins = list(calculate_date_range(start, end, intv))
+    bins_fin = []
+    for i in range(0, intv):
+        bins_fin.append(
+            {
+                "values": (bins[i], bins[i + 1]),
+                "label": f"{bins[i].strftime('%Y')} - {bins[i+1].strftime('%Y')}",
+                "count": 0,
+            }
+        )
+    return bins_fin

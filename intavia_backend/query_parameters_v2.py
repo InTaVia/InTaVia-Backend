@@ -189,8 +189,13 @@ class Entity_Retrieve(QueryBase, Base):
 
 
 @dataclasses.dataclass(kw_only=True)
-class StatisticsBase(Search_Base, Base):
+class StatisticsBinsQuery(Base):
     bins: PositiveInt = 10
+
+
+@dataclasses.dataclass(kw_only=True)
+class StatisticsBase(Search_Base, StatisticsBinsQuery, Base):
+    pass
 
 
 # Models for JSON body

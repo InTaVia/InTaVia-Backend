@@ -5,7 +5,7 @@ import os
 import re
 import typing
 from geojson_pydantic import Point, Polygon
-from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt, PositiveInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
 BASE_URL = os.getenv("BASE_URL", "http://intavia-backend.acdh-dev.oeaw.ac.at")
@@ -291,6 +291,46 @@ class PaginatedResponseEvents(PaginatedResponseBase):
 
 class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
     results: typing.List[VocabularyEntry] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class StatisticsOccupationPrelimBroader(IntaViaBackendBaseModel):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="broaderUri", anchor=True))
+    label: str | None = Field(None, rdfconfig=FieldConfigurationRDF(path="broaderLabel"))
+
+
+class StatisticsOccupationPrelim(IntaViaBackendBaseModel):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupation", anchor=True))
+    label: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupationLabel"))
+    count: int = Field(..., rdfconfig=FieldConfigurationRDF(path="count"))
+    broader: list[StatisticsOccupationPrelimBroader] | None = None
+
+
+class StatisticsOccupationPrelimList(IntaViaBackendBaseModel):
+    results: list[StatisticsOccupationPrelim] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class StatisticsOccupation(BaseModel):
+    id: str
+    label: str
+    count: int = 0
+    children: typing.List["StatisticsOccupation"] | None = None
+
+
+class StatisticsOccupationReturn(BaseModel):
+    tree: StatisticsOccupation
+
+
+class Bin(BaseModel):
+    label: str
+    count: int
+    values: typing.Tuple[
+        typing.Union[int, float, datetime.datetime], typing.Union[int, float, datetime.datetime]
+    ] | None = None
+    order: PositiveInt | None = None
+
+
+class StatisticsBins(BaseModel):
+    bins: list[Bin]
 
 
 EntityEventRelation.update_forward_refs()
