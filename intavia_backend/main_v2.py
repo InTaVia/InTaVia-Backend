@@ -372,3 +372,25 @@ async def statistics_death(search: StatisticsBase = Depends()):
                 b["count"] += date["count"]
         bins[idx] = b
     return {"bins": bins}
+
+
+@router.get(
+    "/api/statistics/birth/search",
+    response_model=StatisticsBins,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts in bins for date of birth",
+)
+async def statistics_birth(search: StatisticsBase = Depends()):
+    res = get_query_from_triplestore_v2(search, "statistics_birthdate_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    for idx, v in enumerate(res):
+        if not isinstance(res[idx]["date"], datetime.datetime):
+            res[idx]["date"] = dateutil.parser.parse(res[idx]["date"][:10])
+    bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
+    for idx, b in enumerate(bins):
+        for date in res:
+            if b["values"][0] <= date["date"] <= b["values"][1]:
+                b["count"] += date["count"]
+        bins[idx] = b
+    return {"bins": bins}
