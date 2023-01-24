@@ -1,5 +1,7 @@
 from dataclasses import asdict
+import datetime
 import math
+import dateutil
 from fastapi import APIRouter, Depends, HTTPException
 
 from fastapi_versioning import version, versioned_api_route
@@ -9,6 +11,9 @@ from intavia_backend.models_v2 import (
     PaginatedResponseEntities,
     PaginatedResponseEvents,
     PaginatedResponseVocabularyEntries,
+    StatisticsBins,
+    StatisticsOccupationPrelim,
+    StatisticsOccupationPrelimList,
     StatisticsOccupationReturn,
     VocabularyEntry,
 )
@@ -21,7 +26,7 @@ from intavia_backend.query_parameters_v2 import (
     SearchVocabs,
     StatisticsBase,
 )
-from .utils import flatten_rdf_data, get_query_from_triplestore_v2, toggle_urls_encoding
+from .utils import create_bins_from_range, flatten_rdf_data, get_query_from_triplestore_v2, toggle_urls_encoding
 
 router = APIRouter(route_class=versioned_api_route(2, 0))
 
@@ -307,33 +312,63 @@ async def bulk_retrieve_voc_event_kinds(
 @router.get(
     "/api/statistics/occupations/search",
     response_model=StatisticsOccupationReturn,
+    response_model_exclude_none=True,
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations",
 )
 async def statistics_occupations(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
-    data = res
+    res = StatisticsOccupationPrelimList(**{"results": res})
+    data = res.dict()["results"]
     data_fin = {"id": "root", "label": "root", "count": 0, "children": []}
     data_second = []
     for idx, occ in enumerate(data):
-        if "broader" not in occ:
+        if occ["broader"] is None:
             if isinstance(occ["label"], list):
                 occ["label"] = " / ".join(occ["label"])
             elif ">>" in occ["label"]:
                 occ["label"] = occ["label"].split(" >> ")[-1]
-            data_fin["children"].append({"id": occ["id"], "label": occ["label"], "count": occ["count"], "children": []})
+            if data_fin["children"] is None:
+                data_fin["children"] = []
+            data_fin["children"].append(
+                {"id": occ["id"], "label": occ["label"], "count": occ["count"], "children": None}
+            )
         else:
             data_second.append(occ)
     while len(data_second) > 0:
         for idx, occ in enumerate(data_second):
             for child in data_fin["children"]:
-                if child["id"] == occ["broader"]["id"]:
+                if child["id"] == occ["broader"][0]["id"]:
                     if isinstance(occ["label"], list):
                         occ["label"] = " / ".join(occ["label"])
                     elif ">>" in occ["label"]:
                         occ["label"] = occ["label"].split(" >> ")[-1]
+                    if child["children"] is None:
+                        child["children"] = []
                     child["children"].append({"id": occ["id"], "label": occ["label"], "count": occ["count"]})
                     data_second.pop(idx)
                     break
     return {"tree": data_fin}
+
+
+@router.get(
+    "/api/statistics/death/search",
+    response_model=StatisticsBins,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts in bins for date of deaths",
+)
+async def statistics_death(search: StatisticsBase = Depends()):
+    res = get_query_from_triplestore_v2(search, "statistics_deathdate_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    for idx, v in enumerate(res):
+        if not isinstance(res[idx]["date"], datetime.datetime):
+            res[idx]["date"] = dateutil.parser.parse(res[idx]["date"][:10])
+    bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
+    for idx, b in enumerate(bins):
+        for date in res:
+            if b["values"][0] <= date["date"] <= b["values"][1]:
+                b["count"] += date["count"]
+        bins[idx] = b
+    return {"bins": bins}

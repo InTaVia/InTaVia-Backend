@@ -155,3 +155,24 @@ def toggle_urls_encoding(url):
         return base64.urlsafe_b64encode(url.encode("utf-8")).decode("utf-8")
     else:
         return base64.urlsafe_b64decode(url.encode("utf-8")).decode("utf-8")
+
+
+def calculate_date_range(start, end, intv):
+    diff = (end - start) / intv
+    for i in range(intv):
+        yield (start + diff * i)
+    yield end
+
+
+def create_bins_from_range(start, end, intv):
+    bins = list(calculate_date_range(start, end, intv))
+    bins_fin = []
+    for i in range(0, intv):
+        bins_fin.append(
+            {
+                "values": (bins[i], bins[i + 1]),
+                "label": f"{bins[i].strftime('%Y')} - {bins[i+1].strftime('%Y')}",
+                "count": 0,
+            }
+        )
+    return bins_fin

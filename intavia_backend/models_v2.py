@@ -5,7 +5,7 @@ import os
 import re
 import typing
 from geojson_pydantic import Point, Polygon
-from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt, PositiveInt
 from rdf_fastapi_utils.models import FieldConfigurationRDF, RDFUtilsModelBaseClass
 
 BASE_URL = os.getenv("BASE_URL", "http://intavia-backend.acdh-dev.oeaw.ac.at")
@@ -318,6 +318,19 @@ class StatisticsOccupation(BaseModel):
 
 class StatisticsOccupationReturn(BaseModel):
     tree: StatisticsOccupation
+
+
+class Bin(BaseModel):
+    label: str
+    count: int
+    values: typing.Tuple[
+        typing.Union[int, float, datetime.datetime], typing.Union[int, float, datetime.datetime]
+    ] | None = None
+    order: PositiveInt | None = None
+
+
+class StatisticsBins(BaseModel):
+    bins: list[Bin]
 
 
 EntityEventRelation.update_forward_refs()
