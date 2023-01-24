@@ -24,6 +24,7 @@ from intavia_backend.query_parameters_v2 import (
     Search,
     Search_Base,
     SearchEvents,
+    SearchOccupationsStats,
     SearchVocabs,
     StatisticsBase,
     StatisticsBinsQuery,
@@ -352,7 +353,7 @@ async def bulk_retrieve_voc_event_kinds(
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations",
 )
-async def statistics_occupations(search: Search_Base = Depends()):
+async def statistics_occupations(search: SearchOccupationsStats = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
     data_fin = create_bins_occupations(res)
