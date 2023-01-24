@@ -1,0 +1,17 @@
+PREFIX bds: <http://www.bigdata.com/rdf/search#>
+PREFIX crm: <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX bioc: <http://ldf.fi/schema/bioc/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX idm: <https://www.intavia.eu/idm/>
+PREFIX idmcore: <http://www.intavia.eu/idm-core/>
+
+SELECT ?date  (COUNT(DISTINCT ?entity) as ?count)
+WHERE {
+
+?entity a idmcore:Person_Proxy .
+    ?entity ^crm:P100_was_death_of/crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?date .
+    {% if ids %}{% include 'bulk_query_entities_v2_1.sparql' %}{% else %}
+    {% include 'query_entities_v2_1.sparql' %}{% endif %}
+}
+GROUP BY ?date
+ORDER BY ASC(?date)
