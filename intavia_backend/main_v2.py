@@ -22,13 +22,49 @@ from intavia_backend.query_parameters_v2 import (
     QueryBase,
     RequestID,
     Search,
+    Search_Base,
     SearchEvents,
     SearchVocabs,
     StatisticsBase,
+    StatisticsBinsQuery,
 )
 from .utils import create_bins_from_range, flatten_rdf_data, get_query_from_triplestore_v2, toggle_urls_encoding
 
 router = APIRouter(route_class=versioned_api_route(2, 0))
+
+
+def create_bins_occupations(res):
+    res = StatisticsOccupationPrelimList(**{"results": res})
+    data = res.dict()["results"]
+    data_fin = {"id": "root", "label": "root", "count": 0, "children": []}
+    data_second = []
+    for idx, occ in enumerate(data):
+        if occ["broader"] is None:
+            if isinstance(occ["label"], list):
+                occ["label"] = " / ".join(occ["label"])
+            elif ">>" in occ["label"]:
+                occ["label"] = occ["label"].split(" >> ")[-1]
+            if data_fin["children"] is None:
+                data_fin["children"] = []
+            data_fin["children"].append(
+                {"id": occ["id"], "label": occ["label"], "count": occ["count"], "children": None}
+            )
+        else:
+            data_second.append(occ)
+    while len(data_second) > 0:
+        for idx, occ in enumerate(data_second):
+            for child in data_fin["children"]:
+                if child["id"] == occ["broader"][0]["id"]:
+                    if isinstance(occ["label"], list):
+                        occ["label"] = " / ".join(occ["label"])
+                    elif ">>" in occ["label"]:
+                        occ["label"] = occ["label"].split(" >> ")[-1]
+                    if child["children"] is None:
+                        child["children"] = []
+                    child["children"].append({"id": occ["id"], "label": occ["label"], "count": occ["count"]})
+                    data_second.pop(idx)
+                    break
+    return data_fin
 
 
 @router.get(
@@ -316,39 +352,24 @@ async def bulk_retrieve_voc_event_kinds(
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations",
 )
-async def statistics_occupations(search: StatisticsBase = Depends()):
+async def statistics_occupations(search: Search_Base = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
-    res = StatisticsOccupationPrelimList(**{"results": res})
-    data = res.dict()["results"]
-    data_fin = {"id": "root", "label": "root", "count": 0, "children": []}
-    data_second = []
-    for idx, occ in enumerate(data):
-        if occ["broader"] is None:
-            if isinstance(occ["label"], list):
-                occ["label"] = " / ".join(occ["label"])
-            elif ">>" in occ["label"]:
-                occ["label"] = occ["label"].split(" >> ")[-1]
-            if data_fin["children"] is None:
-                data_fin["children"] = []
-            data_fin["children"].append(
-                {"id": occ["id"], "label": occ["label"], "count": occ["count"], "children": None}
-            )
-        else:
-            data_second.append(occ)
-    while len(data_second) > 0:
-        for idx, occ in enumerate(data_second):
-            for child in data_fin["children"]:
-                if child["id"] == occ["broader"][0]["id"]:
-                    if isinstance(occ["label"], list):
-                        occ["label"] = " / ".join(occ["label"])
-                    elif ">>" in occ["label"]:
-                        occ["label"] = occ["label"].split(" >> ")[-1]
-                    if child["children"] is None:
-                        child["children"] = []
-                    child["children"].append({"id": occ["id"], "label": occ["label"], "count": occ["count"]})
-                    data_second.pop(idx)
-                    break
+    data_fin = create_bins_occupations(res)
+    return {"tree": data_fin}
+
+
+@router.post(
+    "/api/statistics/occupations/bulk",
+    response_model=StatisticsOccupationReturn,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts of the occupations for known IDs",
+)
+async def statistics_occupations_bulk(ids: RequestID):
+    res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_occupation_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    data_fin = create_bins_occupations(res)
     return {"tree": data_fin}
 
 
@@ -374,6 +395,30 @@ async def statistics_death(search: StatisticsBase = Depends()):
     return {"bins": bins}
 
 
+@router.post(
+    "/api/statistics/death/bulk",
+    response_model=StatisticsBins,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts in bins for date of death of known IDs",
+)
+async def statistics_death_bulk(ids: RequestID, search: StatisticsBinsQuery = Depends()):
+    res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_deathdate_v2_1.sparql")
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Items not found")
+    res = flatten_rdf_data(res)
+    for idx, v in enumerate(res):
+        if not isinstance(res[idx]["date"], datetime.datetime):
+            res[idx]["date"] = dateutil.parser.parse(res[idx]["date"][:10])
+    bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
+    for idx, b in enumerate(bins):
+        for date in res:
+            if b["values"][0] <= date["date"] <= b["values"][1]:
+                b["count"] += date["count"]
+        bins[idx] = b
+    return {"bins": bins}
+
+
 @router.get(
     "/api/statistics/birth/search",
     response_model=StatisticsBins,
@@ -383,6 +428,30 @@ async def statistics_death(search: StatisticsBase = Depends()):
 )
 async def statistics_birth(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_birthdate_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    for idx, v in enumerate(res):
+        if not isinstance(res[idx]["date"], datetime.datetime):
+            res[idx]["date"] = dateutil.parser.parse(res[idx]["date"][:10])
+    bins = create_bins_from_range(res[0]["date"], res[-1]["date"], search.bins)
+    for idx, b in enumerate(bins):
+        for date in res:
+            if b["values"][0] <= date["date"] <= b["values"][1]:
+                b["count"] += date["count"]
+        bins[idx] = b
+    return {"bins": bins}
+
+
+@router.post(
+    "/api/statistics/birth/bulk",
+    response_model=StatisticsBins,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts in bins for date of birth of known IDs",
+)
+async def statistics_birth_bulk(ids: RequestID, search: StatisticsBinsQuery = Depends()):
+    res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_birthdate_v2_1.sparql")
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Items not found")
     res = flatten_rdf_data(res)
     for idx, v in enumerate(res):
         if not isinstance(res[idx]["date"], datetime.datetime):
