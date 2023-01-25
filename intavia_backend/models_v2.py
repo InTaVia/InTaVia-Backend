@@ -294,12 +294,12 @@ class PaginatedResponseVocabularyEntries(PaginatedResponseBase):
 
 
 class StatisticsOccupationPrelimBroader(IntaViaBackendBaseModel):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="broaderUri", anchor=True))
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="broaderUri", anchor=True, encode_function=pp_base64))
     label: str | None = Field(None, rdfconfig=FieldConfigurationRDF(path="broaderLabel"))
 
 
 class StatisticsOccupationPrelim(IntaViaBackendBaseModel):
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupation", anchor=True))
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupation", anchor=True, encode_function=pp_base64))
     label: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupationLabel"))
     count: int = Field(..., rdfconfig=FieldConfigurationRDF(path="count"))
     broader: list[StatisticsOccupationPrelimBroader] | None = None
