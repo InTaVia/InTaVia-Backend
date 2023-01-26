@@ -200,6 +200,13 @@ class EntityEventRelation(IntaViaBackendBaseModel):
     role: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64))
 
 
+class Occupation(IntaViaBackendBaseModel):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupation", anchor=True, encode_function=pp_base64))
+    label: InternationalizedLabel = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="occupationLabel", default_dict_key="default")
+    )
+
+
 class Entity(IntaViaBackendBaseModel):
     id: str = Field(
         ...,
@@ -218,6 +225,7 @@ class Entity(IntaViaBackendBaseModel):
     gender: GenderType | None = Field(
         None, rdfconfig=FieldConfigurationRDF(callback_function=pp_gender_to_label, path="gender")
     )
+    occupations: typing.List[Occupation] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
