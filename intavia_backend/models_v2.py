@@ -74,8 +74,10 @@ def pp_id_provider(field, item, data):
         data = {}
         test = False
         # Test for query params and remove them
-        if re.search(r"\?[^/]+$", it):
-            it = "/".join(it.split("/")[:-1])
+        if re.search(r"\?[^/]+$", it["id"]):
+            it = "/".join(it["id"].split("/")[:-1])
+        else:
+            it = it["id"]
         for k, v in linked_id_providers.items():
             if v["baseUrl"] in it:
                 test = True
@@ -133,6 +135,12 @@ def pp_lat_long(field, item, data):
     return item
 
 
+def pp_source(field, item, data):
+    for source, citation in source_mapping.items():
+        if source in item["citation"]:
+            return {"citation": citation}
+
+
 def pp_base64(data):
     if data is None:
         return None
@@ -164,12 +172,12 @@ class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):
         RDF_utils_move_errors_to_top = True
 
 
-class LinkedIdProvider(IntaViaBackendBaseModel):
+class LinkedIdProvider(BaseModel):
     label: str
     baseUrl: HttpUrl
 
 
-class LinkedId(IntaViaBackendBaseModel):
+class LinkedId(BaseModel):
     id: str
     provider: LinkedIdProvider | None = None
 
@@ -200,6 +208,17 @@ class EntityEventRelation(IntaViaBackendBaseModel):
     role: str = Field(..., rdfconfig=FieldConfigurationRDF(path="role_type", encode_function=pp_base64))
 
 
+class Occupation(IntaViaBackendBaseModel):
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="occupation", anchor=True, encode_function=pp_base64))
+    label: InternationalizedLabel = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="occupationLabel", default_dict_key="default")
+    )
+
+
+class Source(BaseModel):
+    citation: str
+
+
 class Entity(IntaViaBackendBaseModel):
     id: str = Field(
         ...,
@@ -210,14 +229,18 @@ class Entity(IntaViaBackendBaseModel):
     )
     kind: EntityType = Field(EntityType.Person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
-    # source: Source | None = None
+    source: Source | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_source, path="source", default_dict_key="citation")
+    )
+
     linkedIds: list[LinkedId] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds")
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds", default_dict_key="id")
     )
     # _linkedIds: list[HttpUrl] | None = None
     gender: GenderType | None = Field(
         None, rdfconfig=FieldConfigurationRDF(callback_function=pp_gender_to_label, path="gender")
     )
+    occupations: typing.List[Occupation] | None = None
     alternativeLabels: list[InternationalizedLabel] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
