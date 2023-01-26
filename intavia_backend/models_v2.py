@@ -74,8 +74,10 @@ def pp_id_provider(field, item, data):
         data = {}
         test = False
         # Test for query params and remove them
-        if re.search(r"\?[^/]+$", it):
-            it = "/".join(it.split("/")[:-1])
+        if re.search(r"\?[^/]+$", it["id"]):
+            it = "/".join(it["id"].split("/")[:-1])
+        else:
+            it = it["id"]
         for k, v in linked_id_providers.items():
             if v["baseUrl"] in it:
                 test = True
@@ -170,12 +172,12 @@ class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):
         RDF_utils_move_errors_to_top = True
 
 
-class LinkedIdProvider(IntaViaBackendBaseModel):
+class LinkedIdProvider(BaseModel):
     label: str
     baseUrl: HttpUrl
 
 
-class LinkedId(IntaViaBackendBaseModel):
+class LinkedId(BaseModel):
     id: str
     provider: LinkedIdProvider | None = None
 
@@ -232,7 +234,7 @@ class Entity(IntaViaBackendBaseModel):
     )
 
     linkedIds: list[LinkedId] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds")
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds", default_dict_key="id")
     )
     # _linkedIds: list[HttpUrl] | None = None
     gender: GenderType | None = Field(
