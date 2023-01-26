@@ -133,6 +133,12 @@ def pp_lat_long(field, item, data):
     return item
 
 
+def pp_source(field, item, data):
+    for source, citation in source_mapping.items():
+        if source in item["citation"]:
+            return {"citation": citation}
+
+
 def pp_base64(data):
     if data is None:
         return None
@@ -207,6 +213,10 @@ class Occupation(IntaViaBackendBaseModel):
     )
 
 
+class Source(BaseModel):
+    citation: str
+
+
 class Entity(IntaViaBackendBaseModel):
     id: str = Field(
         ...,
@@ -217,7 +227,10 @@ class Entity(IntaViaBackendBaseModel):
     )
     kind: EntityType = Field(EntityType.Person, rdfconfig=FieldConfigurationRDF(path="entityTypeLabel"))
     # FIXME: For the moment we determine that via the URI, needs to be fixed when provenance is in place
-    # source: Source | None = None
+    source: Source | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(callback_function=pp_source, path="source", default_dict_key="citation")
+    )
+
     linkedIds: list[LinkedId] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(callback_function=pp_id_provider, path="linkedIds")
     )
