@@ -41,9 +41,10 @@ class GenderqueryEnum(str, Enum):
 class EntityTypesEnum(str, Enum):
     person = "person"
     group = "group"
+    place = "place"
 
     def get_rdf_uri(self) -> str:
-        map = {"person": "idmcore:Person_Proxy", "group": "idmcore:Group"}
+        map = {"person": "idmcore:Person_Proxy", "group": "idmcore:Group", "place": "crm:E53_Place"}
         return map[self.name]
 
 
