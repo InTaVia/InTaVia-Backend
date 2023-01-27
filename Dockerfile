@@ -22,8 +22,7 @@ ENV TESTING 0
 
 RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
     cd /usr/local/bin && \
-    ln -s /opt/poetry/bin/poetry && \
-    poetry config virtualenvs.create false
+    ln -s /opt/poetry/bin/poetry
 
 # 
 COPY ./pyproject.toml ./poetry.lock* /app/
@@ -31,7 +30,6 @@ COPY ./pyproject.toml ./poetry.lock* /app/
 # Allow installing dev dependencies to run tests
 ARG INSTALL_DEV=false
 
-RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; else poetry install --no-root --without dev ; fi"
 
 COPY . /app
 
@@ -39,10 +37,13 @@ ENV PYTHONPATH=/app
 
 # chown all the files to the app user
 RUN chown -R app:app $HOME
+RUN chown -R app:app /usr/local
 
 # change to the app user
 # Switch to a non-root user, which is recommended by Heroku.
 USER app
+RUN poetry config virtualenvs.create false
+RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; else poetry install --no-root --without dev ; fi"
 
 # 
 #CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
