@@ -6,6 +6,7 @@ from pydantic import BaseModel, HttpUrl, PositiveInt
 from dateutil.parser import parse
 import datetime
 import base64
+from .models_v2 import EntityType
 
 
 def toggle_urls_encoding(url):
@@ -36,16 +37,6 @@ class GenderqueryEnum(str, Enum):
     male = "male"
     female = "female"
     unknown = "unknown"
-
-
-class EntityTypesEnum(str, Enum):
-    person = "person"
-    group = "group"
-    place = "place"
-
-    def get_rdf_uri(self) -> str:
-        map = {"person": "idmcore:Person_Proxy", "group": "idmcore:Group", "place": "crm:E53_Place"}
-        return map[self.name]
 
 
 class ReconTypeEnum(str, Enum):
@@ -164,7 +155,7 @@ class Search(Search_Base, QueryBase, Base):
         description="Select datasets to limit query to",
         default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
     )
-    kind: list[EntityTypesEnum] = Query(default=None, description="Limit Query to entity type.")
+    kind: list[EntityType] = Query(default=None, description="Limit Query to entity type.")
 
 
 @dataclasses.dataclass(kw_only=True)
