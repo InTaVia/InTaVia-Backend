@@ -69,7 +69,7 @@ def create_bins_occupations(res):
 
 
 @router.get(
-    "/api/event/search",
+    "/api/events/search",
     response_model=PaginatedResponseEvents,
     response_model_exclude_none=True,
     tags=["Events endpoints"],
@@ -86,7 +86,7 @@ async def query_events(search: SearchEvents = Depends()):
 
 
 @router.post(
-    "/api/event/retrieve",
+    "/api/events/retrieve",
     response_model=PaginatedResponseEvents,
     response_model_exclude_none=True,
     tags=["Events endpoints"],
@@ -106,7 +106,7 @@ async def bulk_retrieve_events(
 
 
 @router.get(
-    "/api/event/{event_id}",
+    "/api/events/{event_id}",
     response_model=Event,
     response_model_exclude_none=True,
     tags=["Events endpoints"],
@@ -125,7 +125,7 @@ async def retrieve_event_v2(event_id: str):
 
 
 @router.get(
-    "/api/entity/{entity_id}",
+    "/api/entities/{entity_id}",
     response_model=Entity,
     response_model_exclude_none=True,
     tags=["Entities endpoints"],
@@ -236,7 +236,7 @@ async def bulk_retrieve_voc_occupations(
 
 
 @router.get(
-    "/api/vocabularies/role/search",
+    "/api/vocabularies/roles/search",
     response_model=PaginatedResponseVocabularyEntries,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
@@ -251,7 +251,7 @@ async def query_event_roles(search: SearchVocabs = Depends()):
 
 
 @router.get(
-    "/api/vocabularies/role/{event_role_id}",
+    "/api/vocabularies/roles/{event_role_id}",
     response_model=VocabularyEntry,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
@@ -273,7 +273,7 @@ async def retrieve_event_role_v2(event_role_id: str):
 
 
 @router.post(
-    "/api/vocabularies/role/retrieve",
+    "/api/vocabularies/roles/retrieve",
     response_model=PaginatedResponseVocabularyEntries,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
@@ -293,7 +293,7 @@ async def bulk_retrieve_voc_event_roles(
 
 
 @router.get(
-    "/api/vocabularies/event_kind/search",
+    "/api/vocabularies/event_kinds/search",
     response_model=PaginatedResponseVocabularyEntries,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
@@ -308,7 +308,7 @@ async def query_event_kind(search: SearchVocabs = Depends()):
 
 
 @router.get(
-    "/api/vocabularies/event_kind/{event_kind_id}",
+    "/api/vocabularies/event_kinds/{event_kind_id}",
     response_model=VocabularyEntry,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
@@ -327,7 +327,7 @@ async def retrieve_event_kind_v2(event_kind_id: str):
 
 
 @router.post(
-    "/api/vocabularies/event_kind/retrieve",
+    "/api/vocabularies/event_kinds/retrieve",
     response_model=PaginatedResponseVocabularyEntries,
     response_model_exclude_none=True,
     tags=["Vocabulary endpoints"],
@@ -375,7 +375,7 @@ async def statistics_occupations_bulk(ids: RequestID):
 
 
 @router.get(
-    "/api/statistics/death/search",
+    "/api/statistics/death_dates/search",
     response_model=StatisticsBins,
     response_model_exclude_none=True,
     tags=["Statistics"],
@@ -397,7 +397,7 @@ async def statistics_death(search: StatisticsBase = Depends()):
 
 
 @router.post(
-    "/api/statistics/death/bulk",
+    "/api/statistics/death_dates/bulk",
     response_model=StatisticsBins,
     response_model_exclude_none=True,
     tags=["Statistics"],
@@ -421,7 +421,7 @@ async def statistics_death_bulk(ids: RequestID, search: StatisticsBinsQuery = De
 
 
 @router.get(
-    "/api/statistics/birth/search",
+    "/api/statistics/birth_dates/search",
     response_model=StatisticsBins,
     response_model_exclude_none=True,
     tags=["Statistics"],
@@ -443,7 +443,7 @@ async def statistics_birth(search: StatisticsBase = Depends()):
 
 
 @router.post(
-    "/api/statistics/birth/bulk",
+    "/api/statistics/birth_dates/bulk",
     response_model=StatisticsBins,
     response_model_exclude_none=True,
     tags=["Statistics"],
