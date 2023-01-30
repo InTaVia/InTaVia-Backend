@@ -156,11 +156,24 @@ class EnumVocabsRelation(str, Enum):
 
 
 class EntityType(str, Enum):
-    Person = "Person"
-    Place = "Place"
-    Group = "Group"
-    CulturalHeritageObject = "CulturalHeritageObject"
-    HistoricalEvent = "HistoricalEvent"
+    Person = "person"
+    Place = "place"
+    Group = "group"
+    CulturalHeritageObject = "cultural-heritage-object"
+    HistoricalEvent = "historical-event"
+
+    def __str__(self):
+        return self.value
+
+    def get_rdf_uri(self) -> str:
+        map = {
+            "person": "idmcore:Person_Proxy",
+            "group": "idmcore:Group",
+            "place": "crm:E53_Place",
+            "cultural-heritage-object": "idmcore:CHO_Proxy",
+            "historical-event": "idmcore:HistoricalEvent_Proxy",
+        }
+        return map[self.value]
 
 
 class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):

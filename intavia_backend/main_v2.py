@@ -125,25 +125,6 @@ async def retrieve_event_v2(event_id: str):
 
 
 @router.get(
-    "/api/entities/{entity_id}",
-    response_model=Entity,
-    response_model_exclude_none=True,
-    tags=["Entities endpoints"],
-    description="Endpoint that allows to retrive an entity by id.",
-)
-async def retrieve_entity_v2(entity_id: str):
-    try:
-        entity_id = toggle_urls_encoding(entity_id)
-    except:
-        raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"entity_id": entity_id}, "get_entity_v2_1.sparql")
-    # res = FakeList(**{"results": flatten_rdf_data(res)})
-    if len(res) == 0:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return {"_results": flatten_rdf_data(res)}
-
-
-@router.get(
     "/api/entities/search",
     response_model=PaginatedResponseEntities,
     response_model_exclude_none=True,
@@ -178,6 +159,25 @@ async def bulk_retrieve_entities(
     pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
     count = int(res[0]["count"]) if len(res) > 0 else 0
     return {"page": query.page, "count": count, "pages": pages, "results": res}
+
+
+@router.get(
+    "/api/entities/{entity_id}",
+    response_model=Entity,
+    response_model_exclude_none=True,
+    tags=["Entities endpoints"],
+    description="Endpoint that allows to retrive an entity by id.",
+)
+async def retrieve_entity_v2(entity_id: str):
+    try:
+        entity_id = toggle_urls_encoding(entity_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"entity_id": entity_id}, "get_entity_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"_results": flatten_rdf_data(res)}
 
 
 @router.get(
