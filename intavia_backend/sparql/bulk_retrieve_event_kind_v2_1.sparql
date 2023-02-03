@@ -11,9 +11,7 @@ WITH {
 
 
     WHERE {
-        {% for id in ids %}
-        {BIND(<{{id}}> as ?vocabulary)}{% if not loop.last %} UNION {% endif %}
-        {% endfor %}
+        VALUES ?vocabulary { {% for id in ids %}<{{id}}> {% endfor %} }
       ?vocabulary rdfs:subClassOf* crm:E5_Event .
       
       OPTIONAL {
@@ -24,9 +22,7 @@ WITH {
 
 WHERE {
   INCLUDE %count_set
-    {% for id in ids %}
-    {BIND(<{{id}}> as ?vocabulary)}{% if not loop.last %} UNION {% endif %}
-    {% endfor %}
+    VALUES ?vocabulary { {% for id in ids %}<{{id}}> {% endfor %} }
   ?vocabulary rdfs:subClassOf* crm:E5_Event .
   OPTIONAL {
   ?vocabulary rdfs:label ?vocabulary_label .
