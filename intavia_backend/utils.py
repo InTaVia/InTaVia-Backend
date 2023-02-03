@@ -70,6 +70,7 @@ config = {
 jinja_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "sparql")), autoescape=False)
 sparql_endpoint = os.environ.get("SPARQL_ENDPOINT")
 sparql = SPARQLWrapper(sparql_endpoint)
+sparql.setMethod("POST")
 sparql.setReturnFormat(JSON)
 if not sparql_endpoint.startswith("http://127.0.0.1:8080"):
     sparql.setHTTPAuth("BASIC")
