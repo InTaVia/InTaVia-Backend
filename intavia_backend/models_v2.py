@@ -262,7 +262,7 @@ class Entity(IntaViaBackendBaseModel):
     geometry: typing.Union[Polygon, Point] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
     )
-    relations: list[EntityEventRelation] | None
+    relations: list[EntityEventRelation] = []
 
 
 class Event(IntaViaBackendBaseModel):
@@ -283,7 +283,7 @@ class Event(IntaViaBackendBaseModel):
         None, rdfconfig=FieldConfigurationRDF(path="end", callback_function=convert_date_to_iso8601)
     )
     # place: Place | None = None
-    relations: typing.List["EventEntityRelation"] | None
+    relations: typing.List["EventEntityRelation"] = []
 
 
 class EventEntityRelation(IntaViaBackendBaseModel):
