@@ -1,7 +1,7 @@
 {?entity a idmcore:Person_Proxy 
 BIND("person" AS ?entityTypeLabel)
 } UNION {
-?entity a idmcore:Group 
+?entity a crm:E74_Group 
 BIND("group" AS ?entityTypeLabel)
 } UNION {
 ?entity a crm:E53_Place 
