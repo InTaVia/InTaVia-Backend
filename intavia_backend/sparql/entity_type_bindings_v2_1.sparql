@@ -6,4 +6,7 @@ BIND("group" AS ?entityTypeLabel)
 } UNION {
 ?entity a crm:E53_Place 
 BIND("place" AS ?entityTypeLabel)
-} 
+} UNION {
+    ?entity a idm:CHO_Proxy
+    BIND("cultural-heritage-object" AS ?entityTypeLabel)
+  } 

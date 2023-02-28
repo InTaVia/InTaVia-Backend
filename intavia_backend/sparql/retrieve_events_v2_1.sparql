@@ -1,7 +1,7 @@
 ?event a ?event_type .
   ?event ((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at ?entity .
 OPTIONAL {?event rdfs:label ?event_label }
-OPTIONAL {?event bioc:had_participant_in_role ?role .
+OPTIONAL {?event bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role ?role .
     ?role ^bioc:bearer_of ?entity .
     ?role a ?role_type .
     OPTIONAL {?role rdfs:label ?role_label}

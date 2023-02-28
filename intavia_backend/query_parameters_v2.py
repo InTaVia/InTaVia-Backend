@@ -32,6 +32,7 @@ class DatasetsEnum(str, Enum):
     BNet = "http://data.biographynet.nl/"
     SBI = "http://www.intavia.eu/sbi"
     CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/test/v1"
+    CHO_test2 = "http://data.acdh.oeaw.ac.at/intavia/cho/v1"
 
 
 class GenderqueryEnum(str, Enum):
