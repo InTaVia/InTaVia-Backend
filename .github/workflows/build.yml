@@ -95,6 +95,5 @@ jobs:
         SERVICE_ID: ${{ needs.setup_workflow_env.outputs.SERVICE_ID }}
         PUBLIC_URL: ${{ needs.setup_workflow_env.outputs.PUBLIC_URL }}
         POSTGRES_ENABLED: ${{ needs.setup_workflow_env.outputs.POSTGRES_ENABLED == 'true'}}
-        KUBE_CONFIG: ${{ secrets.ACDH_KUBE_CONFIG }}
         environment: "${{ needs.setup_workflow_env.outputs.environment}}"
         default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
