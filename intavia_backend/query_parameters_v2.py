@@ -89,6 +89,11 @@ class SearchEventsBase:
             self.__setattr__("role_id", [toggle_urls_encoding(x) for x in self.role_id])
         if self.event_kind_id is not None:
             self.__setattr__("event_kind_id", [toggle_urls_encoding(x) for x in self.event_kind_id])
+        if self.q is not None:
+            if not self.q.startswith('"') and not self.q.endswith('"'):
+                self.__setattr__("q", f"*{self.q}*")
+            else:
+                self.__setattr__("q", self.q[1:-1])
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -140,6 +145,11 @@ class Search_Base:
             self.__setattr__("relatedEntities_id", [toggle_urls_encoding(x) for x in self.relatedEntities_id])
         if self.eventRoles_id is not None:
             self.__setattr__("eventRoles_id", [toggle_urls_encoding(x) for x in self.eventRoles_id])
+        if self.q is not None:
+            if not self.q.startswith('"') and not self.q.endswith('"'):
+                self.__setattr__("q", f"*{self.q}*")
+            else:
+                self.__setattr__("q", self.q[1:-1])
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -191,6 +201,13 @@ class SearchVocabs(QueryBase, Base):
         description="Select datasets to limit query to",
         default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
     )
+
+    def __post_init__(self):
+        if self.q is not None:
+            if not self.q.startswith('"') and not self.q.endswith('"'):
+                self.__setattr__("q", f"*{self.q}*")
+            else:
+                self.__setattr__("q", self.q[1:-1])
 
 
 @dataclasses.dataclass(kw_only=True)
