@@ -114,9 +114,13 @@ class Search_Base:
     occupations_id: typing.List[str] | None = Query(
         default=None, description="filters for persons with occupations using IDs"
     )
-    relatedPlace: str = Query(default=None, description="Filter for places related to the searched entity")
-    relatedPlaces_id: typing.List[HttpUrl] = Query(
-        default=None, description="Filter for places related to the searched entity using URIs"
+    relatedEntity: str = Query(default=None, description="Filter for entities related to the searched entity")
+    relatedEntities_id: typing.List[str] = Query(
+        default=None, description="Filter for entities related to the searched entity using URIs"
+    )
+    eventRole: str = Query(default=None, description="Filter for event roles related to the searched entity")
+    eventRoles_id: typing.List[str] = Query(
+        default=None, description="Filter for event roles related to the searched entity using IDs"
     )
 
     def __post_init__(self):
@@ -132,6 +136,10 @@ class Search_Base:
             self.__setattr__("diedAfter", parse(self.diedAfter).strftime("%Y-%m-%dT00:00:00"))
         if self.occupations_id is not None:
             self.__setattr__("occupations_id", [toggle_urls_encoding(x) for x in self.occupations_id])
+        if self.relatedEntities_id is not None:
+            self.__setattr__("relatedEntities_id", [toggle_urls_encoding(x) for x in self.relatedEntities_id])
+        if self.eventRoles_id is not None:
+            self.__setattr__("eventRoles_id", [toggle_urls_encoding(x) for x in self.eventRoles_id])
 
 
 @dataclasses.dataclass(kw_only=True)

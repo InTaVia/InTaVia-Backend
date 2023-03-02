@@ -53,20 +53,32 @@
 {%- if gender_id -%}
     ?entity bioc:has_gender|bioc:gender <{{gender_id}}> .
 {%- endif -%}
-{%- if relatedPlace -%}
+{%- if relatedEntity -%}
 ?entity bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role ?event .
-    ?event crm:P7_took_place_at ?evPlace .
-        
-        {?evPlace crm:P1_is_identified_by ?evPlaceAppelation .
-                ?evPlaceAppelation a crm:E33_E41_Linguistic_Appellation .
-                ?evPlaceAppelation rdfs:label ?evPlaceLabel } UNION {
-                    ?evPlace rdfs:label ?evPlaceLabel }
-    ?evPlaceLabel bds:search "{{relatedPlace}}" .
+    ?event (crm:P7_took_place_at|(bioc:had_participant_in_role/^bioc:bearer_of)) ?evEntity .  
+        {?evEntity crm:P1_is_identified_by ?evEntityAppelation .
+                ?evEntityAppelation a crm:E33_E41_Linguistic_Appellation .
+                ?evEntityAppelation rdfs:label ?evEntityLabel } UNION {
+                    ?evEntity rdfs:label ?evEntityLabel }
+    ?evEntityLabel bds:search "{{relatedEntity}}" .
 {%- endif -%}
-{%- if relatedPlaces_id -%}
+{%- if relatedEntities_id -%}
 ?entity bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role ?event .
-    {%- for place in relatedPlaces_id -%}
-        {?event crm:P7_took_place_at <{{place}}>}
+    {%- for entity in relatedEntities_id -%}
+        {?event (crm:P7_took_place_at|(bioc:had_participant_in_role/^bioc:bearer_of)) <{{entity}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {%- endfor -%}
+{%- endif -%}
+{%- if eventRole -%}
+?entity bioc:bearer_of ?role .
+    ?role a/rdfs:label ?roleLabel .
+    ?roleLabel bds:search "{{eventRole}}" .
+    ?roleLabel bds:matchAllTerms "true" .
+{%- endif -%}
+{%- if eventRoles_id -%}
+?entity bioc:bearer_of ?role .
+    {%- for role in eventRoles_id -%}
+        {?role a <{{role}}>}
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}
