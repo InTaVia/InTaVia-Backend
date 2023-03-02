@@ -38,7 +38,7 @@ COPY . /app
 ENV PYTHONPATH=/app
 
 # chown all the files to the app user
-RUN chown -R app:app $HOME
+RUN chown -R app:app $HOME && chown -R app /usr/local && chown -R app /app
 
 # change to the app user
 # Switch to a non-root user, which is recommended by Heroku.
