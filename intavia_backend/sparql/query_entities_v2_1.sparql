@@ -20,25 +20,25 @@
 {%- if bornBefore -%}
     ?bornBeforeEvent a crm:E67_Birth .
     ?bornBeforeEvent crm:P98_brought_into_life ?entity .
-    ?bornBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornBeforeFilter .
+    ?bornBeforeEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?bornBeforeFilter .
     FILTER(?bornBeforeFilter < xsd:dateTime("{{bornBefore}}"))
 {%- endif -%}
 {%- if bornAfter -%}
     ?bornAfterEvent a crm:E67_Birth .
     ?bornAfterEvent crm:P98_brought_into_life ?entity .
-    ?bornAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?bornAfterFilter .
+    ?bornAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?bornAfterFilter .
     FILTER(?bornAfterFilter > xsd:dateTime("{{bornAfter}}"))
 {%- endif -%}
 {%- if diedBefore -%}
     ?diedBeforeEvent a crm:E69_Death .
     ?diedBeforeEvent crm:P100_was_death_of ?entity .
-    ?diedBeforeEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedBeforeFilter .
+    ?diedBeforeEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedBeforeFilter .
     FILTER(?diedBeforeFilter < xsd:dateTime("{{diedBefore}}"))
 {%- endif -%}
 {%- if diedAfter -%}
     ?diedAfterEvent a crm:E69_Death .
     ?diedAfterEvent crm:P100_was_death_of ?entity .
-    ?diedAfterEvent crm:P4_has_time-span/crm:P82a_begin_of_the_begin ?diedAfterFilter .
+    ?diedAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedAfterFilter .
     FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
 {%- endif -%}
 {%- if kind -%}

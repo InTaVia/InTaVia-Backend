@@ -12,14 +12,13 @@ WITH {
 
     WHERE {
       ?vocabulary rdfs:subClassOf* crm:E5_Event .
-      
       OPTIONAL {
-      ?vocabulary rdfs:label ?vocabulary_label .
-      {% if q %}
-      ?vocabulary_label bds:search "{{q}}" .
-      ?vocabulary_label bds:matchAllTerms "true" .
-      {% endif %}
+      ?vocabulary rdfs:label ?vocabulary_label_pre .
       }
+      BIND(COALESCE(?vocabulary_label_pre, REPLACE(REPLACE(STR(?vocabulary), "^.*/([^/]*)/?$", "$1"), "_", " ")) AS ?vocabulary_label)
+      {% if q %}
+      FILTER(CONTAINS(lcase(?vocabulary_label), "{{q|lower}}" ))
+      {% endif %}
     }
 } AS %count_set
 
@@ -27,12 +26,12 @@ WHERE {
   INCLUDE %count_set
   ?vocabulary rdfs:subClassOf* crm:E5_Event .
   OPTIONAL {
-  ?vocabulary rdfs:label ?vocabulary_label .
+  ?vocabulary rdfs:label ?vocabulary_label_pre .}
+  BIND(COALESCE(?vocabulary_label_pre, REPLACE(REPLACE(STR(?vocabulary), "^.*/([^/]*)/?$", "$1"), "_", " ")) AS ?vocabulary_label)
   {% if q %}
-  ?vocabulary_label bds:search "{{q}}" .
-  ?vocabulary_label bds:matchAllTerms "true" .
+      FILTER(CONTAINS(lcase(?vocabulary_label), "{{q|lower}}" ))
   {% endif %}
-  }
+  
   OPTIONAL{
   	?vocabulary rdfs:subClassOf ?related_vocabulary .
     FILTER(?related_vocabulary != crm:E5_Event)
