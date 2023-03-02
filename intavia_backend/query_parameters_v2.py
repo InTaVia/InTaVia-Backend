@@ -118,6 +118,10 @@ class Search_Base:
     relatedEntities_id: typing.List[str] = Query(
         default=None, description="Filter for entities related to the searched entity using URIs"
     )
+    eventRole: str = Query(default=None, description="Filter for event roles related to the searched entity")
+    eventRoles_id: typing.List[str] = Query(
+        default=None, description="Filter for event roles related to the searched entity using IDs"
+    )
 
     def __post_init__(self):
         if hasattr(self, "page"):
@@ -134,6 +138,8 @@ class Search_Base:
             self.__setattr__("occupations_id", [toggle_urls_encoding(x) for x in self.occupations_id])
         if self.relatedEntities_id is not None:
             self.__setattr__("relatedEntities_id", [toggle_urls_encoding(x) for x in self.relatedEntities_id])
+        if self.eventRoles_id is not None:
+            self.__setattr__("eventRoles_id", [toggle_urls_encoding(x) for x in self.eventRoles_id])
 
 
 @dataclasses.dataclass(kw_only=True)

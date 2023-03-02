@@ -69,3 +69,16 @@
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}
+{%- if eventRole -%}
+?entity bioc:bearer_of ?role .
+    ?role a/rdfs:label ?roleLabel .
+    ?roleLabel bds:search "{{eventRole}}" .
+    ?roleLabel bds:matchAllTerms "true" .
+{%- endif -%}
+{%- if eventRoles_id -%}
+?entity bioc:bearer_of ?role .
+    {%- for role in eventRoles_id -%}
+        {?role a <{{role}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {%- endfor -%}
+{%- endif -%}
