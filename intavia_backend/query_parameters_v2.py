@@ -74,7 +74,12 @@ class QueryBase:
 
 @dataclasses.dataclass(kw_only=True)
 class SearchEventsBase:
-    q: str = Query(default=None, max_length=200, description="Searches across labels of all events")
+    q: str = Query(
+        default=None,
+        max_length=200,
+        description="Searches across labels of all events. When not using quotes, the query will be wildcarded. When using quotes, \
+            the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
+    )
     related_entities: str = Query(default=None, max_length=200, description="Searches labels of related entities")
     related_entities_id: typing.List[str] = Query(default=None, description="Searches related entities using IDs")
     role: str = Query(default=None, max_length=200, description="Searches labels of roles")
@@ -98,7 +103,12 @@ class SearchEventsBase:
 
 @dataclasses.dataclass(kw_only=True)
 class Search_Base:
-    q: str = Query(default=None, max_length=200, description="Searches across labels of all entity proxies")
+    q: str = Query(
+        default=None,
+        max_length=200,
+        description="Searches across labels of all entity proxies. When not using quotes, the query will be wildcarded. When using quotes, \
+            the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
+    )
     occupation: str = Query(default=None, max_length=200, description="Searches the labels of the Occupations")
     gender: GenderqueryEnum = Query(default=None, description="Filters Persons according to gender")
     gender_id: HttpUrl = Query(
@@ -196,7 +206,11 @@ class SearchEvents(SearchEventsBase, QueryBase, Base):
 
 @dataclasses.dataclass(kw_only=True)
 class SearchVocabs(QueryBase, Base):
-    q: str = Query(default=None, description="Query for a label in the Vocabulary")
+    q: str = Query(
+        default=None,
+        description="Query for a label in the Vocabulary. When not using quotes, the query will be wildcarded. When using quotes, \
+            the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
+    )
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
         default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
