@@ -183,7 +183,7 @@ class ReconQueryBatch(Base):
 class Search(Search_Base, QueryBase, Base):
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI, DatasetsEnum.CHO_test2],
     )
     kind: list[EntityType] = Query(default=None, description="Limit Query to entity type.")
 
