@@ -17,29 +17,29 @@
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}
-{%- if bornBefore -%}
+{%- if born_before -%}
     ?bornBeforeEvent a crm:E67_Birth .
     ?bornBeforeEvent crm:P98_brought_into_life ?entity .
     ?bornBeforeEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?bornBeforeFilter .
-    FILTER(?bornBeforeFilter < xsd:dateTime("{{bornBefore}}"))
+    FILTER(?bornBeforeFilter < xsd:dateTime("{{born_before}}"))
 {%- endif -%}
-{%- if bornAfter -%}
+{%- if born_after -%}
     ?bornAfterEvent a crm:E67_Birth .
     ?bornAfterEvent crm:P98_brought_into_life ?entity .
     ?bornAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?bornAfterFilter .
-    FILTER(?bornAfterFilter > xsd:dateTime("{{bornAfter}}"))
+    FILTER(?bornAfterFilter > xsd:dateTime("{{born_after}}"))
 {%- endif -%}
-{%- if diedBefore -%}
+{%- if died_before -%}
     ?diedBeforeEvent a crm:E69_Death .
     ?diedBeforeEvent crm:P100_was_death_of ?entity .
     ?diedBeforeEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedBeforeFilter .
-    FILTER(?diedBeforeFilter < xsd:dateTime("{{diedBefore}}"))
+    FILTER(?diedBeforeFilter < xsd:dateTime("{{died_before}}"))
 {%- endif -%}
-{%- if diedAfter -%}
+{%- if died_after -%}
     ?diedAfterEvent a crm:E69_Death .
     ?diedAfterEvent crm:P100_was_death_of ?entity .
     ?diedAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedAfterFilter .
-    FILTER(?diedAfterFilter > xsd:dateTime("{{diedAfter}}"))
+    FILTER(?diedAfterFilter > xsd:dateTime("{{died_after}}"))
 {%- endif -%}
 {%- if kind -%}
     {%- for k1 in kind -%}
