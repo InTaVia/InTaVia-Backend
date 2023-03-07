@@ -114,47 +114,47 @@ class Search_Base:
     gender_id: HttpUrl = Query(
         default=None, description="Filters Persons according to gender. Uses URIs rather than the enum."
     )
-    bornBefore: str | datetime.datetime = Query(
+    born_before: str | datetime.datetime = Query(
         default=None, description="Filters for Persons born before a certain date"
     )
-    bornAfter: str | datetime.datetime = Query(
+    born_after: str | datetime.datetime = Query(
         default=None, description="Filters for Persons born after a certain date"
     )
-    diedAfter: str | datetime.datetime = Query(
+    died_after: str | datetime.datetime = Query(
         default=None, description="Filters for Persons died after a certain date"
     )
-    diedBefore: str | datetime.datetime = Query(
+    died_before: str | datetime.datetime = Query(
         default=None, description="Filters for Persons died before a certain date"
     )
     occupations_id: typing.List[str] | None = Query(
         default=None, description="filters for persons with occupations using IDs"
     )
-    relatedEntity: str = Query(default=None, description="Filter for entities related to the searched entity")
-    relatedEntities_id: typing.List[str] = Query(
+    related_entity: str = Query(default=None, description="Filter for entities related to the searched entity")
+    related_entities_id: typing.List[str] = Query(
         default=None, description="Filter for entities related to the searched entity using URIs"
     )
-    eventRole: str = Query(default=None, description="Filter for event roles related to the searched entity")
-    eventRoles_id: typing.List[str] = Query(
+    event_role: str = Query(default=None, description="Filter for event roles related to the searched entity")
+    event_roles_id: typing.List[str] = Query(
         default=None, description="Filter for event roles related to the searched entity using IDs"
     )
 
     def __post_init__(self):
         if hasattr(self, "page"):
             self._offset = (self.page - 1) * self.limit
-        if self.bornBefore is not None:
-            self.__setattr__("bornBefore", parse(self.bornBefore).strftime("%Y-%m-%dT00:00:00"))
-        if self.bornAfter is not None:
-            self.__setattr__("bornAfter", parse(self.bornAfter).strftime("%Y-%m-%dT00:00:00"))
-        if self.diedBefore is not None:
-            self.__setattr__("diedBefore", parse(self.diedBefore).strftime("%Y-%m-%dT00:00:00"))
-        if self.diedAfter is not None:
-            self.__setattr__("diedAfter", parse(self.diedAfter).strftime("%Y-%m-%dT00:00:00"))
+        if self.born_before is not None:
+            self.__setattr__("born_before", parse(self.born_before).strftime("%Y-%m-%dT00:00:00"))
+        if self.born_after is not None:
+            self.__setattr__("born_after", parse(self.born_after).strftime("%Y-%m-%dT00:00:00"))
+        if self.died_before is not None:
+            self.__setattr__("died_before", parse(self.died_before).strftime("%Y-%m-%dT00:00:00"))
+        if self.died_after is not None:
+            self.__setattr__("died_after", parse(self.died_after).strftime("%Y-%m-%dT00:00:00"))
         if self.occupations_id is not None:
             self.__setattr__("occupations_id", [toggle_urls_encoding(x) for x in self.occupations_id])
-        if self.relatedEntities_id is not None:
-            self.__setattr__("relatedEntities_id", [toggle_urls_encoding(x) for x in self.relatedEntities_id])
-        if self.eventRoles_id is not None:
-            self.__setattr__("eventRoles_id", [toggle_urls_encoding(x) for x in self.eventRoles_id])
+        if self.related_entities_id is not None:
+            self.__setattr__("related_entities_id", [toggle_urls_encoding(x) for x in self.related_entities_id])
+        if self.event_roles_id is not None:
+            self.__setattr__("event_roles_id", [toggle_urls_encoding(x) for x in self.event_roles_id])
         if self.q is not None:
             if not self.q.startswith('"') and not self.q.endswith('"'):
                 self.__setattr__("q", f"*{self.q}*")
