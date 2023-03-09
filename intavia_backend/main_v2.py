@@ -7,10 +7,14 @@ from fastapi_cache.decorator import cache
 
 from fastapi_versioning import version, versioned_api_route
 from intavia_backend.models_v2 import (
+    Biography,
     Entity,
     Event,
+    MediaResource,
+    PaginatedResponseBiography,
     PaginatedResponseEntities,
     PaginatedResponseEvents,
+    PaginatedResponseMedia,
     PaginatedResponseVocabularyEntries,
     StatisticsBins,
     StatisticsOccupationPrelim,
@@ -181,6 +185,88 @@ async def retrieve_entity_v2(entity_id: str):
     except:
         raise HTTPException(status_code=404, detail="Item not found")
     res = get_query_from_triplestore_v2({"entity_id": entity_id}, "get_entity_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"_results": flatten_rdf_data(res)}
+
+
+@router.post(
+    "/api/media/retrieve",
+    response_model=PaginatedResponseMedia,
+    response_model_exclude_none=True,
+    tags=["Entities endpoints"],
+    description="Endpoint that allows to bulk retrieve media objects when IDs are known.",
+)
+@cache()
+async def bulk_retrieve_media_objects(
+    ids: RequestID,
+    query: QueryBase = Depends(),
+):
+    query_dict = asdict(query)
+    query_dict["ids"] = ids.id
+    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_entities_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": query.page, "count": count, "pages": pages, "results": res}
+
+
+@router.get(
+    "/api/media/{media_id}",
+    response_model=MediaResource,
+    response_model_exclude_none=True,
+    tags=["Entities endpoints"],
+    description="Endpoint that allows to retrive a media object by id.",
+)
+@cache()
+async def retrieve_media(media_id: str):
+    try:
+        entity_id = toggle_urls_encoding(media_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"media_id": media_id}, "get_entity_v2_1.sparql")
+    # res = FakeList(**{"results": flatten_rdf_data(res)})
+    if len(res) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"_results": flatten_rdf_data(res)}
+
+
+@router.post(
+    "/api/biography/retrieve",
+    response_model=PaginatedResponseBiography,
+    response_model_exclude_none=True,
+    tags=["Entities endpoints"],
+    description="Endpoint that allows to bulk retrieve biography objects when IDs are known.",
+)
+@cache()
+async def bulk_retrieve_biography_objects(
+    ids: RequestID,
+    query: QueryBase = Depends(),
+):
+    query_dict = asdict(query)
+    query_dict["ids"] = ids.id
+    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_entities_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
+    count = int(res[0]["count"]) if len(res) > 0 else 0
+    return {"page": query.page, "count": count, "pages": pages, "results": res}
+
+
+@router.get(
+    "/api/biography/{biography_id}",
+    response_model=Biography,
+    response_model_exclude_none=True,
+    tags=["Entities endpoints"],
+    description="Endpoint that allows to retrive a biography object by id.",
+)
+@cache()
+async def retrieve_biography(biography_id: str):
+    try:
+        biography_id = toggle_urls_encoding(biography_id)
+    except:
+        raise HTTPException(status_code=404, detail="Item not found")
+    res = get_query_from_triplestore_v2({"biography_id": biography_id}, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
