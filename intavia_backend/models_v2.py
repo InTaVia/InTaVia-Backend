@@ -170,7 +170,7 @@ class EntityType(str, Enum):
             "person": "idmcore:Person_Proxy",
             "group": "idmcore:Group",
             "place": "crm:E53_Place",
-            "cultural-heritage-object": "idmcore:CHO_Proxy",
+            "cultural-heritage-object": "idm:CHO_Proxy",
             "historical-event": "idmcore:HistoricalEvent_Proxy",
         }
         return map[self.value]
