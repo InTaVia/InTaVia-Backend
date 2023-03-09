@@ -216,6 +216,8 @@ class InternationalizedLabel(IntaViaBackendBaseModel):
 
 
 class MediaResource(RDFUtilsModelBaseClass):
+    """Object for representing media resources"""
+
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="mediaObject", anchor=True, encode_function=pp_base64))
     label: InternationalizedLabel | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="mediaObjectLabel", default_dict_key="default")
@@ -342,6 +344,10 @@ class PaginatedResponseBase(IntaViaBackendBaseModel):
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Entity] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseMedia(PaginatedResponseBase):
+    results: typing.List[MediaResource] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
 class PaginatedResponseEvents(PaginatedResponseBase):
