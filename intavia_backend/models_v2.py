@@ -363,6 +363,10 @@ class PaginatedResponseMedia(PaginatedResponseBase):
     results: typing.List[MediaResource] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
+class PaginatedResponseBiography(PaginatedResponseBase):
+    results: typing.List[Biography] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
 class PaginatedResponseEvents(PaginatedResponseBase):
     results: typing.List[Event] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
