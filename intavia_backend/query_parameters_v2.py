@@ -57,12 +57,14 @@ class ReconTypeEnum(str, Enum):
 
 @dataclasses.dataclass(kw_only=True)
 class Base:
-
-    pass
+    datasets: list[DatasetsEnum] = Query(
+        description="Select datasets to limit query to",
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI, DatasetsEnum.CHO_test2],
+    )
 
 
 @dataclasses.dataclass(kw_only=True)
-class QueryBase:
+class QueryBase(Base):
     page: PositiveInt = Query(default=1, gte=1)
     limit: int = Query(default=50, le=1000, gte=1)
     _offset: int = Query(default=0, include_in_schema=False)
@@ -180,40 +182,26 @@ class ReconQueryBatch(Base):
 
 
 @dataclasses.dataclass(kw_only=True)
-class Search(Search_Base, QueryBase, Base):
-    datasets: list[DatasetsEnum] = Query(
-        description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI, DatasetsEnum.CHO_test2],
-    )
+class Search(Search_Base, QueryBase):
     kind: list[EntityType] = Query(default=None, description="Limit Query to entity type.")
 
 
 @dataclasses.dataclass(kw_only=True)
-class SearchOccupationsStats(Search_Base, QueryBase, Base):
-    datasets: list[DatasetsEnum] = Query(
-        description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
-    )
+class SearchOccupationsStats(Search_Base, QueryBase):
+    pass
 
 
 @dataclasses.dataclass(kw_only=True)
-class SearchEvents(SearchEventsBase, QueryBase, Base):
-    datasets: list[DatasetsEnum] = Query(
-        description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
-    )
+class SearchEvents(SearchEventsBase, QueryBase):
+    pass
 
 
 @dataclasses.dataclass(kw_only=True)
-class SearchVocabs(QueryBase, Base):
+class SearchVocabs(QueryBase):
     q: str = Query(
         default=None,
         description="Query for a label in the Vocabulary. When not using quotes, the query will be wildcarded. When using quotes, \
             the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
-    )
-    datasets: list[DatasetsEnum] = Query(
-        description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI],
     )
 
     def __post_init__(self):
@@ -225,7 +213,7 @@ class SearchVocabs(QueryBase, Base):
 
 
 @dataclasses.dataclass(kw_only=True)
-class Entity_Retrieve(QueryBase, Base):
+class Entity_Retrieve(QueryBase):
     ids: typing.List[HttpUrl] = Query(description="List of IDs to retrieve.")
 
 
@@ -235,7 +223,7 @@ class StatisticsBinsQuery(Base):
 
 
 @dataclasses.dataclass(kw_only=True)
-class StatisticsBase(Search_Base, StatisticsBinsQuery, Base):
+class StatisticsBase(Search_Base, StatisticsBinsQuery):
     pass
 
 

@@ -4,13 +4,11 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type
 
-{% for dataset in datasets %}
-FROM <{{dataset.value}}>
-{% endfor %}
+{% include 'add_datasets_v2_1.sparql' %}
 
 WHERE {
   BIND(<{{event_role_id}}> as ?vocabulary)
-  ?vocabulary rdfs:subClassOf bioc:Event_Role .
+  #?vocabulary rdfs:subClassOf bioc:Event_Role . TODO: add this back in when the data is fixed
   ?vocabulary rdfs:label ?vocabulary_label .
   OPTIONAL{
   	?vocabulary rdfs:subClassOf ?related_vocabulary .
