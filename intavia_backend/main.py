@@ -25,7 +25,7 @@ app.include_router(router_v2)
 origins = ["*"]
 
 sentry_sdk.init(
-    dsn="https://a1253a59c2564963a8f126208f03a655@sentry.acdh-dev.oeaw.ac.at/9",
+    dsn="https://936a6c77abda4ced81e17cd4e27906a7@o4504360778661888.ingest.sentry.io/4504361556574208",
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production,
@@ -35,12 +35,14 @@ sentry_sdk.init(
 
 app = VersionedFastAPI(app, version_format="{major}", prefix_format="/v{major}")
 
+
 @app.on_event("startup")
 async def startup():
     redis = aioredis.from_url(
         f"redis://{os.environ.get('REDIS_HOST', 'localhost')}", encoding="utf8", decode_responses=True, db=1
     )
     FastAPICache.init(RedisBackend(redis), prefix="api-cache")
+
 
 app.add_middleware(
     CORSMiddleware,
