@@ -155,6 +155,12 @@ class EnumVocabsRelation(str, Enum):
     sameas = "same-as"
 
 
+class EnumMediaObjectKind(str, Enum):
+    image = "image"
+    audio = "audio"
+    video = "video"
+
+
 class EntityType(str, Enum):
     Person = "person"
     Place = "place"
@@ -209,6 +215,33 @@ class InternationalizedLabel(IntaViaBackendBaseModel):
         super().__init__(**data)
 
 
+class MediaResource(RDFUtilsModelBaseClass):
+    """Object for representing media resources"""
+
+    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="mediaObject", anchor=True, encode_function=pp_base64))
+    label: InternationalizedLabel | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="mediaObjectLabel", default_dict_key="default")
+    )
+    description: str | None = None
+    attribution: str | None = None
+    url: HttpUrl
+    # TODO: Should be an actual vocabulary.
+    # kind: MediaKind;
+    kind: EnumMediaObjectKind = Field(
+        EnumMediaObjectKind.image, rdfconfig=FieldConfigurationRDF(path="mediaObjectKind")
+    )
+
+
+class Biography(RDFUtilsModelBaseClass):
+    """Object for representing biographies"""
+
+    id: str
+    title: str
+    abstract: str | None = None
+    text: str
+    citation: str | None = None
+
+
 class GenderType(IntaViaBackendBaseModel):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="gender", anchor=True))
     label: InternationalizedLabel = Field(
@@ -258,7 +291,12 @@ class Entity(IntaViaBackendBaseModel):
         None, rdfconfig=FieldConfigurationRDF(path="entityLabel", default_dict_key="default")
     )
     description: str | None = None
-    # media: list[MediaResource] | None = None
+    media: list[str] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="mediaObject", anchor=True, encode_function=pp_base64)
+    )
+    biographies: list[str] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="biographyObject", anchor=True, encode_function=pp_base64)
+    )
     geometry: typing.Union[Polygon, Point] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
     )
@@ -319,6 +357,14 @@ class PaginatedResponseBase(IntaViaBackendBaseModel):
 
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Entity] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseMedia(PaginatedResponseBase):
+    results: typing.List[MediaResource] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+
+
+class PaginatedResponseBiography(PaginatedResponseBase):
+    results: typing.List[Biography] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
 
 class PaginatedResponseEvents(PaginatedResponseBase):
