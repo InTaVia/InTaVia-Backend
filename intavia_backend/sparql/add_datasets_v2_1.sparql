@@ -1,0 +1,5 @@
+FROM <http://www.intavia.eu/idm-classes/>
+FROM <http://www.intavia.eu/idm-core/>
+{% for dataset in datasets %}
+FROM <{{dataset.value}}>
+{% endfor %}

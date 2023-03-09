@@ -23,6 +23,7 @@ from intavia_backend.models_v2 import (
     VocabularyEntry,
 )
 from intavia_backend.query_parameters_v2 import (
+    Base,
     Entity_Retrieve,
     QueryBase,
     RequestID,
@@ -120,12 +121,14 @@ async def bulk_retrieve_events(
     description="Endpoint that allows to retrive any event by id.",
 )
 @cache()
-async def retrieve_event_v2(event_id: str):
+async def retrieve_event_v2(event_id: str, query: Base = Depends()):
     try:
         event_id = toggle_urls_encoding(event_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"event_id": event_id}, "get_event_v2_1.sparql")
+    query_dict = asdict(query)
+    query_dict["event_id"] = event_id
+    res = get_query_from_triplestore_v2(query_dict, "get_event_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -179,12 +182,14 @@ async def bulk_retrieve_entities(
     description="Endpoint that allows to retrive an entity by id.",
 )
 @cache()
-async def retrieve_entity_v2(entity_id: str):
+async def retrieve_entity_v2(entity_id: str, query: Base = Depends()):
     try:
         entity_id = toggle_urls_encoding(entity_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"entity_id": entity_id}, "get_entity_v2_1.sparql")
+    query_dict = asdict(query)
+    query_dict["entity_id"] = entity_id
+    res = get_query_from_triplestore_v2(query_dict, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -220,12 +225,14 @@ async def bulk_retrieve_media_objects(
     description="Endpoint that allows to retrive a media object by id.",
 )
 @cache()
-async def retrieve_media(media_id: str):
+async def retrieve_media(media_id: str, query: Base = Depends()):
     try:
         entity_id = toggle_urls_encoding(media_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"media_id": media_id}, "get_entity_v2_1.sparql")
+    query_dict = asdict(query)
+    query_dict["media_id"] = media_id
+    res = get_query_from_triplestore_v2(query_dict, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -261,12 +268,14 @@ async def bulk_retrieve_biography_objects(
     description="Endpoint that allows to retrive a biography object by id.",
 )
 @cache()
-async def retrieve_biography(biography_id: str):
+async def retrieve_biography(biography_id: str, query: Base = Depends()):
     try:
         biography_id = toggle_urls_encoding(biography_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"biography_id": biography_id}, "get_entity_v2_1.sparql")
+    query_dict = asdict(query)
+    query_dict["biography_id"] = biography_id
+    res = get_query_from_triplestore_v2(query_dict, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -297,12 +306,14 @@ async def query_occupations(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any occupation by id.",
 )
 @cache()
-async def retrieve_occupation_v2(occupation_id: str):
+async def retrieve_occupation_v2(occupation_id: str, query: Base = Depends()):
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     try:
         occupation_id = toggle_urls_encoding(occupation_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
+    query_dict = asdict(query)
+    query_dict["occupation_id"] = occupation_id
     res = get_query_from_triplestore_v2({"occupation_id": occupation_id}, "occupation_retrieve_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
@@ -355,14 +366,16 @@ async def query_event_roles(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any roles by id.",
 )
 @cache()
-async def retrieve_event_role_v2(event_role_id: str):
+async def retrieve_event_role_v2(event_role_id: str, query: Base = Depends()):
     try:
         event_role_id = toggle_urls_encoding(event_role_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
     if event_role_id == "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at":
         return {"_results": [{"vocabulary": event_role_id, "vocabulary_label": "took place at"}]}
-    res = get_query_from_triplestore_v2({"event_role_id": event_role_id}, "event_role_retrieve_v2_1.sparql")
+    query_dict = asdict(query)
+    query_dict["event_role_id"] = event_role_id
+    res = get_query_from_triplestore_v2(query_dict, "event_role_retrieve_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -415,12 +428,14 @@ async def query_event_kind(search: SearchVocabs = Depends()):
     description="Endpoint that allows to retrive any event kinds by id.",
 )
 @cache()
-async def retrieve_event_kind_v2(event_kind_id: str):
+async def retrieve_event_kind_v2(event_kind_id: str, query: Base = Depends()):
     try:
         event_kind_id = toggle_urls_encoding(event_kind_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    res = get_query_from_triplestore_v2({"event_kind_id": event_kind_id}, "event_kind_retrieve_v2_1.sparql")
+    query_dict = asdict(query)
+    query_dict["event_kind_id"] = event_kind_id
+    res = get_query_from_triplestore_v2(query_dict, "event_kind_retrieve_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")

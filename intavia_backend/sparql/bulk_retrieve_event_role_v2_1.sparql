@@ -4,16 +4,12 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT DISTINCT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type ?count
 
-{% for dataset in datasets %}
-FROM <{{dataset.value}}>
-{% endfor %}
+{% include 'add_datasets_v2_1.sparql' %}
 
 WITH {
     SELECT (COUNT(DISTINCT ?vocabulary) AS ?count)
 
-    {% for dataset in datasets %}
-    FROM <{{dataset.value}}>
-    {% endfor %}
+    {% include 'add_datasets_v2_1.sparql' %}
 
     WHERE {
         VALUES ?vocabulary { {% for id in ids %}<{{id}}> {% endfor %} }
