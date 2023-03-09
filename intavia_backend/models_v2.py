@@ -232,6 +232,16 @@ class MediaResource(RDFUtilsModelBaseClass):
     )
 
 
+class Biography(RDFUtilsModelBaseClass):
+    """Object for representing biographies"""
+
+    id: str
+    title: str
+    abstract: str | None = None
+    text: str
+    citation: str | None = None
+
+
 class GenderType(IntaViaBackendBaseModel):
     id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="gender", anchor=True))
     label: InternationalizedLabel = Field(
@@ -283,6 +293,9 @@ class Entity(IntaViaBackendBaseModel):
     description: str | None = None
     media: list[str] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="mediaObject", anchor=True, encode_function=pp_base64)
+    )
+    biographies: list[str] | None = Field(
+        None, rdfconfig=FieldConfigurationRDF(path="biographyObject", anchor=True, encode_function=pp_base64)
     )
     geometry: typing.Union[Polygon, Point] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
