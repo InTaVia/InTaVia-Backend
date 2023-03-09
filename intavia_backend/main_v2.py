@@ -3,6 +3,7 @@ import datetime
 import math
 import dateutil
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_cache.decorator import cache
 
 from fastapi_versioning import version, versioned_api_route
 from intavia_backend.models_v2 import (
@@ -77,6 +78,7 @@ def create_bins_occupations(res):
     the node history. Depending on the objects found the return object is \
         different.",
 )
+@cache()
 async def query_events(search: SearchEvents = Depends()):
     res = get_query_from_triplestore_v2(search, "search_events_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -92,6 +94,7 @@ async def query_events(search: SearchEvents = Depends()):
     tags=["Events endpoints"],
     description="Endpoint that allows to bulk retrieve events when IDs are known.",
 )
+@cache()
 async def bulk_retrieve_events(
     ids: RequestID,
     query: QueryBase = Depends(),
@@ -112,6 +115,7 @@ async def bulk_retrieve_events(
     tags=["Events endpoints"],
     description="Endpoint that allows to retrive any event by id.",
 )
+@cache()
 async def retrieve_event_v2(event_id: str):
     try:
         event_id = toggle_urls_encoding(event_id)
@@ -133,6 +137,7 @@ async def retrieve_event_v2(event_id: str):
     the node history. Depending on the objects found the return object is \
         different.",
 )
+@cache()
 async def query_entities(search: Search = Depends()):
     res = get_query_from_triplestore_v2(search, "search_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -148,6 +153,7 @@ async def query_entities(search: Search = Depends()):
     tags=["Entities endpoints"],
     description="Endpoint that allows to bulk retrieve entities when IDs are known.",
 )
+@cache()
 async def bulk_retrieve_entities(
     ids: RequestID,
     query: QueryBase = Depends(),
@@ -168,6 +174,7 @@ async def bulk_retrieve_entities(
     tags=["Entities endpoints"],
     description="Endpoint that allows to retrive an entity by id.",
 )
+@cache()
 async def retrieve_entity_v2(entity_id: str):
     try:
         entity_id = toggle_urls_encoding(entity_id)
@@ -187,6 +194,7 @@ async def retrieve_entity_v2(entity_id: str):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to query and retrieve occupation concepts.",
 )
+@cache()
 async def query_occupations(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore_v2(search, "occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -202,6 +210,7 @@ async def query_occupations(search: SearchVocabs = Depends()):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to retrive any occupation by id.",
 )
+@cache()
 async def retrieve_occupation_v2(occupation_id: str):
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     try:
@@ -222,6 +231,7 @@ async def retrieve_occupation_v2(occupation_id: str):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to bulk retrieve occupations when IDs are known.",
 )
+@cache()
 async def bulk_retrieve_voc_occupations(
     ids: RequestID,
     query: QueryBase = Depends(),
@@ -242,6 +252,7 @@ async def bulk_retrieve_voc_occupations(
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to query and retrieve event roles.",
 )
+@cache()
 async def query_event_roles(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore_v2(search, "event_role_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -257,6 +268,7 @@ async def query_event_roles(search: SearchVocabs = Depends()):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to retrive any roles by id.",
 )
+@cache()
 async def retrieve_event_role_v2(event_role_id: str):
     try:
         event_role_id = toggle_urls_encoding(event_role_id)
@@ -279,6 +291,7 @@ async def retrieve_event_role_v2(event_role_id: str):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to bulk retrieve event roles when IDs are known.",
 )
+@cache()
 async def bulk_retrieve_voc_event_roles(
     ids: RequestID,
     query: QueryBase = Depends(),
@@ -299,6 +312,7 @@ async def bulk_retrieve_voc_event_roles(
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to query and retrieve event kinds.",
 )
+@cache()
 async def query_event_kind(search: SearchVocabs = Depends()):
     res = get_query_from_triplestore_v2(search, "event_kind_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -314,6 +328,7 @@ async def query_event_kind(search: SearchVocabs = Depends()):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to retrive any event kinds by id.",
 )
+@cache()
 async def retrieve_event_kind_v2(event_kind_id: str):
     try:
         event_kind_id = toggle_urls_encoding(event_kind_id)
@@ -333,6 +348,7 @@ async def retrieve_event_kind_v2(event_kind_id: str):
     tags=["Vocabulary endpoints"],
     description="Endpoint that allows to bulk retrieve event kinds when IDs are known.",
 )
+@cache()
 async def bulk_retrieve_voc_event_kinds(
     ids: RequestID,
     query: QueryBase = Depends(),
@@ -353,6 +369,7 @@ async def bulk_retrieve_voc_event_kinds(
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations",
 )
+@cache()
 async def statistics_occupations(search: SearchOccupationsStats = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -367,6 +384,7 @@ async def statistics_occupations(search: SearchOccupationsStats = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts of the occupations for known IDs",
 )
+@cache()
 async def statistics_occupations_bulk(ids: RequestID):
     res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_occupation_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -381,6 +399,7 @@ async def statistics_occupations_bulk(ids: RequestID):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of deaths",
 )
+@cache()
 async def statistics_death(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_deathdate_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -403,6 +422,7 @@ async def statistics_death(search: StatisticsBase = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of death of known IDs",
 )
+@cache()
 async def statistics_death_bulk(ids: RequestID, search: StatisticsBinsQuery = Depends()):
     res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_deathdate_v2_1.sparql")
     if len(res) == 0:
@@ -427,6 +447,7 @@ async def statistics_death_bulk(ids: RequestID, search: StatisticsBinsQuery = De
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of birth",
 )
+@cache()
 async def statistics_birth(search: StatisticsBase = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_birthdate_v2_1.sparql")
     res = flatten_rdf_data(res)
@@ -449,6 +470,7 @@ async def statistics_birth(search: StatisticsBase = Depends()):
     tags=["Statistics"],
     description="Endpoint that returns counts in bins for date of birth of known IDs",
 )
+@cache()
 async def statistics_birth_bulk(ids: RequestID, search: StatisticsBinsQuery = Depends()):
     res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_birthdate_v2_1.sparql")
     if len(res) == 0:
