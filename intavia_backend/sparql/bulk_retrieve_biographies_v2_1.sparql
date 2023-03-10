@@ -1,0 +1,11 @@
+PREFIX idmcore: <http://www.intavia.eu/idm-core/>
+
+SELECT ?bioText ?bioAbstract ?bioID 
+
+{% include 'add_datasets_v2_1.sparql' %}
+
+WHERE {
+    VALUES ?bioID { {% for id in ids %}<{{id}}> {% endfor %} }
+    ?bioID idmcore:full_bio_link ?bioText .
+    OPTIONAL {?bioID idmcore:short_bio_link ?bioAbstract .}
+}
