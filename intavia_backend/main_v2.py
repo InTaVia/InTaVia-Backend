@@ -4,6 +4,7 @@ import math
 import dateutil
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_cache.decorator import cache
+import requests
 
 from fastapi_versioning import version, versioned_api_route
 from intavia_backend.models_v2 import (
@@ -257,11 +258,23 @@ async def bulk_retrieve_biography_objects(
 ):
     query_dict = asdict(query)
     query_dict["ids"] = ids.id
-    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_entities_v2_1.sparql")
+    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_biographies_v2_1.sparql")
     res = flatten_rdf_data(res)
-    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
-    count = int(res[0]["count"]) if len(res) > 0 else 0
-    return {"page": query.page, "count": count, "pages": pages, "results": res}
+    fin = []
+    for r in res:
+        r_fin = {"id": toggle_urls_encoding(r["bioID"])}
+        if "bioText" in r:
+            r1 = requests.get(r["bioText"])
+            if r1.status_code == 200:
+                r_fin["text"] = r1.json()["text"]
+        if "bioAbstract" in res[0]:
+            r2 = requests.get(r["bioAbstract"])
+            if r2.status_code == 200:
+                r_fin["abstract"] = r2.json()["text"]
+        fin.append(r_fin)
+    pages = math.ceil(len(res) / query.limit) if len(res) > 0 else 0
+    count = len(res)
+    return {"page": query.page, "count": count, "pages": pages, "results": fin}
 
 
 @router.get(
@@ -274,16 +287,25 @@ async def bulk_retrieve_biography_objects(
 @cache()
 async def retrieve_biography(biography_id: str, query: Base = Depends()):
     try:
-        biography_id = toggle_urls_encoding(biography_id)
+        biography_id_decoded = toggle_urls_encoding(biography_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
     query_dict = asdict(query)
-    query_dict["biography_id"] = biography_id
-    res = get_query_from_triplestore_v2(query_dict, "get_entity_v2_1.sparql")
+    query_dict["bioID"] = biography_id_decoded
+    res = get_query_from_triplestore_v2(query_dict, "get_biography_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
-    return {"_results": flatten_rdf_data(res)}
+    fin = {"id": biography_id}
+    if "bioText" in res[0]:
+        r1 = requests.get(res[0]["bioText"]["value"])
+        if r1.status_code == 200:
+            fin["text"] = r1.json()["text"]
+    if "bioAbstract" in res[0]:
+        r2 = requests.get(res[0]["bioAbstract"]["value"])
+        if r2.status_code == 200:
+            fin["abstract"] = r2.json()["text"]
+    return fin
 
 
 @router.get(
