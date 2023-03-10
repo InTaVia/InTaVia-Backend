@@ -210,10 +210,14 @@ async def bulk_retrieve_media_objects(
 ):
     query_dict = asdict(query)
     query_dict["ids"] = ids.id
-    res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_entities_v2_1.sparql")
-    res = flatten_rdf_data(res)
-    pages = math.ceil(int(res[0]["count"]) / query.limit) if len(res) > 0 else 0
-    count = int(res[0]["count"]) if len(res) > 0 else 0
+    # res = get_query_from_triplestore_v2(query_dict, "bulk_retrieve_entities_v2_1.sparql")
+    # res = flatten_rdf_data(res)
+    res = []
+    for url in ids.id:
+        id = toggle_urls_encoding(url)
+        res.append({"id": id, "url": url})
+    pages = math.ceil(len(res) / query.limit) if len(res) > 0 else 0
+    count = len(res)
     return {"page": query.page, "count": count, "pages": pages, "results": res}
 
 
@@ -227,16 +231,16 @@ async def bulk_retrieve_media_objects(
 @cache()
 async def retrieve_media(media_id: str, query: Base = Depends()):
     try:
-        entity_id = toggle_urls_encoding(media_id)
+        media_id_url = toggle_urls_encoding(media_id)
     except:
         raise HTTPException(status_code=404, detail="Item not found")
-    query_dict = asdict(query)
-    query_dict["media_id"] = media_id
-    res = get_query_from_triplestore_v2(query_dict, "get_entity_v2_1.sparql")
+    # query_dict = asdict(query)
+    # query_dict["media_id"] = media_id
+    # res = get_query_from_triplestore_v2(query_dict, "get_entity_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
-    if len(res) == 0:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return {"_results": flatten_rdf_data(res)}
+    # if len(res) == 0:
+    #    raise HTTPException(status_code=404, detail="Item not found")
+    return {"id": media_id, "url": media_id_url}
 
 
 @router.post(
