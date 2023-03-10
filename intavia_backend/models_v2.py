@@ -149,6 +149,14 @@ def pp_base64(data):
     return base64.urlsafe_b64encode(data.encode("utf-8")).decode("utf-8")
 
 
+def pp_base64_to_list(data):
+    if data is None:
+        return None
+    if isinstance(data, list):
+        return [base64.urlsafe_b64encode(item2.encode("utf-8")).decode("utf-8") for item2 in data]
+    return [base64.urlsafe_b64encode(data.encode("utf-8")).decode("utf-8")]
+
+
 class EnumVocabsRelation(str, Enum):
     broader = "broader"
     narrower = "narrower"
@@ -215,21 +223,17 @@ class InternationalizedLabel(IntaViaBackendBaseModel):
         super().__init__(**data)
 
 
-class MediaResource(RDFUtilsModelBaseClass):
+class MediaResource(BaseModel):
     """Object for representing media resources"""
 
-    id: str = Field(..., rdfconfig=FieldConfigurationRDF(path="mediaObject", anchor=True, encode_function=pp_base64))
-    label: InternationalizedLabel | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="mediaObjectLabel", default_dict_key="default")
-    )
+    id: str
+    label: InternationalizedLabel | None = None
     description: str | None = None
     attribution: str | None = None
     url: HttpUrl
     # TODO: Should be an actual vocabulary.
     # kind: MediaKind;
-    kind: EnumMediaObjectKind = Field(
-        EnumMediaObjectKind.image, rdfconfig=FieldConfigurationRDF(path="mediaObjectKind")
-    )
+    kind: EnumMediaObjectKind = EnumMediaObjectKind.image
 
 
 class Biography(RDFUtilsModelBaseClass):
@@ -292,7 +296,7 @@ class Entity(IntaViaBackendBaseModel):
     )
     description: str | None = None
     media: list[str] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="mediaObject", anchor=True, encode_function=pp_base64)
+        None, rdfconfig=FieldConfigurationRDF(path="mediaObject", encode_function=pp_base64_to_list)
     )
     biographies: list[str] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="biographyObject", anchor=True, encode_function=pp_base64)
@@ -360,7 +364,7 @@ class PaginatedResponseEntities(PaginatedResponseBase):
 
 
 class PaginatedResponseMedia(PaginatedResponseBase):
-    results: typing.List[MediaResource] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+    results: typing.List[MediaResource] = []
 
 
 class PaginatedResponseBiography(PaginatedResponseBase):
