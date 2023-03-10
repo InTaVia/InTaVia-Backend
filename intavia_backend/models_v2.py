@@ -236,11 +236,11 @@ class MediaResource(BaseModel):
     kind: EnumMediaObjectKind = EnumMediaObjectKind.image
 
 
-class Biography(RDFUtilsModelBaseClass):
+class Biography(BaseModel):
     """Object for representing biographies"""
 
     id: str
-    title: str
+    title: str | None = None
     abstract: str | None = None
     text: str
     citation: str | None = None
@@ -299,7 +299,7 @@ class Entity(IntaViaBackendBaseModel):
         None, rdfconfig=FieldConfigurationRDF(path="mediaObject", encode_function=pp_base64_to_list)
     )
     biographies: list[str] | None = Field(
-        None, rdfconfig=FieldConfigurationRDF(path="biographyObject", anchor=True, encode_function=pp_base64)
+        None, rdfconfig=FieldConfigurationRDF(path="biographyObject", encode_function=pp_base64_to_list)
     )
     geometry: typing.Union[Polygon, Point] | None = Field(
         None, rdfconfig=FieldConfigurationRDF(path="geometry", callback_function=pp_lat_long, bypass_data_mapping=True)
@@ -368,7 +368,7 @@ class PaginatedResponseMedia(PaginatedResponseBase):
 
 
 class PaginatedResponseBiography(PaginatedResponseBase):
-    results: typing.List[Biography] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
+    results: typing.List[Biography] = []
 
 
 class PaginatedResponseEvents(PaginatedResponseBase):
