@@ -1,8 +1,11 @@
 
 {%- if q -%}
-?entity crm:P1_is_identified_by ?appellation .
+{?entity crm:P1_is_identified_by ?appellation .
 ?appellation a crm:E33_E41_Linguistic_Appellation .
 ?appellation rdfs:label ?entityLabel .
+} UNION {
+?entity rdfs:label ?entityLabel .
+}
 ?entityLabel bds:search "{{q}}" .
 {%- endif -%}
 {%- if occupation -%}

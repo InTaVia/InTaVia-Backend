@@ -12,4 +12,5 @@ OPTIONAL {?entity bioc:bearer_of ?role .
         ?role a ?role_type
 }
 OPTIONAL {?entity crm:P168_place_is_defined_by/crm:P168_place_is_defined_by ?geometry}
+OPTIONAL {?entity ^crm:P70_documents ?mediaObject }
 BIND(COALESCE(?entityLabelPre, ?defaultEntityLabel) AS ?entityLabel)
