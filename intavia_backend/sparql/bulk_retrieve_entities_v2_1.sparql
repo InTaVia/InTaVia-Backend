@@ -7,7 +7,7 @@ PREFIX bioc: <http://ldf.fi/schema/bioc/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
-?event ?linkedIds ?count ?geometry ?role_type
+?event ?linkedIds ?count ?geometry ?role_type ?mediaObject ?biographyObject
 
 {% include 'add_datasets_v2_1.sparql' %}
 
