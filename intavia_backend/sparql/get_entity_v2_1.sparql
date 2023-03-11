@@ -8,7 +8,7 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
 ?event ?eventLabel ?role ?roleLabel ?start ?end ?role_type 
-?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds ?count ?geometry
+?evPlace ?evPlaceLatLong ?evPlaceLabel ?linkedIds ?count ?geometry ?mediaObject ?biographyObject
 
 {% include 'add_datasets_v2_1.sparql' %}
 
