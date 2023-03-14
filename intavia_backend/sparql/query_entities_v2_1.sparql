@@ -39,12 +39,6 @@
     ?diedAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedAfterFilter .
     FILTER(?diedAfterFilter > xsd:dateTime("{{died_after}}"))
 {%- endif -%}
-{%- if kind -%}
-    {%- for k1 in kind -%}
-    {?entity a {{k1.get_rdf_uri()}}}
-        {% if not loop.last %}UNION{% endif %}
-    {%- endfor -%}
-{%- endif -%}
 {%- if gender -%}
     ?entity bioc:has_gender|bioc:gender bioc:{{gender.name}} .
 {%- endif -%}
@@ -61,9 +55,9 @@
     ?evEntityLabel bds:search "{{related_entity}}" .
 {%- endif -%}
 {%- if related_entities_id -%}
-?entity bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role ?event .
+?entity bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc:occured_in_the_presence_of_in_role ?event .
     {%- for entity in related_entities_id -%}
-        {?event (crm:P7_took_place_at|(bioc:had_participant_in_role/^bioc:bearer_of)) <{{entity}}>}
+        {?event crm:P7_took_place_at|((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of) <{{entity}}>}
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}

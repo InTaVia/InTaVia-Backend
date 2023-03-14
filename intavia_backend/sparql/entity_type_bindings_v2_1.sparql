@@ -1,3 +1,10 @@
+{%- if kind -%}
+    {%- for k1 in kind -%}
+    {?entity a {{k1.get_rdf_uri()}}
+    BIND("{{k1}}" AS ?entityTypeLabel)}
+        {% if not loop.last %}UNION{% endif %}
+    {%- endfor -%}
+{%- else -%}
 {?entity a idmcore:Person_Proxy 
 BIND("person" AS ?entityTypeLabel)
 } UNION {
@@ -9,4 +16,5 @@ BIND("place" AS ?entityTypeLabel)
 } UNION {
     ?entity a idm:CHO_Proxy
     BIND("cultural-heritage-object" AS ?entityTypeLabel)
-  } 
+  }
+{%- endif -%}
