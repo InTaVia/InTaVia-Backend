@@ -33,6 +33,7 @@ class DatasetsEnum(str, Enum):
     SBI = "http://www.intavia.eu/sbi"
     CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/test/v1"
     CHO_test2 = "http://data.acdh.oeaw.ac.at/intavia/cho/v1"
+    EDM_test = "http://edm-enrich-fixed.intavia.eu"
 
 
 class GenderqueryEnum(str, Enum):
@@ -59,7 +60,8 @@ class ReconTypeEnum(str, Enum):
 class Base:
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet, DatasetsEnum.SBI, DatasetsEnum.CHO_test2],
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.BNet,
+                 DatasetsEnum.SBI, DatasetsEnum.CHO_test2, DatasetsEnum.EDM_test],
     )
 
 
