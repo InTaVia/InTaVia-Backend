@@ -29,11 +29,11 @@ def toggle_urls_encoding(url):
 class DatasetsEnum(str, Enum):
     APIS = "https://apis.acdh.oeaw.ac.at/data#v1"
     BSampo = "http://ldf.fi/nbf/data"
-    # BNet = "http://data.biographynet.nl/"
+    BNet = "http://data.biographynet.nl/"
     SBI = "http://www.intavia.eu/sbi"
     CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/test/v1"
     CHO_test2 = "http://data.acdh.oeaw.ac.at/intavia/cho/v1"
-    # EDM_test = "http://edm-enrich-fixed.intavia.eu"
+    EDM_test = "http://edm-enrich-fixed.intavia.eu"
 
 
 class GenderqueryEnum(str, Enum):
