@@ -61,7 +61,7 @@ class Base:
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
         default=[DatasetsEnum.APIS, DatasetsEnum.BSampo,
-                 DatasetsEnum.SBI, DatasetsEnum.CHO_test2],
+                 DatasetsEnum.SBI, DatasetsEnum.CHO_test2, DatasetsEnum.BNet],
     )
 
 
