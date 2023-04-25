@@ -1,3 +1,12 @@
+## [0.2.38](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.37...v0.2.38) (2023-04-25)
+
+
+### Bug Fixes
+
+* runs build on push and re-adds skip ci to release ([3c35cfa](https://github.com/InTaVia/InTaVia-Backend/commit/3c35cfa158e23f56ab91ddc5bfd52f6639f5e8a0))
+
+
+
 ## [0.2.37](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.36...v0.2.37) (2023-04-25)
 
 
