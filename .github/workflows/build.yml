@@ -1,8 +1,8 @@
 name: Build Image
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
 
 jobs:
   setup_workflow_env:
