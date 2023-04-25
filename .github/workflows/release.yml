@@ -19,7 +19,6 @@ jobs:
         github-token: ${{ secrets.github_token }}
         version-file: './pyproject.toml'
         version-path: 'tool.poetry.version'
-        skip-ci: false
     - name: Create Release
       uses: actions/create-release@v1
       if: ${{ steps.changelog.outputs.skipped == 'false' }}
