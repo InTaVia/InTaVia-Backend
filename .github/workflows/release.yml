@@ -8,7 +8,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    name: Conventional Changelog Action
-    uses: TriPSs/conventional-changelog-action@v3
-    with:
-      github-token: ${{ secrets.github_token }}
+    steps:
+    - name: Conventional Changelog Action
+      uses: TriPSs/conventional-changelog-action@v3
+      with:
+        github-token: ${{ secrets.github_token }}
