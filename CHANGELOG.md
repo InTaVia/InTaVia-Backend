@@ -1,3 +1,12 @@
+## [0.2.37](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.36...v0.2.37) (2023-04-25)
+
+
+### Bug Fixes
+
+* removes release run on chore and removes skip ci from release ([e45cdd4](https://github.com/InTaVia/InTaVia-Backend/commit/e45cdd421b035afe39e349fd49537800105c370a))
+
+
+
 ## [0.2.36](https://github.com/InTaVia/InTaVia-Backend/compare/v0.1.0...v0.2.36) (2023-04-25)
 
 
