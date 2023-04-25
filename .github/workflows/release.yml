@@ -1,0 +1,14 @@
+name: release
+
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Conventional Changelog Action
+    uses: TriPSs/conventional-changelog-action@v3
+    with:
+      github-token: ${{ secrets.github_token }}
