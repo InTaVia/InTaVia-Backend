@@ -21,7 +21,7 @@ profile = "black"
 
 [tool.poetry]
 name = "intavia-backend"
-version = "0.2.39"
+version = "0.2.40"
 description = ""
 authors = [ "Matthias Schlögl <matthias.schloegl@oeaw.ac.at>" ]
 license = "MIT"
