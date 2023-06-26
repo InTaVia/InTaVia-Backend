@@ -19,7 +19,9 @@ def toggle_urls_encoding(url):
         str: The encoded/decoded url
     """
     if "/v2/api" in url:
-        return base64.urlsafe_b64decode(url.split("/")[-1].encode("utf-8")).decode("utf-8")
+        return base64.urlsafe_b64decode(url.split("/")[-1].encode("utf-8")).decode(
+            "utf-8"
+        )
     elif "/" in url:
         return base64.urlsafe_b64encode(url.encode("utf-8")).decode("utf-8")
     else:
@@ -60,7 +62,13 @@ class ReconTypeEnum(str, Enum):
 class Base:
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.SBI, DatasetsEnum.CHO_test, DatasetsEnum.BNet],
+        default=[
+            DatasetsEnum.APIS,
+            DatasetsEnum.BSampo,
+            DatasetsEnum.SBI,
+            DatasetsEnum.CHO_test,
+            DatasetsEnum.BNet,
+        ],
     )
 
 
@@ -83,20 +91,38 @@ class SearchEventsBase:
         description="Searches across labels of all events. When not using quotes, the query will be wildcarded. When using quotes, \
             the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
     )
-    related_entities: str = Query(default=None, max_length=200, description="Searches labels of related entities")
-    related_entities_id: typing.List[str] = Query(default=None, description="Searches related entities using IDs")
-    role: str = Query(default=None, max_length=200, description="Searches labels of roles")
-    role_id: typing.List[str] = Query(default=None, description="Searches roles using IDs")
-    event_kind: str = Query(default=None, max_length=200, description="Searches labels of event kinds")
-    event_kind_id: typing.List[str] = Query(default=None, description="Searches event kinds using IDs")
+    related_entities: str = Query(
+        default=None, max_length=200, description="Searches labels of related entities"
+    )
+    related_entities_id: typing.List[str] = Query(
+        default=None, description="Searches related entities using IDs"
+    )
+    role: str = Query(
+        default=None, max_length=200, description="Searches labels of roles"
+    )
+    role_id: typing.List[str] = Query(
+        default=None, description="Searches roles using IDs"
+    )
+    event_kind: str = Query(
+        default=None, max_length=200, description="Searches labels of event kinds"
+    )
+    event_kind_id: typing.List[str] = Query(
+        default=None, description="Searches event kinds using IDs"
+    )
 
     def __post_init__(self):
+        super().__post_init__()
         if self.related_entities_id is not None:
-            self.__setattr__("related_entities_id", [toggle_urls_encoding(x) for x in self.related_entities_id])
+            self.__setattr__(
+                "related_entities_id",
+                [toggle_urls_encoding(x) for x in self.related_entities_id],
+            )
         if self.role_id is not None:
             self.__setattr__("role_id", [toggle_urls_encoding(x) for x in self.role_id])
         if self.event_kind_id is not None:
-            self.__setattr__("event_kind_id", [toggle_urls_encoding(x) for x in self.event_kind_id])
+            self.__setattr__(
+                "event_kind_id", [toggle_urls_encoding(x) for x in self.event_kind_id]
+            )
         if self.q is not None:
             if not self.q.startswith('"') and not self.q.endswith('"'):
                 self.__setattr__("q", f"*{self.q}*")
@@ -112,10 +138,17 @@ class Search_Base:
         description="Searches across labels of all entity proxies. When not using quotes, the query will be wildcarded. When using quotes, \
             the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
     )
-    occupation: str = Query(default=None, max_length=200, description="Searches the labels of the Occupations")
-    gender: GenderqueryEnum = Query(default=None, description="Filters Persons according to gender")
+    occupation: str = Query(
+        default=None,
+        max_length=200,
+        description="Searches the labels of the Occupations",
+    )
+    gender: GenderqueryEnum = Query(
+        default=None, description="Filters Persons according to gender"
+    )
     gender_id: HttpUrl = Query(
-        default=None, description="Filters Persons according to gender. Uses URIs rather than the enum."
+        default=None,
+        description="Filters Persons according to gender. Uses URIs rather than the enum.",
     )
     born_before: str | datetime.datetime = Query(
         default=None, description="Filters for Persons born before a certain date"
@@ -132,32 +165,53 @@ class Search_Base:
     occupations_id: typing.List[str] | None = Query(
         default=None, description="filters for persons with occupations using IDs"
     )
-    related_entity: str = Query(default=None, description="Filter for entities related to the searched entity")
-    related_entities_id: typing.List[str] = Query(
-        default=None, description="Filter for entities related to the searched entity using URIs"
+    related_entity: str = Query(
+        default=None, description="Filter for entities related to the searched entity"
     )
-    event_role: str = Query(default=None, description="Filter for event roles related to the searched entity")
+    related_entities_id: typing.List[str] = Query(
+        default=None,
+        description="Filter for entities related to the searched entity using URIs",
+    )
+    event_role: str = Query(
+        default=None,
+        description="Filter for event roles related to the searched entity",
+    )
     event_roles_id: typing.List[str] = Query(
-        default=None, description="Filter for event roles related to the searched entity using IDs"
+        default=None,
+        description="Filter for event roles related to the searched entity using IDs",
     )
 
     def __post_init__(self):
-        if hasattr(self, "page"):
-            self._offset = (self.page - 1) * self.limit
+        super().__post_init__()
         if self.born_before is not None:
-            self.__setattr__("born_before", parse(self.born_before).strftime("%Y-%m-%dT00:00:00"))
+            self.__setattr__(
+                "born_before", parse(self.born_before).strftime("%Y-%m-%dT00:00:00")
+            )
         if self.born_after is not None:
-            self.__setattr__("born_after", parse(self.born_after).strftime("%Y-%m-%dT00:00:00"))
+            self.__setattr__(
+                "born_after", parse(self.born_after).strftime("%Y-%m-%dT00:00:00")
+            )
         if self.died_before is not None:
-            self.__setattr__("died_before", parse(self.died_before).strftime("%Y-%m-%dT00:00:00"))
+            self.__setattr__(
+                "died_before", parse(self.died_before).strftime("%Y-%m-%dT00:00:00")
+            )
         if self.died_after is not None:
-            self.__setattr__("died_after", parse(self.died_after).strftime("%Y-%m-%dT00:00:00"))
+            self.__setattr__(
+                "died_after", parse(self.died_after).strftime("%Y-%m-%dT00:00:00")
+            )
         if self.occupations_id is not None:
-            self.__setattr__("occupations_id", [toggle_urls_encoding(x) for x in self.occupations_id])
+            self.__setattr__(
+                "occupations_id", [toggle_urls_encoding(x) for x in self.occupations_id]
+            )
         if self.related_entities_id is not None:
-            self.__setattr__("related_entities_id", [toggle_urls_encoding(x) for x in self.related_entities_id])
+            self.__setattr__(
+                "related_entities_id",
+                [toggle_urls_encoding(x) for x in self.related_entities_id],
+            )
         if self.event_roles_id is not None:
-            self.__setattr__("event_roles_id", [toggle_urls_encoding(x) for x in self.event_roles_id])
+            self.__setattr__(
+                "event_roles_id", [toggle_urls_encoding(x) for x in self.event_roles_id]
+            )
         if self.q is not None:
             if not self.q.startswith('"') and not self.q.endswith('"'):
                 self.__setattr__("q", f"*{self.q}*")
@@ -169,7 +223,9 @@ class Search_Base:
 class ReconQuery(Base):
     query: str
     limit: int
-    type: ReconTypeEnum = Query(default=ReconTypeEnum.Person, description="Filter for returned entity type.")
+    type: ReconTypeEnum = Query(
+        default=ReconTypeEnum.Person, description="Filter for returned entity type."
+    )
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -184,7 +240,9 @@ class ReconQueryBatch(Base):
 
 @dataclasses.dataclass(kw_only=True)
 class Search(Search_Base, QueryBase):
-    kind: list[EntityType] = Query(default=None, description="Limit Query to entity type.")
+    kind: list[EntityType] = Query(
+        default=None, description="Limit Query to entity type."
+    )
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -206,6 +264,7 @@ class SearchVocabs(QueryBase):
     )
 
     def __post_init__(self):
+        super().__post_init__()
         if self.q is not None:
             if not self.q.startswith('"') and not self.q.endswith('"'):
                 self.__setattr__("q", f"*{self.q}*")
