@@ -1,3 +1,12 @@
+## [0.2.42](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.41...v0.2.42) (2023-06-26)
+
+
+### Bug Fixes
+
+* removes dates that fail the dateparsing ([1243fff](https://github.com/InTaVia/InTaVia-Backend/commit/1243fff0287325d42c676c5330670dfd6f2546f7)), closes [#165](https://github.com/InTaVia/InTaVia-Backend/issues/165)
+
+
+
 ## [0.2.41](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.40...v0.2.41) (2023-06-26)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * runs build on push and re-adds skip ci to release ([3c35cfa](https://github.com/InTaVia/InTaVia-Backend/commit/3c35cfa158e23f56ab91ddc5bfd52f6639f5e8a0))
-
-
-
-## [0.2.37](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.36...v0.2.37) (2023-04-25)
-
-
-### Bug Fixes
-
-* removes release run on chore and removes skip ci from release ([e45cdd4](https://github.com/InTaVia/InTaVia-Backend/commit/e45cdd421b035afe39e349fd49537800105c370a))
 
 
 
