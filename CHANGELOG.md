@@ -1,3 +1,12 @@
+## [0.2.40](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.39...v0.2.40) (2023-05-30)
+
+
+### Bug Fixes
+
+* changes named graphs to latest ([976a088](https://github.com/InTaVia/InTaVia-Backend/commit/976a088ad8ee6120053f3d7ce67e2e3169f2c999))
+
+
+
 ## [0.2.39](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.38...v0.2.39) (2023-04-25)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * adapt version path in pyproject.toml and delete changelog ([7eb5b4b](https://github.com/InTaVia/InTaVia-Backend/commit/7eb5b4bf0e3ad329b8ceec2e50e6669e334006c7))
-
-
-
-# [0.1.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.24...v0.1.0) (2023-04-25)
-
-
-### Bug Fixes
-
-* adds github release step and changes version to pyproject.toml ([2776361](https://github.com/InTaVia/InTaVia-Backend/commit/27763610707b6bc4ff681a4a0fb8ca1562cd4389))
 
 
 
