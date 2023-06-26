@@ -130,7 +130,10 @@ def flatten_rdf_data(data: dict) -> list:
                 if "value" in v:
                     if "datatype" in v:
                         if v["datatype"] == "http://www.w3.org/2001/XMLSchema#dateTime":
-                            v["value"] = datetime.datetime.fromisoformat(str(v["value"]).replace("Z", "+00:00"))
+                            try:
+                                v["value"] = datetime.datetime.fromisoformat(str(v["value"]).replace("Z", "+00:00"))
+                            except ValueError:
+                                continue  # FIXME: this is removing dates before 0, should be fixed
                         elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#integer":
                             v["value"] = int(v["value"])
                         elif v["datatype"] == "http://www.w3.org/2001/XMLSchema#boolean":
