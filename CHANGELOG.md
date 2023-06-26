@@ -1,3 +1,12 @@
+## [0.2.41](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.40...v0.2.41) (2023-06-26)
+
+
+### Bug Fixes
+
+* adds calls to super to correctly pass qp to sparql ([faf1a5d](https://github.com/InTaVia/InTaVia-Backend/commit/faf1a5d6cd3ff82a04649df94870842395483f9c)), closes [#155](https://github.com/InTaVia/InTaVia-Backend/issues/155)
+
+
+
 ## [0.2.40](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.39...v0.2.40) (2023-05-30)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * removes release run on chore and removes skip ci from release ([e45cdd4](https://github.com/InTaVia/InTaVia-Backend/commit/e45cdd421b035afe39e349fd49537800105c370a))
-
-
-
-## [0.2.36](https://github.com/InTaVia/InTaVia-Backend/compare/v0.1.0...v0.2.36) (2023-04-25)
-
-
-### Bug Fixes
-
-* adapt version path in pyproject.toml and delete changelog ([7eb5b4b](https://github.com/InTaVia/InTaVia-Backend/commit/7eb5b4bf0e3ad329b8ceec2e50e6669e334006c7))
 
 
 
