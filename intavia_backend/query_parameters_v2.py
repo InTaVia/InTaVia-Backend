@@ -31,9 +31,9 @@ class DatasetsEnum(str, Enum):
     BSampo = "http://ldf.fi/nbf/data"
     BNet = "http://data.biographynet.nl/"
     SBI = "http://www.intavia.eu/sbi"
-    CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/v5"
+    CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/v6"
     CHO_test2 = "http://data.acdh.oeaw.ac.at/intavia/cho/v1"
-    EDM_test = "http://edm-enrich2023-05-15.intavia.eu"
+    EDM_test = "http://edm-enrich2023-06-14.intavia.eu"
 
 
 class GenderqueryEnum(str, Enum):
@@ -60,8 +60,7 @@ class ReconTypeEnum(str, Enum):
 class Base:
     datasets: list[DatasetsEnum] = Query(
         description="Select datasets to limit query to",
-        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo,
-                 DatasetsEnum.SBI, DatasetsEnum.CHO_test, DatasetsEnum.BNet],
+        default=[DatasetsEnum.APIS, DatasetsEnum.BSampo, DatasetsEnum.SBI, DatasetsEnum.CHO_test, DatasetsEnum.BNet],
     )
 
 
