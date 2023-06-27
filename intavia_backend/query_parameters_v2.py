@@ -31,7 +31,7 @@ def toggle_urls_encoding(url):
 class DatasetsEnum(str, Enum):
     APIS = "http://apis.acdh.oeaw.ac.at/data/v5"
     BSampo = "http://ldf.fi/nbf/data"
-    BNet = "http://data.biographynet.nl/"
+    BNet = "http://data.biographynet.nl"
     SBI = "http://www.intavia.eu/sbi"
     CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/v6"
     CHO_test2 = "http://data.acdh.oeaw.ac.at/intavia/cho/v1"
