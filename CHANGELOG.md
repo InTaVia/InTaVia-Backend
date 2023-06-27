@@ -1,3 +1,12 @@
+## [0.2.43](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.42...v0.2.43) (2023-06-27)
+
+
+### Bug Fixes
+
+* fixes named graph URI for BNet ([ecf5b07](https://github.com/InTaVia/InTaVia-Backend/commit/ecf5b079591fa6798cae13bc721cd2b46e4eba40)), closes [#168](https://github.com/InTaVia/InTaVia-Backend/issues/168)
+
+
+
 ## [0.2.42](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.41...v0.2.42) (2023-06-26)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * add BNet as default dataset again ([be60dab](https://github.com/InTaVia/InTaVia-Backend/commit/be60dabd82e62c0ec6b17f45f475c56bdb7137ab))
-
-
-
-## [0.2.38](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.37...v0.2.38) (2023-04-25)
-
-
-### Bug Fixes
-
-* runs build on push and re-adds skip ci to release ([3c35cfa](https://github.com/InTaVia/InTaVia-Backend/commit/3c35cfa158e23f56ab91ddc5bfd52f6639f5e8a0))
 
 
 
