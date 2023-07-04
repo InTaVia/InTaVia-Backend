@@ -1,3 +1,13 @@
+# [0.3.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.43...v0.3.0) (2023-07-04)
+
+
+### Features
+
+* adds config for keeping original sort ([36bdbd6](https://github.com/InTaVia/InTaVia-Backend/commit/36bdbd6f6bb8fde24b3c7dfe03912ad838ee17ae))
+* changes entities SPARQL queries to order by rank ([38efa44](https://github.com/InTaVia/InTaVia-Backend/commit/38efa4437591952d6ae905f7a63aed395c9cf487))
+
+
+
 ## [0.2.43](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.42...v0.2.43) (2023-06-27)
 
 
@@ -31,15 +41,6 @@
 ### Bug Fixes
 
 * changes named graphs to latest ([976a088](https://github.com/InTaVia/InTaVia-Backend/commit/976a088ad8ee6120053f3d7ce67e2e3169f2c999))
-
-
-
-## [0.2.39](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.38...v0.2.39) (2023-04-25)
-
-
-### Bug Fixes
-
-* add BNet as default dataset again ([be60dab](https://github.com/InTaVia/InTaVia-Backend/commit/be60dabd82e62c0ec6b17f45f475c56bdb7137ab))
 
 
 
