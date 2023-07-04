@@ -1,6 +1,5 @@
-
-{%- if q -%}
 ?entity (crm:P1_is_identified_by/rdfs:label)|rdfs:label ?entityLabel .
+{%- if q -%}
 ?entityLabel bds:search "{{q}}" .
 ?entityLabel bds:rank ?score .
 {%- endif -%}
