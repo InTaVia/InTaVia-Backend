@@ -2,6 +2,7 @@
 {%- if q -%}
 ?entity (crm:P1_is_identified_by/rdfs:label)|rdfs:label ?entityLabel .
 ?entityLabel bds:search "{{q}}" .
+?entityLabel bds:rank ?score .
 {%- endif -%}
 {%- if occupation -%}
     ?entity bioc:has_occupation ?occupation1 . 
