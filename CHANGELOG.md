@@ -1,3 +1,12 @@
+## [0.3.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.3.0...v0.3.1) (2023-07-04)
+
+
+### Bug Fixes
+
+* removes entities without labels from result set ([b408dba](https://github.com/InTaVia/InTaVia-Backend/commit/b408dbaaf084433eda8410f9304c5c4c94aa3850))
+
+
+
 # [0.3.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.43...v0.3.0) (2023-07-04)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * adds calls to super to correctly pass qp to sparql ([faf1a5d](https://github.com/InTaVia/InTaVia-Backend/commit/faf1a5d6cd3ff82a04649df94870842395483f9c)), closes [#155](https://github.com/InTaVia/InTaVia-Backend/issues/155)
-
-
-
-## [0.2.40](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.39...v0.2.40) (2023-05-30)
-
-
-### Bug Fixes
-
-* changes named graphs to latest ([976a088](https://github.com/InTaVia/InTaVia-Backend/commit/976a088ad8ee6120053f3d7ce67e2e3169f2c999))
 
 
 
