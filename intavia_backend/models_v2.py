@@ -362,6 +362,9 @@ class PaginatedResponseBase(IntaViaBackendBaseModel):
 class PaginatedResponseEntities(PaginatedResponseBase):
     results: typing.List[Entity] = Field([], rdfconfig=FieldConfigurationRDF(path="results"))
 
+    class Config(PaginatedResponseBase.Config):
+        sort_key = {"original key": "entity", "object list": "results"}
+
 
 class PaginatedResponseMedia(PaginatedResponseBase):
     results: typing.List[MediaResource] = []
