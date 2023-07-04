@@ -13,14 +13,14 @@ SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?n
 {% include 'add_datasets_v2_1.sparql' %}
 
 WITH {
-SELECT DISTINCT ?entity ?entityTypeLabel 
+SELECT DISTINCT ?entity ?entityTypeLabel ?score 
 
 {% include 'add_datasets_v2_1.sparql' %}
 
 WHERE {
 {% include 'query_entities_v2_1.sparql' %}
 {% include 'entity_type_bindings_v2_1.sparql' %}
-} ORDER BY ?entity
+} {% if q %}ORDER BY ?score ?entity {% else %} ORDER BY ?entity {% endif %}
 LIMIT {{limit}}
 {% if _offset > 0 %}OFFSET {{_offset}}{% endif %}
 } AS %query_set
@@ -42,4 +42,4 @@ WHERE {
 INCLUDE %query_set
 INCLUDE %count_set
 {% include 'retrieve_entities_v2_1.sparql' %}
-}
+}{% if q %}ORDER BY ?score ?entity{% endif %}
