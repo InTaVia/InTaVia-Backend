@@ -254,6 +254,12 @@ class SearchOccupationsStats(Search_Base, QueryBase):
 class SearchEvents(SearchEventsBase, QueryBase):
     pass
 
+@dataclasses.dataclass(kw_only=True)
+class SearchEventKindVocab(QueryBase):
+    q: str = Query(
+        default=None,
+        description="Query for a label in the Vocabulary. Matching is done on substring level.",
+    )
 
 @dataclasses.dataclass(kw_only=True)
 class SearchVocabs(QueryBase):

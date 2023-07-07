@@ -30,6 +30,7 @@ from intavia_backend.query_parameters_v2 import (
     RequestID,
     Search,
     Search_Base,
+    SearchEventKindVocab,
     SearchEvents,
     SearchOccupationsStats,
     SearchVocabs,
@@ -438,7 +439,7 @@ async def bulk_retrieve_voc_event_roles(
     description="Endpoint that allows to query and retrieve event kinds.",
 )
 @cache()
-async def query_event_kind(search: SearchVocabs = Depends()):
+async def query_event_kind(search: SearchEventKindVocab = Depends()):
     res = get_query_from_triplestore_v2(search, "event_kind_v2_1.sparql")
     res = flatten_rdf_data(res)
     pages = math.ceil(int(res[0]["count"]) / search.limit) if len(res) > 0 else 0
