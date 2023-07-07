@@ -1,3 +1,12 @@
+## [0.4.2](https://github.com/InTaVia/InTaVia-Backend/compare/v0.4.1...v0.4.2) (2023-07-07)
+
+
+### Bug Fixes
+
+* fixes an issue with vocabs in search not showing up ([9ca2877](https://github.com/InTaVia/InTaVia-Backend/commit/9ca2877fc21ed53f77dc13d22de2d0ec540b984b))
+
+
+
 ## [0.4.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.4.0...v0.4.1) (2023-07-07)
 
 
@@ -39,15 +48,6 @@
 
 * adds config for keeping original sort ([36bdbd6](https://github.com/InTaVia/InTaVia-Backend/commit/36bdbd6f6bb8fde24b3c7dfe03912ad838ee17ae))
 * changes entities SPARQL queries to order by rank ([38efa44](https://github.com/InTaVia/InTaVia-Backend/commit/38efa4437591952d6ae905f7a63aed395c9cf487))
-
-
-
-## [0.2.43](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.42...v0.2.43) (2023-06-27)
-
-
-### Bug Fixes
-
-* fixes named graph URI for BNet ([ecf5b07](https://github.com/InTaVia/InTaVia-Backend/commit/ecf5b079591fa6798cae13bc721cd2b46e4eba40)), closes [#168](https://github.com/InTaVia/InTaVia-Backend/issues/168)
 
 
 
