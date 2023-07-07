@@ -75,7 +75,7 @@ jobs:
     uses: InTaVia/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
     secrets: inherit
     with:
-      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}${{ needs.setup_workflow_env.outputs.image_tagged }}/${{ github.ref_name }}
+      DOCKER_TAG: ghcr.io/intavia/intavia-backend/deploy-with-old-datastructure-for-conf:deploy-with-old-datastructure-for-conf
       APP_NAME: ${{ needs.setup_workflow_env.outputs.APP_NAME }}
       APP_ROOT: ${{ needs.setup_workflow_env.outputs.APP_ROOT }}
       SERVICE_ID: ${{ needs.setup_workflow_env.outputs.SERVICE_ID }}
