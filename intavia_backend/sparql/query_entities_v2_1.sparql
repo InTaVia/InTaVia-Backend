@@ -1,6 +1,4 @@
 ?entity_proxy (crm:P1_is_identified_by/rdfs:label)|rdfs:label ?entityLabel .
-GRAPH <http://www.intavia.eu/graphs/provided_persons> 
-     {?entity_proxy idmcore:person_proxy_for ?entity .}
 {%- if q -%}
 ?entityLabel bds:search "{{q}}" .
 ?entityLabel bds:rank ?score .

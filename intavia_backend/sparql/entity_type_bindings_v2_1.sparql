@@ -2,19 +2,40 @@
     {%- for k1 in kind -%}
     {?entity_proxy a {{k1.get_rdf_uri()}}
     BIND("{{k1}}" AS ?entityTypeLabel)}
+    {%- if k1 == 'person' -%}
+        GRAPH <http://www.intavia.eu/graphs/provided_persons> 
+            {?entity_proxy idmcore:proxy_for ?entity .}
+    {%- elif k1 == 'group' -%}
+        GRAPH <http://www.intavia.eu/graphs/provided_groups> 
+            {?entity_proxy idmcore:proxy_for ?entity .}
+    {%- elif k1 == 'place' -%}
+        GRAPH <http://www.intavia.eu/graphs/provided_places> 
+            {?entity_proxy idmcore:proxy_for ?entity .}
+    {%- elif k1 == 'cultural-heritage-object' -%}
+        GRAPH <http://www.intavia.eu/graphs/provided_cho> 
+            {?entity_proxy idmcore:proxy_for ?entity .}
+    {%- endif -%}
         {% if not loop.last %}UNION{% endif %}
     {%- endfor -%}
 {%- else -%}
 {?entity_proxy a idmcore:Person_Proxy 
 BIND("person" AS ?entityTypeLabel)
+GRAPH <http://www.intavia.eu/graphs/provided_persons> 
+     {?entity_proxy idmcore:proxy_for ?entity .}
 } UNION {
 ?entity_proxy a crm:E74_Group 
 BIND("group" AS ?entityTypeLabel)
+GRAPH <http://www.intavia.eu/graphs/provided_groups> 
+     {?entity_proxy idmcore:proxy_for ?entity .}
 } UNION {
 ?entity_proxy a crm:E53_Place 
 BIND("place" AS ?entityTypeLabel)
+GRAPH <http://www.intavia.eu/graphs/provided_places> 
+     {?entity_proxy idmcore:proxy_for ?entity .}
 } UNION {
     ?entity_proxy a idm:CHO_Proxy
     BIND("cultural-heritage-object" AS ?entityTypeLabel)
+GRAPH <http://www.intavia.eu/graphs/provided_cho> 
+     {?entity_proxy idmcore:proxy_for ?entity .}
   }
 {%- endif -%}
