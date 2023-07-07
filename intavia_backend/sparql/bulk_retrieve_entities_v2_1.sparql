@@ -12,7 +12,7 @@ SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?n
 {% include 'add_datasets_v2_1.sparql' %}
 
 WITH {
-SELECT DISTINCT ?entity ?entityTypeLabel 
+SELECT DISTINCT ?entity ?entityTypeLabel ?entity_proxy 
 
 {% for dataset in datasets -%}
 FROM <{{dataset.value}}>
