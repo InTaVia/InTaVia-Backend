@@ -14,3 +14,4 @@ The API serves a [Ophttps://intavia-backend.acdh-dev.oeaw.ac.at/#/StatisticsenAP
 The InTaVia backend needs Python 3.10 to be installed. To install a local dev version you can either use the vscode .devconteiner configuration or install a local version of [poetry](https://python-poetry.org/) and run `poetry install`.
 
 In addition to the InTaVia backend itself and python you need a [blazegraph](https://github.com/blazegraph) and a [redis](https://github.com/redis/redis) instance running on the default ports. Easiest is to install both via docker. A docker-compose file will follow.
+
