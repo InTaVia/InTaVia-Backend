@@ -1,12 +1,14 @@
 ?event a ?event_type .
-  ?event ((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at ?entity .
+  ?event ((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at ?entity_proxy .
+  ?entity_proxy idmcore:proxy_for ?entity .
 OPTIONAL {?event rdfs:label ?event_label }
 OPTIONAL {?event bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role ?role .
-    ?role ^bioc:bearer_of ?entity .
+    ?role ^bioc:bearer_of ?entity_proxy .
     ?role a ?role_type .
     OPTIONAL {?role rdfs:label ?role_label}
   }
-  OPTIONAL {?event crm:P7_took_place_at ?entity .
+  OPTIONAL {?event crm:P7_took_place_at ?entity_proxy .
+    ?entity_proxy idmcore:proxy_for ?entity .
     BIND("took place at" as ?role_label)
     BIND(crm:P7_took_place_at as ?role_type)
   }
