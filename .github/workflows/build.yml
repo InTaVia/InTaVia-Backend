@@ -2,7 +2,7 @@ name: Build Image
 
 on:
   push:
-    branches: [ms/deploy-with-old-datastructure-for-conf]
+    branches: [deploy-with-old-datastructure-for-conf]
 
 jobs:
   setup_workflow_env:
