@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.4.0...v0.4.1) (2023-07-07)
+
+
+### Bug Fixes
+
+* fixes an error in the bulk retrieve entities endpoints ([cc89648](https://github.com/InTaVia/InTaVia-Backend/commit/cc89648a1c54f10ea5f63dfde7ca94535ab80be7))
+
+
+
 # [0.4.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.3.1...v0.4.0) (2023-07-07)
 
 
@@ -39,15 +48,6 @@
 ### Bug Fixes
 
 * fixes named graph URI for BNet ([ecf5b07](https://github.com/InTaVia/InTaVia-Backend/commit/ecf5b079591fa6798cae13bc721cd2b46e4eba40)), closes [#168](https://github.com/InTaVia/InTaVia-Backend/issues/168)
-
-
-
-## [0.2.42](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.41...v0.2.42) (2023-06-26)
-
-
-### Bug Fixes
-
-* removes dates that fail the dateparsing ([1243fff](https://github.com/InTaVia/InTaVia-Backend/commit/1243fff0287325d42c676c5330670dfd6f2546f7)), closes [#165](https://github.com/InTaVia/InTaVia-Backend/issues/165)
 
 
 
