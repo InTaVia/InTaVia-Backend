@@ -15,7 +15,7 @@ WITH {
 
     WHERE {
         VALUES ?vocabulary { {% for id in ids %}<{{id}}> {% endfor %} }
-      ?vocabulary rdfs:subClassOf bioc:Event_Role .
+      #?vocabulary rdfs:subClassOf bioc:Event_Role . TODO: uncomment when the data is fixed
       ?vocabulary rdfs:label ?vocabulary_label .
     }
 } AS %count_set
@@ -23,7 +23,7 @@ WITH {
 WHERE {
   INCLUDE %count_set
         VALUES ?vocabulary { {% for id in ids %}<{{id}}> {% endfor %} }
-  ?vocabulary rdfs:subClassOf bioc:Event_Role .
+  #?vocabulary rdfs:subClassOf bioc:Event_Role . TODO: uncomment when the data is fixed
   ?vocabulary rdfs:label ?vocabulary_label .
   OPTIONAL{
   	?vocabulary rdfs:subClassOf ?related_vocabulary .
