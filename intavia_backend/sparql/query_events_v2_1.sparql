@@ -11,7 +11,7 @@
 {%- endif -%}
 {%- if related_entities_id -%}
     {%- for ent in related_entities_id -%}
-        {?event ((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at <{{ent}}>}
+        {?event (((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of)|crm:P7_took_place_at)/idmcore:proxy_for <{{ent}}>}
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}
