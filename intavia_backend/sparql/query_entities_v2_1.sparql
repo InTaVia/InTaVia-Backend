@@ -57,7 +57,7 @@
 {%- if related_entities_id -%}
 ?entity_proxy bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc:occured_in_the_presence_of_in_role ?event .
     {%- for entity in related_entities_id -%}
-        {?event crm:P7_took_place_at|((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of) <{{entity}}>}
+        {?event (crm:P7_took_place_at|((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of))/idmcore:proxy_for <{{entity}}>}
         {% if not loop.last %}UNION{% endif %}
         {%- endfor -%}
 {%- endif -%}
