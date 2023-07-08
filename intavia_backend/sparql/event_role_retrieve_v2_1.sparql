@@ -5,6 +5,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type
 
 {% include 'add_datasets_v2_1.sparql' %}
+FROM <https://apis.acdh.oeaw.ac.at/data>
 
 WHERE {
   BIND(<{{event_role_id}}> as ?vocabulary)

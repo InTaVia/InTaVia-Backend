@@ -5,11 +5,13 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT DISTINCT ?vocabulary ?vocabulary_label ?related_vocabulary ?relation_type ?count
 
 {% include 'add_datasets_v2_1.sparql' %}
+FROM <https://apis.acdh.oeaw.ac.at/data>
 
 WITH {
     SELECT (COUNT(DISTINCT ?vocabulary) AS ?count)
 
     {% include 'add_datasets_v2_1.sparql' %}
+    FROM <https://apis.acdh.oeaw.ac.at/data>
 
     WHERE {
         VALUES ?vocabulary { {% for id in ids %}<{{id}}> {% endfor %} }
