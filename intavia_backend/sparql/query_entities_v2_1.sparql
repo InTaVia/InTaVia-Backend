@@ -3,6 +3,12 @@
 ?entityLabel bds:search "{{q}}" .
 ?entityLabel bds:rank ?score .
 {%- endif -%}
+{%- if sameas -%}
+    {%- for uri in sameas -%}
+    {?entity_proxy owl:sameAs <{{uri}}> }
+    {% if not loop.last %}UNION{% endif %}
+    {%- endfor -%}
+{%- endif -%}
 {%- if occupation -%}
     ?entity_proxy bioc:has_occupation ?occupation1 . 
     ?occupation1 rdfs:label ?occupationLabel1 .

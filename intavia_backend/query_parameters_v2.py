@@ -138,6 +138,9 @@ class Search_Base:
         description="Searches across labels of all entity proxies. When not using quotes, the query will be wildcarded. When using quotes, \
             the query will be exact. Keep in mind that the wildcards will be added right and left of the query (wildcards are not added per token).",
     )
+    sameas: typing.List[HttpUrl] = Query(
+        default=None,
+        description="Searches for a specific entity proxy using sameAs URIs",)
     occupation: str = Query(
         default=None,
         max_length=200,
