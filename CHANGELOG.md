@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.0...v0.5.1) (2023-08-18)
+
+
+### Bug Fixes
+
+* fixes queries for related entities ([603c2d8](https://github.com/InTaVia/InTaVia-Backend/commit/603c2d81e7bc2cbb1786b03c5807ed331861e608))
+
+
+
 # [0.5.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.4.1...v0.5.0) (2023-07-13)
 
 
@@ -47,16 +56,6 @@
 ### Bug Fixes
 
 * removes entities without labels from result set ([b408dba](https://github.com/InTaVia/InTaVia-Backend/commit/b408dbaaf084433eda8410f9304c5c4c94aa3850))
-
-
-
-# [0.3.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.2.43...v0.3.0) (2023-07-04)
-
-
-### Features
-
-* adds config for keeping original sort ([36bdbd6](https://github.com/InTaVia/InTaVia-Backend/commit/36bdbd6f6bb8fde24b3c7dfe03912ad838ee17ae))
-* changes entities SPARQL queries to order by rank ([38efa44](https://github.com/InTaVia/InTaVia-Backend/commit/38efa4437591952d6ae905f7a63aed395c9cf487))
 
 
 
