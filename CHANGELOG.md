@@ -1,3 +1,12 @@
+## [0.5.2](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.1...v0.5.2) (2023-08-21)
+
+
+### Bug Fixes
+
+* fixes an issue with the pagination ([5b06d2f](https://github.com/InTaVia/InTaVia-Backend/commit/5b06d2f571185842b70d003ec4b9b07e6ddc52a3)), closes [#185](https://github.com/InTaVia/InTaVia-Backend/issues/185)
+
+
+
 ## [0.5.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.0...v0.5.1) (2023-08-18)
 
 
@@ -47,15 +56,6 @@
 ### Features
 
 * adapts SPARQL queries to combine proxies in one entity ([8451d0c](https://github.com/InTaVia/InTaVia-Backend/commit/8451d0c2eadf4f294077444fb945a4c656eece51))
-
-
-
-## [0.3.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.3.0...v0.3.1) (2023-07-04)
-
-
-### Bug Fixes
-
-* removes entities without labels from result set ([b408dba](https://github.com/InTaVia/InTaVia-Backend/commit/b408dbaaf084433eda8410f9304c5c4c94aa3850))
 
 
 
