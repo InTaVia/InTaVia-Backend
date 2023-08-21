@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.2...v1.0.0) (2023-08-21)
+
+
+* fix!: fixes linkedIds to new format ([43aa7f1](https://github.com/InTaVia/InTaVia-Backend/commit/43aa7f1b1e386a9f127e1d434e228ab06a8ae76a)), closes [#166](https://github.com/InTaVia/InTaVia-Backend/issues/166)
+
+
+### BREAKING CHANGES
+
+* changes the swagger definition to the format agreed in #166
+
+
+
 ## [0.5.2](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.1...v0.5.2) (2023-08-21)
 
 
@@ -40,22 +52,6 @@
 ### Bug Fixes
 
 * fixes an error in the bulk retrieve entities endpoints ([cc89648](https://github.com/InTaVia/InTaVia-Backend/commit/cc89648a1c54f10ea5f63dfde7ca94535ab80be7))
-
-
-
-# [0.4.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.3.1...v0.4.0) (2023-07-07)
-
-
-### Bug Fixes
-
-* adapts SPARQL event queries to use provided entities ([84ab974](https://github.com/InTaVia/InTaVia-Backend/commit/84ab97479d1d196f32499de9193eee7ca4d85ba8))
-* adds sparql queries to allow for matching via provided entities ([a02e568](https://github.com/InTaVia/InTaVia-Backend/commit/a02e568803f4e5b80e8b028c733e0301299466cf))
-* bumps util to latest to fix error with data generation ([9edd768](https://github.com/InTaVia/InTaVia-Backend/commit/9edd768170bcd1c0e091bcc157437c27f948ccd5))
-
-
-### Features
-
-* adapts SPARQL queries to combine proxies in one entity ([8451d0c](https://github.com/InTaVia/InTaVia-Backend/commit/8451d0c2eadf4f294077444fb945a4c656eece51))
 
 
 
