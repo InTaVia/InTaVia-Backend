@@ -37,6 +37,14 @@ linked_id_providers = {
         "baseUrl": "http://ldf.fi/nbf/",
         "regex_id": "nbf/([^\.]+)",
     },
+    "GeoNames": {
+        "label": "GeoNames",
+        "baseUrl": "https://sws.geonames.org"
+    },
+    "GeoNamesHttp": {
+        "label": "GeoNames",
+        "baseUrl": "http://sws.geonames.org"
+    }
 }
 
 
@@ -72,24 +80,17 @@ def pp_id_provider(field, item, data):
         item = [item]
     for it in item:
         data = {}
-        test = False
         # Test for query params and remove them
         if re.search(r"\?[^/]+$", it["id"]):
             it = "/".join(it["id"].split("/")[:-1])
         else:
             it = it["id"]
+        data["url"] = it
         for k, v in linked_id_providers.items():
             if v["baseUrl"] in it:
-                test = True
-                match = re.search(v["regex_id"], it)
-                if match:
-                    data["id"] = match.group(1)
-                    data["provider"] = LinkedIdProvider(**v)
-                    break
-                else:
-                    data["id"] = it
-        if not test:
-            data["id"] = it
+               data["label"] = v["label"] 
+        if not "label" in data:
+            data["label"] = it
         res.append(data)
     return res
 
@@ -199,14 +200,9 @@ class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):
         RDF_utils_move_errors_to_top = True
 
 
-class LinkedIdProvider(BaseModel):
-    label: str
-    baseUrl: HttpUrl
-
-
 class LinkedId(BaseModel):
-    id: str
-    provider: LinkedIdProvider | None = None
+    label: str
+    url: HttpUrl
 
 
 class InternationalizedLabel(IntaViaBackendBaseModel):
