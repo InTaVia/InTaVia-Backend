@@ -1,3 +1,4 @@
+?entity_proxy idmcore:proxy_for ?entity .
 BIND("no label provided" AS ?defaultEntityLabel)
 OPTIONAL {?entity_proxy crm:P1_is_identified_by ?appellation .
 {?appellation a crm:E33_E41_Linguistic_Appellation .} UNION {?appellation a crm:E35_Title}
