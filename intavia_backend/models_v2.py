@@ -418,6 +418,13 @@ class StatisticsBins(BaseModel):
     bins: list[Bin]
 
 
+class StatsEntityType(BaseModel):
+    person: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="personCount"))
+    place: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="placeCount"))
+    group: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="groupCount"))
+    culturalHeritageObject: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="culturalHeritageObjectCount"))
+
+
 EntityEventRelation.update_forward_refs()
 Event.update_forward_refs()
 Entity.update_forward_refs()
