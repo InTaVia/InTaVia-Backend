@@ -625,8 +625,25 @@ async def statistics_birth_bulk(ids: RequestID, search: StatisticsBinsQuery = De
     description="Endpoint that returns counts of entity types",
 )
 @cache()
-async def statistics_birth(search: Search = Depends()):
+async def statistics_entity_type(search: Search = Depends()):
     res = get_query_from_triplestore_v2(search, "statistics_entity_types_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    res_fin = {}
+    for ent in res:
+        res_fin[ent["entityTypeLabel"]] = ent["count"]
+    return res_fin
+
+
+@router.post(
+    "/api/statistics/entity_types/bulk",
+    response_model=StatsEntityType,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts of entity types",
+)
+@cache()
+async def statistics_entity_type_bulk(ids: RequestID):
+    res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_entity_types_v2_1.sparql")
     res = flatten_rdf_data(res)
     res_fin = {}
     for ent in res:
