@@ -1,3 +1,24 @@
+# [2.0.0](https://github.com/InTaVia/InTaVia-Backend/compare/v1.0.0...v2.0.0) (2023-08-23)
+
+
+### Bug Fixes
+
+* adapts entity-type-model to allow for hyphens in key ([c209647](https://github.com/InTaVia/InTaVia-Backend/commit/c209647f97777051fa3acff420ba568143f3d4af))
+
+
+### Features
+
+* adds model for entityType stats endpoint ([f8572dc](https://github.com/InTaVia/InTaVia-Backend/commit/f8572dc565d0884e97306bdecd8cb7e1d76ec32c))
+* adds route for entity type stats ([a063969](https://github.com/InTaVia/InTaVia-Backend/commit/a063969756145bbe423f83e46395f311ae522a0e))
+* adds statisticts entity type bulk route ([a6f3660](https://github.com/InTaVia/InTaVia-Backend/commit/a6f36609eb561e2832a9b9b1308b7ff666033c13))
+
+
+### BREAKING CHANGES
+
+* changes swagger definition of return shapes
+
+
+
 # [1.0.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.2...v1.0.0) (2023-08-21)
 
 
@@ -43,15 +64,6 @@
 ### Features
 
 * adds sameAs query parameter and filters in SPARQL query ([74c3535](https://github.com/InTaVia/InTaVia-Backend/commit/74c35351c8d9a587dc10b3d9cc3fa04a6e062e07)), closes [#182](https://github.com/InTaVia/InTaVia-Backend/issues/182)
-
-
-
-## [0.4.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.4.0...v0.4.1) (2023-07-07)
-
-
-### Bug Fixes
-
-* fixes an error in the bulk retrieve entities endpoints ([cc89648](https://github.com/InTaVia/InTaVia-Backend/commit/cc89648a1c54f10ea5f63dfde7ca94535ab80be7))
 
 
 
