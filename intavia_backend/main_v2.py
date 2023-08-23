@@ -21,6 +21,7 @@ from intavia_backend.models_v2 import (
     StatisticsOccupationPrelim,
     StatisticsOccupationPrelimList,
     StatisticsOccupationReturn,
+    StatsEntityType,
     VocabularyEntry,
 )
 from intavia_backend.query_parameters_v2 import (
@@ -614,3 +615,20 @@ async def statistics_birth_bulk(ids: RequestID, search: StatisticsBinsQuery = De
                 b["count"] += date["count"]
         bins[idx] = b
     return {"bins": bins}
+
+
+@router.get(
+    "/api/statistics/entity_types/search",
+    response_model=StatsEntityType,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts of entity types",
+)
+@cache()
+async def statistics_birth(search: Search = Depends()):
+    res = get_query_from_triplestore_v2(search, "statistics_entity_types_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    res_fin = {}
+    for ent in res:
+        res_fin[ent["entityTypeLabel"]] = ent["count"]
+    return res_fin
