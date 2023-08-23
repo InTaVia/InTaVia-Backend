@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.0...v2.0.1) (2023-08-23)
+
+
+### Bug Fixes
+
+* adds missing SPARQL query for entity_type stats endpoint ([bcb713c](https://github.com/InTaVia/InTaVia-Backend/commit/bcb713c2e867db8f5c051edce99f526c387f5e2e))
+
+
+
 # [2.0.0](https://github.com/InTaVia/InTaVia-Backend/compare/v1.0.0...v2.0.0) (2023-08-23)
 
 
@@ -46,24 +55,6 @@
 ### Bug Fixes
 
 * fixes queries for related entities ([603c2d8](https://github.com/InTaVia/InTaVia-Backend/commit/603c2d81e7bc2cbb1786b03c5807ed331861e608))
-
-
-
-# [0.5.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.4.1...v0.5.0) (2023-07-13)
-
-
-### Bug Fixes
-
-* adapts events search filter for related entities to provided ([3be8c12](https://github.com/InTaVia/InTaVia-Backend/commit/3be8c1247d4691c11d9eeb5984a1482228285091)), closes [#181](https://github.com/InTaVia/InTaVia-Backend/issues/181)
-* adds fix for related entities search in entities route ([1854a60](https://github.com/InTaVia/InTaVia-Backend/commit/1854a608b822c1dc374d9a383cf2379ed10c5db2)), closes [#181](https://github.com/InTaVia/InTaVia-Backend/issues/181)
-* adds outdated NG to get the roles back ([0840dd0](https://github.com/InTaVia/InTaVia-Backend/commit/0840dd00e7b364937571402eb81a26bcc7c0df16))
-* fixes an issue with vocabs in search not showing up ([9ca2877](https://github.com/InTaVia/InTaVia-Backend/commit/9ca2877fc21ed53f77dc13d22de2d0ec540b984b))
-* removes restriction to Eevent_role subclasses ([465e2c9](https://github.com/InTaVia/InTaVia-Backend/commit/465e2c9964e93d950d92408893eed4755e015d5d))
-
-
-### Features
-
-* adds sameAs query parameter and filters in SPARQL query ([74c3535](https://github.com/InTaVia/InTaVia-Backend/commit/74c35351c8d9a587dc10b3d9cc3fa04a6e062e07)), closes [#182](https://github.com/InTaVia/InTaVia-Backend/issues/182)
 
 
 
