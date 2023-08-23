@@ -422,7 +422,13 @@ class StatsEntityType(BaseModel):
     person: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="personCount"))
     place: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="placeCount"))
     group: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="groupCount"))
-    culturalHeritageObject: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="culturalHeritageObjectCount"))
+    culturalHeritageObject: PositiveInt = Field(default=0, alias="cultural-heritage-object", rdfconfig=FieldConfigurationRDF(path="culturalHeritageObjectCount"))
+
+    class Config:
+        RDF_utils_catch_errors = True
+        RDF_utils_error_field_name = "errors"
+        RDF_utils_move_errors_to_top = True
+        allow_population_by_field_name = True
 
 
 EntityEventRelation.update_forward_refs()
