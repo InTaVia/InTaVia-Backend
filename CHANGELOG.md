@@ -1,3 +1,12 @@
+## [2.0.2](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.1...v2.0.2) (2023-08-31)
+
+
+### Bug Fixes
+
+* converts none valid uris to valid to fix validation ([74a67e3](https://github.com/InTaVia/InTaVia-Backend/commit/74a67e3b8e17abfd6469038f8fdc7925689afad6)), closes [#196](https://github.com/InTaVia/InTaVia-Backend/issues/196)
+
+
+
 ## [2.0.1](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.0...v2.0.1) (2023-08-23)
 
 
@@ -46,15 +55,6 @@
 ### Bug Fixes
 
 * fixes an issue with the pagination ([5b06d2f](https://github.com/InTaVia/InTaVia-Backend/commit/5b06d2f571185842b70d003ec4b9b07e6ddc52a3)), closes [#185](https://github.com/InTaVia/InTaVia-Backend/issues/185)
-
-
-
-## [0.5.1](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.0...v0.5.1) (2023-08-18)
-
-
-### Bug Fixes
-
-* fixes queries for related entities ([603c2d8](https://github.com/InTaVia/InTaVia-Backend/commit/603c2d81e7bc2cbb1786b03c5807ed331861e608))
 
 
 
