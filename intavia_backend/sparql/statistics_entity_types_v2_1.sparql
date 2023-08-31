@@ -6,6 +6,9 @@ PREFIX idmcore: <http://www.intavia.eu/idm-core/>
 PREFIX bioc: <http://ldf.fi/schema/bioc/> 
 
 SELECT ?entityTypeLabel (COUNT(DISTINCT ?entity) as ?count)
+
+{% include 'add_datasets_v2_1.sparql' %}
+
 WHERE {
 
     {% include 'entity_type_bindings_v2_1.sparql' %}
