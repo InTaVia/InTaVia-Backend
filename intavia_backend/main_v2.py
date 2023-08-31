@@ -3,7 +3,7 @@ import datetime
 import math
 import dateutil
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi_cache.decorator import cache
+from .intavia_cache import cache
 import requests
 
 from fastapi_versioning import version, versioned_api_route
