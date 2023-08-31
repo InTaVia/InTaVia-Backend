@@ -85,6 +85,9 @@ def pp_id_provider(field, item, data):
             it = "/".join(it["id"].split("/")[:-1])
         else:
             it = it["id"]
+        test_uri_valid = re.match(r"^(https?://.+[a-z])([0-9]+$)", it)
+        if test_uri_valid: #TODO: this is a hack, should be fixed in the data (none-valid URIs should be removed)
+            it = f"{test_uri_valid.group(1)}/{test_uri_valid.group(2)}"
         data["url"] = it
         for k, v in linked_id_providers.items():
             if v["baseUrl"] in it:
@@ -200,7 +203,7 @@ class IntaViaBackendBaseModel(RDFUtilsModelBaseClass):
         RDF_utils_move_errors_to_top = True
 
 
-class LinkedId(BaseModel):
+class LinkedId(IntaViaBackendBaseModel):
     label: str
     url: HttpUrl
 

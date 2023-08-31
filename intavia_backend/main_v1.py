@@ -22,7 +22,7 @@ import dateutil
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from fastapi_cache.decorator import cache
+from .intavia_cache import cache
 from .utils import get_query_from_triplestore
 
 
