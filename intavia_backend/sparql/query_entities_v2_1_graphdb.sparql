@@ -1,0 +1,83 @@
+?entity_proxy (crm:P1_is_identified_by/rdfs:label)|rdfs:label ?entityLabelSearch .
+{%- if q -%}
+?entityLabelSearch onto:fts "{{q}}" .
+{%- endif -%}
+{%- if sameas -%}
+    {%- for uri in sameas -%}
+    {?entity_proxy owl:sameAs <{{uri}}> }
+    {% if not loop.last %}UNION{% endif %}
+    {%- endfor -%}
+{%- endif -%}
+{%- if occupation -%}
+    ?entity_proxy bioc:has_occupation ?occupation1 . 
+    ?occupation1 rdfs:label ?occupationLabel1 .
+    ?occupationLabel1 onto:fts "{{occupation}}" .
+{%- endif -%}
+{%- if occupations_id -%}
+    {%- for occ in occupations_id -%}
+        {?entity_proxy bioc:has_occupation <{{occ}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {%- endfor -%}
+{%- endif -%}
+{%- if born_before -%}
+    ?bornBeforeEvent a crm:E67_Birth .
+    ?bornBeforeEvent crm:P98_brought_into_life ?entity_proxy .
+    ?bornBeforeEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?bornBeforeFilter .
+    FILTER(?bornBeforeFilter < xsd:dateTime("{{born_before}}"))
+{%- endif -%}
+{%- if born_after -%}
+    ?bornAfterEvent a crm:E67_Birth .
+    ?bornAfterEvent crm:P98_brought_into_life ?entity_proxy .
+    ?bornAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?bornAfterFilter .
+    FILTER(?bornAfterFilter > xsd:dateTime("{{born_after}}"))
+{%- endif -%}
+{%- if died_before -%}
+    ?diedBeforeEvent a crm:E69_Death .
+    ?diedBeforeEvent crm:P100_was_death_of ?entity_proxy .
+    ?diedBeforeEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedBeforeFilter .
+    FILTER(?diedBeforeFilter < xsd:dateTime("{{died_before}}"))
+{%- endif -%}
+{%- if died_after -%}
+    ?diedAfterEvent a crm:E69_Death .
+    ?diedAfterEvent crm:P100_was_death_of ?entity_proxy .
+    ?diedAfterEvent crm:P4_has_time-span/(crm:P82a_begin_of_the_begin|crm:P82b_end_of_the_end) ?diedAfterFilter .
+    FILTER(?diedAfterFilter > xsd:dateTime("{{died_after}}"))
+{%- endif -%}
+{%- if gender -%}
+    ?entity_proxy bioc:has_gender|bioc:gender bioc:{{gender.name}} .
+{%- endif -%}
+{%- if gender_id -%}
+    ?entity_proxy bioc:has_gender|bioc:gender <{{gender_id}}> .
+{%- endif -%}
+{%- if related_entity -%}
+?entity_proxy bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role ?event .
+    ?event (crm:P7_took_place_at|(bioc:had_participant_in_role/^bioc:bearer_of)) ?evEntity .  
+        {?evEntity crm:P1_is_identified_by ?evEntityAppelation .
+                ?evEntityAppelation a crm:E33_E41_Linguistic_Appellation .
+                ?evEntityAppelation rdfs:label ?evEntityLabel } UNION {
+                    ?evEntity rdfs:label ?evEntityLabel }
+    ?evEntityLabel onto:fts "{{related_entity}}" .
+{%- endif -%}
+{%- if related_entities_id -%}
+?entity_proxy bioc:bearer_of ?role . ?role ^bioc:had_participant_in_role|^bioc:occured_in_the_presence_of_in_role ?event .
+    {SELECT ?event
+    WHERE {
+    {%- for entity in related_entities_id -%}
+        {?event (crm:P7_took_place_at|((bioc:had_participant_in_role|bioc:occured_in_the_presence_of_in_role)/^bioc:bearer_of))/idmcore:proxy_for <{{entity}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {%- endfor -%}
+    }
+        }
+{%- endif -%}
+{%- if event_role -%}
+?entity_proxy bioc:bearer_of ?role .
+    ?role a/rdfs:label ?roleLabel .
+    ?roleLabel onto:fts "{{event_role}}" .
+{%- endif -%}
+{%- if event_roles_id -%}
+?entity_proxy bioc:bearer_of ?role .
+    {%- for role in event_roles_id -%}
+        {?role a <{{role}}>}
+        {% if not loop.last %}UNION{% endif %}
+        {%- endfor -%}
+{%- endif -%}

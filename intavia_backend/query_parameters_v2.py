@@ -29,7 +29,7 @@ def toggle_urls_encoding(url):
 
 
 class DatasetsEnum(str, Enum):
-    APIS = "http://apis.acdh.oeaw.ac.at/data/v5"
+    APIS = "https://apis.acdh.oeaw.ac.at/data"
     BSampo = "http://ldf.fi/nbf/data"
     BNet = "http://data.biographynet.nl"
     SBI = "http://www.intavia.eu/sbi"
@@ -215,11 +215,11 @@ class Search_Base:
             self.__setattr__(
                 "event_roles_id", [toggle_urls_encoding(x) for x in self.event_roles_id]
             )
-        if self.q is not None:
-            if not self.q.startswith('"') and not self.q.endswith('"'):
-                self.__setattr__("q", f"*{self.q}*")
-            else:
-                self.__setattr__("q", self.q[1:-1])
+        # if self.q is not None:
+        #     if not self.q.startswith('"') and not self.q.endswith('"'):
+        #         self.__setattr__("q", f"*{self.q}*")
+        #     else:
+        #         self.__setattr__("q", self.q[1:-1])
 
 
 @dataclasses.dataclass(kw_only=True)

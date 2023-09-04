@@ -1,0 +1,31 @@
+?entity_proxy idmcore:proxy_for ?entity .
+{%- if kind -%}
+    {%- for k1 in kind -%}
+    {?entity_proxy a {{k1.get_rdf_uri()}}
+    BIND("{{k1}}" AS ?entityTypeLabel)
+    {%- if k1 == 'person' -%}
+        ?entity_proxy a idmcore:Person_Proxy .
+    {%- elif k1 == 'group' -%}
+        ?entity_proxy a crm:E74_Group .       
+    {%- elif k1 == 'place' -%}
+        ?entity_proxy a crm:E53_Place . 
+    {%- elif k1 == 'cultural-heritage-object' -%}
+        ?entity_proxy a idm:CHO_Proxy .
+    {%- endif -%}
+        {% if not loop.last %}UNION{% endif %}
+    {%- endfor -%}
+    }
+{%- else -%}
+{?entity_proxy a idmcore:Person_Proxy 
+BIND("person" AS ?entityTypeLabel)
+} UNION {
+?entity_proxy a crm:E74_Group 
+BIND("group" AS ?entityTypeLabel)
+} UNION {
+?entity_proxy a crm:E53_Place 
+BIND("place" AS ?entityTypeLabel)
+} UNION {
+    ?entity_proxy a idm:CHO_Proxy
+    BIND("cultural-heritage-object" AS ?entityTypeLabel)
+  }
+{%- endif -%}
