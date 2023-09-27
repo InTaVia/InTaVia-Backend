@@ -433,6 +433,20 @@ class StatsEntityType(BaseModel):
         RDF_utils_move_errors_to_top = True
         allow_population_by_field_name = True
 
+class StatsDataset(BaseModel):
+    APIS: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="apisCount"))
+    BNet: PositiveInt = Field(default=0, alias="BiographyNET", rdfconfig=FieldConfigurationRDF(path="biographynetCount"))
+    BS: PositiveInt = Field(default=0, alias="Biography Sampo", rdfconfig=FieldConfigurationRDF(path="bsCount"))
+    SBI: PositiveInt = Field(default=0, alias="Slovenska biografija", rdfconfig=FieldConfigurationRDF(path="sbiCount"))
+    wikidata: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="wikidataCount"))
+    europeana: PositiveInt = Field(default=0, rdfconfig=FieldConfigurationRDF(path="europeanaCount"))
+    
+    class Config:
+        RDF_utils_catch_errors = True
+        RDF_utils_error_field_name = "errors"
+        RDF_utils_move_errors_to_top = True
+        allow_population_by_field_name = True
+
 
 EntityEventRelation.update_forward_refs()
 Event.update_forward_refs()

@@ -21,6 +21,7 @@ from intavia_backend.models_v2 import (
     StatisticsOccupationPrelim,
     StatisticsOccupationPrelimList,
     StatisticsOccupationReturn,
+    StatsDataset,
     StatsEntityType,
     VocabularyEntry,
 )
@@ -644,6 +645,23 @@ async def statistics_entity_type(search: Search = Depends()):
 @cache()
 async def statistics_entity_type_bulk(ids: RequestID):
     res = get_query_from_triplestore_v2({"ids": ids.id}, "statistics_entity_types_v2_1.sparql")
+    res = flatten_rdf_data(res)
+    res_fin = {}
+    for ent in res:
+        res_fin[ent["entityTypeLabel"]] = ent["count"]
+    return res_fin
+
+
+@router.get(
+    "/api/statistics/datasets/search",
+    response_model=StatsDataset,
+    response_model_exclude_none=True,
+    tags=["Statistics"],
+    description="Endpoint that returns counts of entities per dataset",
+)
+@cache()
+async def statistics_dataset(search: Search = Depends()):
+    res = get_query_from_triplestore_v2(search, "statistics_dataset_v2_1.sparql")
     res = flatten_rdf_data(res)
     res_fin = {}
     for ent in res:
