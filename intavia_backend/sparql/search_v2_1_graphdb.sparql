@@ -5,7 +5,7 @@ PREFIX idm: <https://www.intavia.eu/idm/>
 PREFIX idmcore: <http://www.intavia.eu/idm-core/>
 PREFIX bioc: <http://ldf.fi/schema/bioc/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX onto: <http://www.ontotext.com/>
+PREFIX text: <http://jena.apache.org/text#>
 
 SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
 ?event ?linkedIds (?entityCount as ?count) ?geometry ?role_type (?entity as ?source) ?mediaObject ?biographyObject

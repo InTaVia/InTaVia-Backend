@@ -1,6 +1,6 @@
-?entity_proxy (crm:P1_is_identified_by/rdfs:label)|rdfs:label ?entityLabelSearch .
-{%- if q -%}
-?entityLabelSearch onto:fts "{{q}}" .
+#?entity_proxy (crm:P1_is_identified_by/rdfs:label)|rdfs:label ?entityLabelSearch .
+{% if q %}
+?entity_proxy text:query ( rdfs:label "{{q}}" ) .
 {%- endif -%}
 {%- if sameas -%}
     {%- for uri in sameas -%}
@@ -11,7 +11,7 @@
 {%- if occupation -%}
     ?entity_proxy bioc:has_occupation ?occupation1 . 
     ?occupation1 rdfs:label ?occupationLabel1 .
-    ?occupationLabel1 onto:fts "{{occupation}}" .
+    ?occupationLabel1 text:query "{{occupation}}" .
 {%- endif -%}
 {%- if occupations_id -%}
     {%- for occ in occupations_id -%}
