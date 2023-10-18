@@ -15,4 +15,5 @@ OPTIONAL {?entity_proxy bioc:bearer_of ?role .
 OPTIONAL {?entity_proxy crm:P168_place_is_defined_by/crm:P168_place_is_defined_by ?geometry}
 OPTIONAL {?entity_proxy ^crm:P70_documents ?mediaObject }
 OPTIONAL {?entity_proxy idmcore:bio_link ?biographyObject }
+OPTIONAL {?entity_proxy ore:proxyIn ?biographyObject . ?biographyObject bgn:hasBioParts ?bioparts . ?bioparts bgn:text ?biotext . FILTER NOT EXISTS { ?bioparts bgn:hasFigure ?fig. } }
 BIND(COALESCE(?entityLabelPre, ?defaultEntityLabel) AS ?entityLabel)

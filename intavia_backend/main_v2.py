@@ -269,6 +269,8 @@ async def bulk_retrieve_biography_objects(
             r1 = requests.get(r["bioText"])
             if r1.status_code == 200:
                 r_fin["text"] = r1.json()["text"]
+        elif "biotext" in r:
+            r_fin["text"] = r["biotext"]
         if "bioAbstract" in res[0]:
             r2 = requests.get(r["bioAbstract"])
             if r2.status_code == 200:
@@ -296,6 +298,7 @@ async def retrieve_biography(biography_id: str, query: Base = Depends()):
     query_dict["bioID"] = biography_id_decoded
     res = get_query_from_triplestore_v2(query_dict, "get_biography_v2_1.sparql")
     # res = FakeList(**{"results": flatten_rdf_data(res)})
+
     if len(res) == 0:
         raise HTTPException(status_code=404, detail="Item not found")
     fin = {"id": biography_id}
@@ -303,6 +306,8 @@ async def retrieve_biography(biography_id: str, query: Base = Depends()):
         r1 = requests.get(res[0]["bioText"]["value"])
         if r1.status_code == 200:
             fin["text"] = r1.json()["text"]
+    elif "biotext" in res[0]:
+        fin["text"] = res[0]["biotext"]["value"]
     if "bioAbstract" in res[0]:
         r2 = requests.get(res[0]["bioAbstract"]["value"])
         if r2.status_code == 200:

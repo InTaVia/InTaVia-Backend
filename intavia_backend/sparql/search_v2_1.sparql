@@ -6,6 +6,8 @@ PREFIX idm: <https://www.intavia.eu/idm/>
 PREFIX idmcore: <http://www.intavia.eu/idm-core/>
 PREFIX bioc: <http://ldf.fi/schema/bioc/>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX ore: <http://www.openarchives.org/ore/terms/>
+PREFIX bgn: <http://data.biographynet.nl/rdf/>
 
 SELECT ?entity ?entityType ?entityTypeLabel ?entityLabel ?gender ?genderLabel ?nationalityLabel ?occupation ?occupationLabel 
 ?event ?linkedIds ?count ?geometry ?role_type (?entity as ?source) ?mediaObject ?biographyObject
