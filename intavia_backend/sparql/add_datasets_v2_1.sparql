@@ -4,6 +4,9 @@ FROM <http://www.intavia.eu/graphs/provided_persons>
 FROM <http://www.intavia.eu/graphs/provided_groups>
 FROM <http://www.intavia.eu/graphs/provided_places>
 FROM <http://www.intavia.eu/graphs/provided_cho>
+FROM <http://www.intavia.org/graphs/person-id-enrichment>
+FROM <http://www.intavia.org/graphs/place-id-enrichment>
+FROM <http://www.intavia.org/graphs/group-id-enrichment>
 {% for dataset in datasets %}
 FROM <{{dataset.value}}>
 {% endfor %}
