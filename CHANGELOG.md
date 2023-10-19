@@ -1,3 +1,12 @@
+## [2.0.3](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.2...v2.0.3) (2023-10-19)
+
+
+### Bug Fixes
+
+* fixes an error due to missing prefixes ([9776346](https://github.com/InTaVia/InTaVia-Backend/commit/9776346f4d83cebff825652ca785573ef4cfef06))
+
+
+
 ## [2.0.2](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.1...v2.0.2) (2023-08-31)
 
 
@@ -46,15 +55,6 @@
 ### BREAKING CHANGES
 
 * changes the swagger definition to the format agreed in #166
-
-
-
-## [0.5.2](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.1...v0.5.2) (2023-08-21)
-
-
-### Bug Fixes
-
-* fixes an issue with the pagination ([5b06d2f](https://github.com/InTaVia/InTaVia-Backend/commit/5b06d2f571185842b70d003ec4b9b07e6ddc52a3)), closes [#185](https://github.com/InTaVia/InTaVia-Backend/issues/185)
 
 
 
