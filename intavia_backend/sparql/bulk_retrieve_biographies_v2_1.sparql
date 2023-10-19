@@ -1,11 +1,16 @@
 PREFIX idmcore: <http://www.intavia.eu/idm-core/>
+PREFIX bgn: <http://data.biographynet.nl/rdf/>
 
-SELECT ?bioText ?bioAbstract ?bioID 
+SELECT ?bioText ?bioAbstract ?biotext ?bioID
 
 {% include 'add_datasets_v2_1.sparql' %}
 
 WHERE {
     VALUES ?bioID { {% for id in ids %}<{{id}}> {% endfor %} }
-    ?bioID idmcore:full_bio_link ?bioText .
-    OPTIONAL {?bioID idmcore:short_bio_link ?bioAbstract .}
+    { ?bioID idmcore:full_bio_link ?bioText .
+    OPTIONAL {?bioID idmcore:short_bio_link ?bioAbstract .} }
+    UNION
+    { ?bioID bgn:hasBioParts ?bioparts .
+    ?bioparts bgn:text ?biotext .
+    FILTER NOT EXISTS { ?bioparts bgn:hasFigure ?fig . } }
 }
