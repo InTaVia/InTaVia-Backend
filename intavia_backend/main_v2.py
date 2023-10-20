@@ -271,7 +271,7 @@ async def bulk_retrieve_biography_objects(
                 r_fin["text"] = r1.json()["text"]
         elif "biotext" in r:
             r_fin["text"] = r["biotext"]
-        if "bioAbstract" in res[0]:
+        if "bioAbstract" in r:
             r2 = requests.get(r["bioAbstract"])
             if r2.status_code == 200:
                 r_fin["abstract"] = r2.json()["text"]
