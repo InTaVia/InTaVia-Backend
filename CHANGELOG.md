@@ -1,3 +1,12 @@
+## [2.0.4](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.3...v2.0.4) (2023-10-20)
+
+
+### Bug Fixes
+
+* fixes an error in the biographies bulk retrieval ([91a7960](https://github.com/InTaVia/InTaVia-Backend/commit/91a79603f5c918bfb7e429f3616b73a9263755a4)), closes [#205](https://github.com/InTaVia/InTaVia-Backend/issues/205)
+
+
+
 ## [2.0.3](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.2...v2.0.3) (2023-10-19)
 
 
@@ -43,18 +52,6 @@
 ### BREAKING CHANGES
 
 * changes swagger definition of return shapes
-
-
-
-# [1.0.0](https://github.com/InTaVia/InTaVia-Backend/compare/v0.5.2...v1.0.0) (2023-08-21)
-
-
-* fix!: fixes linkedIds to new format ([43aa7f1](https://github.com/InTaVia/InTaVia-Backend/commit/43aa7f1b1e386a9f127e1d434e228ab06a8ae76a)), closes [#166](https://github.com/InTaVia/InTaVia-Backend/issues/166)
-
-
-### BREAKING CHANGES
-
-* changes the swagger definition to the format agreed in #166
 
 
 
