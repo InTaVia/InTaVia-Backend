@@ -369,8 +369,11 @@ class PaginatedResponseMedia(PaginatedResponseBase):
     results: typing.List[MediaResource] = []
 
 
-class PaginatedResponseBiography(PaginatedResponseBase):
-    results: typing.List[Biography] = []
+class PaginatedResponseBiography(BaseModel):
+    count: NonNegativeInt = 0
+    page: NonNegativeInt = 0
+    pages: NonNegativeInt = 0
+    results: typing.List["Biography"] = []
 
 
 class PaginatedResponseEvents(PaginatedResponseBase):
