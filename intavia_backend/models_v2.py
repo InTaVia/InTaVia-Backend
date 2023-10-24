@@ -134,8 +134,8 @@ def pp_lat_long(field, item, data):
         ]
     for it in item:
         if it.startswith("Point"):
-            lst_item = it.split(" ")
-            item = Point(coordinates=[lst_item[2], lst_item[3]])
+            lst_item = re.findall(r"([0-9\.]+)", it)
+            item = Point(coordinates=[lst_item[0], lst_item[1]])
     return item
 
 
