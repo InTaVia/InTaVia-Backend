@@ -1,3 +1,12 @@
+## [2.0.5](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.4...v2.0.5) (2023-10-24)
+
+
+### Bug Fixes
+
+* fixes an error where lng/lat were not correctly extracted ([3087b13](https://github.com/InTaVia/InTaVia-Backend/commit/3087b1325417bb4abc33d59d8adbf74a330dfcbd)), closes [#206](https://github.com/InTaVia/InTaVia-Backend/issues/206)
+
+
+
 ## [2.0.4](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.3...v2.0.4) (2023-10-20)
 
 
@@ -31,27 +40,6 @@
 ### Bug Fixes
 
 * adds missing SPARQL query for entity_type stats endpoint ([bcb713c](https://github.com/InTaVia/InTaVia-Backend/commit/bcb713c2e867db8f5c051edce99f526c387f5e2e))
-
-
-
-# [2.0.0](https://github.com/InTaVia/InTaVia-Backend/compare/v1.0.0...v2.0.0) (2023-08-23)
-
-
-### Bug Fixes
-
-* adapts entity-type-model to allow for hyphens in key ([c209647](https://github.com/InTaVia/InTaVia-Backend/commit/c209647f97777051fa3acff420ba568143f3d4af))
-
-
-### Features
-
-* adds model for entityType stats endpoint ([f8572dc](https://github.com/InTaVia/InTaVia-Backend/commit/f8572dc565d0884e97306bdecd8cb7e1d76ec32c))
-* adds route for entity type stats ([a063969](https://github.com/InTaVia/InTaVia-Backend/commit/a063969756145bbe423f83e46395f311ae522a0e))
-* adds statisticts entity type bulk route ([a6f3660](https://github.com/InTaVia/InTaVia-Backend/commit/a6f36609eb561e2832a9b9b1308b7ff666033c13))
-
-
-### BREAKING CHANGES
-
-* changes swagger definition of return shapes
 
 
 
