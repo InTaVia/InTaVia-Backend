@@ -1,0 +1,10 @@
+
+FROM <http://www.intavia.eu/idm-classes/>
+FROM <http://www.intavia.eu/idm-core/>
+FROM <http://www.intavia.eu/graphs/provided_persons>
+FROM <http://www.intavia.eu/graphs/provided_groups>
+FROM <http://www.intavia.eu/graphs/provided_places>
+FROM <http://www.intavia.eu/graphs/provided_cho>
+{% for dataset in datasets %}
+FROM NAMED <{{dataset.value}}>
+{% endfor %}

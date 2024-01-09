@@ -35,7 +35,7 @@ class DatasetsEnum(str, Enum):
     SBI = "http://www.intavia.eu/sbi"
     CHO_test = "http://data.acdh.oeaw.ac.at/intavia/cho/v6"
     CHO_test2 = "http://data.acdh.oeaw.ac.at/intavia/cho/v1"
-    EDM_test = "http://edm-enrich2023-06-14.intavia.eu"
+    EDM_test = "http://europeana_2023-10-27.intavia.eu"
 
 
 class GenderqueryEnum(str, Enum):
@@ -68,6 +68,7 @@ class Base:
             DatasetsEnum.SBI,
             DatasetsEnum.CHO_test,
             DatasetsEnum.BNet,
+            DatasetsEnum.EDM_test
         ],
     )
 
