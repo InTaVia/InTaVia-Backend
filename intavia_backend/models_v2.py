@@ -93,7 +93,7 @@ def pp_id_provider(field, item, data):
             if v["baseUrl"] in it:
                data["label"] = v["label"] 
         if not "label" in data:
-            data["label"] = it
+            data["label"] = it.split("/")[2]
         res.append(data)
     return res
 

@@ -26,5 +26,8 @@ BIND("place" AS ?entityTypeLabel)
 } UNION {
     ?entity_proxy a idm:CHO_Proxy
     BIND("cultural-heritage-object" AS ?entityTypeLabel)
+  } UNION {
+    ?entity_proxy a idm2:CHO_Proxy
+    BIND("cultural-heritage-object" AS ?entityTypeLabel)
   }
 {%- endif -%}
