@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: FastAPI",
+            "name": "local blazegraph",
             "type": "python",
             "request": "launch",
             "module": "uvicorn",
@@ -13,7 +13,20 @@
                 "intavia_backend.main:app"
             ],
             "jinja": true,
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {"SPARQL_ENDPOINT": "http://db:8080/bigdata/sparql"},
+        },
+        {
+            "name": "InTaVia production blazegraph",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "intavia_backend.main:app"
+            ],
+            "jinja": true,
+            "justMyCode": true,
+            "env": {"SPARQL_ENDPOINT": "https://intavia-ts.acdh-dev.oeaw.ac.at/sparql"},
         }
     ]
 }
