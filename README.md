@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10853039.svg)](https://doi.org/10.5281/zenodo.10853039)
+
 # InTaVia Backend
 The InTaVia backend provides a RestAPI to the InTaVia triplestore. It expects the data in the blazegraph triplestore in the [IDM-RDF](https://github.com/InTaVia/idm-rdf/) format.
 
