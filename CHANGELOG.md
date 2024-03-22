@@ -1,3 +1,14 @@
+## [2.0.6](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.5...v2.0.6) (2024-03-22)
+
+
+### Bug Fixes
+
+* adds env file for standalone docker-compose [skip ci] ([ac99e3d](https://github.com/InTaVia/InTaVia-Backend/commit/ac99e3d29643637b810c27a203d0d5f3bfe8d958))
+* fixes devcontainer.json and docker compose for local dev [skip ci] ([76d47b8](https://github.com/InTaVia/InTaVia-Backend/commit/76d47b85587ee8d40bc0cba0daa8c7160717e0d9))
+* removes main entrypoint that is not used anymore; updates lock file ([ad6ab8d](https://github.com/InTaVia/InTaVia-Backend/commit/ad6ab8daa52c471f2575a0254fd1f7b9167c376f))
+
+
+
 ## [2.0.5](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.4...v2.0.5) (2023-10-24)
 
 
@@ -31,15 +42,6 @@
 ### Bug Fixes
 
 * converts none valid uris to valid to fix validation ([74a67e3](https://github.com/InTaVia/InTaVia-Backend/commit/74a67e3b8e17abfd6469038f8fdc7925689afad6)), closes [#196](https://github.com/InTaVia/InTaVia-Backend/issues/196)
-
-
-
-## [2.0.1](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.0...v2.0.1) (2023-08-23)
-
-
-### Bug Fixes
-
-* adds missing SPARQL query for entity_type stats endpoint ([bcb713c](https://github.com/InTaVia/InTaVia-Backend/commit/bcb713c2e867db8f5c051edce99f526c387f5e2e))
 
 
 
