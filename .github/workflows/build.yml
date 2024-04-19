@@ -3,6 +3,7 @@ name: Build Image
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   setup_workflow_env:
