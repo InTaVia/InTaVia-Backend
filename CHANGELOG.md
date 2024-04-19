@@ -1,3 +1,12 @@
+## [2.0.7](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.6...v2.0.7) (2024-04-19)
+
+
+### Bug Fixes
+
+* add manual deploy button to action ([4b451c7](https://github.com/InTaVia/InTaVia-Backend/commit/4b451c7a9175f50a75863cc9ebe58acf6499cf16))
+
+
+
 ## [2.0.6](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.5...v2.0.6) (2024-03-22)
 
 
@@ -33,15 +42,6 @@
 ### Bug Fixes
 
 * fixes an error due to missing prefixes ([9776346](https://github.com/InTaVia/InTaVia-Backend/commit/9776346f4d83cebff825652ca785573ef4cfef06))
-
-
-
-## [2.0.2](https://github.com/InTaVia/InTaVia-Backend/compare/v2.0.1...v2.0.2) (2023-08-31)
-
-
-### Bug Fixes
-
-* converts none valid uris to valid to fix validation ([74a67e3](https://github.com/InTaVia/InTaVia-Backend/commit/74a67e3b8e17abfd6469038f8fdc7925689afad6)), closes [#196](https://github.com/InTaVia/InTaVia-Backend/issues/196)
 
 
 
